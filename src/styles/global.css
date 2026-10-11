@@ -1,0 +1,657 @@
+/* ============================================================
+   JSL Polish · 全局外壳（顶部栏 / 导航 / 页脚 / 通用元素）
+   仅作用于集思录社区（WeCenter）页面：html.jsl.jsl-community
+   ============================================================ */
+
+html.jsl.jsl-community {
+  color-scheme: light;
+}
+html.jsl.jsl-community[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+html.jsl.jsl-community ::selection {
+  background: var(--jsl-accent-weak);
+}
+
+/* ---------- 基础：底色、字体 ---------- */
+
+html.jsl.jsl-community body {
+  background: var(--jsl-bg) !important;
+  color: var(--jsl-text);
+  font-family: var(--jsl-font);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 旧浏览器升级提示，一并安静 */
+html.jsl.jsl-community #browser_suggest {
+  display: none !important;
+}
+
+/* ---------- 顶部：悬浮圆角导航条（手绘稿：单行功能 + 主题切换 + 登录注册） ----------
+   站方原本是"深色条 + 白色条"两行通栏，重排为一条不随通栏的悬浮圆角条：
+   logo + 页面链接 + 搜索 + 发起 + 主题切换 + 登录注册 */
+
+html.jsl.jsl-community .aw-top-menu-wrap {
+  position: relative;
+  /* 站方给 .aw-item 设了 z-index:1000，header 需压过它（含下拉浮层） */
+  z-index: 1200;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  /* 站方无全局 border-box，width:100% + padding 会溢出视口 */
+  box-sizing: border-box;
+  /* 通栏附着在顶部，两个主题共用同一布局，只换配色 */
+  width: 100% !important;
+  margin: 0 !important;
+  /* 左右内边距把内容约束进 1200 容器；左边 +56 让「集思录」字标与列表卡片左缘对齐 */
+  padding: 10px max(18px, calc((100% - 1200px) / 2 + 18px)) 12px
+    max(18px, calc((100% - 1200px) / 2 + 56px));
+  /* 顶栏所有子项的统一间距；各自的零散 margin 全部清零 */
+  gap: 10px;
+  row-gap: 12px;
+  background: var(--jsl-header-bg) !important;
+}
+
+/* 打平站方嵌套：wecenter / row / nav-wrap / nav-middle 不生成盒子 */
+html.jsl.jsl-community .aw-top-menu-wrap .aw-wecenter,
+html.jsl.jsl-community .aw-top-menu-wrap .row,
+html.jsl.jsl-community .aw-top-menu-wrap .span10.aw-nav-wrap,
+html.jsl.jsl-community .aw-top-menu-wrap .aw-nav-middle {
+  display: contents !important;
+}
+
+html.jsl.jsl-community .aw-top-menu-wrap .aw-nav-left,
+html.jsl.jsl-community .aw-top-menu-wrap .aw-nav-right {
+  display: none !important;
+}
+
+/* -- 1. logo 文字标 + 顶栏页面链接（首页/日历/数据/社区） -- */
+
+html.jsl.jsl-community .span6.aw-logo {
+  order: 0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  margin: 0 !important;
+}
+
+/* 站方 logo 是不透明浅蓝底图片，放在深色条上突兀；改用文字标 */
+html.jsl.jsl-community .span6.aw-logo > a:first-child {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 12px;
+  color: var(--jsl-header-text) !important;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-decoration: none;
+}
+
+html.jsl.jsl-community .span6.aw-logo > a:first-child img {
+  display: none !important;
+}
+
+html.jsl.jsl-community .span6.aw-logo > a:first-child::before {
+  content: '集思录';
+}
+
+html.jsl.jsl-community .span6.aw-logo > a[href]:not(:first-child) {
+  display: inline-flex;
+  align-items: center;
+  /* 站方内联 margin-left:10px 与容器 gap 叠加，清零交给统一间距 */
+  margin-left: 0 !important;
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: var(--jsl-header-text-dim) !important;
+  font-size: 13px !important;
+  font-family: var(--jsl-font) !important;
+  transition:
+    color 0.12s,
+    background 0.12s;
+}
+
+html.jsl.jsl-community .span6.aw-logo > a[href]:not(:first-child):hover {
+  color: var(--jsl-header-text) !important;
+  background: var(--jsl-header-field);
+}
+
+/* 当前页选中态：与相邻链接同构（站方以 .on 标记当前位置，不再特殊着色） */
+
+/* 「首页」入口已由脚本置 hidden，但链接的 display:inline-flex 会顶掉 UA 的
+   [hidden]{display:none}，这里强制隐藏 */
+html.jsl.jsl-community .span6.aw-logo > a[hidden] {
+  display: none !important;
+}
+
+/* -- 5. 主题切换按钮（content script 注入）与登录/注册：统一 30px 描边胶囊 -- */
+
+html.jsl.jsl-community .span6.aw-login-register {
+  order: 4;
+  position: static !important;
+  top: 0 !important;
+  width: auto !important;
+  margin: 0 !important;
+  white-space: nowrap;
+}
+
+html.jsl.jsl-community .jsl-theme-toggle {
+  order: 3;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  margin: 0 !important;
+  border: 1px solid var(--jsl-header-line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--jsl-header-text-dim);
+  cursor: pointer;
+  transition:
+    color 0.12s,
+    background 0.12s,
+    border-color 0.12s;
+}
+
+html.jsl.jsl-community .jsl-theme-toggle:hover {
+  color: var(--jsl-header-text);
+  background: var(--jsl-header-field);
+  border-color: var(--jsl-header-text-dim);
+}
+
+/* 扩展总开关关闭时隐藏注入的按钮 */
+html:not(.jsl) .jsl-theme-toggle {
+  display: none !important;
+}
+
+html.jsl.jsl-community .span6.aw-login-register p.pull-right {
+  float: none !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+/* 登录/注册同款描边胶囊，高度与主题切换按钮一致 */
+html.jsl.jsl-community .span6.aw-login-register a {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 30px;
+  padding: 0 14px;
+  margin: 0 !important;
+  border: 1px solid var(--jsl-header-line);
+  border-radius: 6px;
+  color: var(--jsl-header-text) !important;
+  font-size: 13px;
+  transition:
+    color 0.12s,
+    background 0.12s,
+    border-color 0.12s;
+}
+
+html.jsl.jsl-community .span6.aw-login-register a:hover {
+  color: var(--jsl-header-text) !important;
+  background: var(--jsl-header-field);
+  border-color: var(--jsl-header-text-dim);
+}
+
+/* 登录态右侧区（通知/私信/用户名/头像） */
+html.jsl.jsl-community .aw-logined-nav a {
+  height: auto !important;
+  line-height: 1.4 !important;
+  color: var(--jsl-header-text) !important;
+  font-size: 13px;
+  text-shadow: none !important;
+}
+
+html.jsl.jsl-community .aw-logined-nav a:hover {
+  color: var(--jsl-header-text) !important;
+}
+
+html.jsl.jsl-community .aw-logined-nav img.aw-user-head,
+html.jsl.jsl-community .aw-logined-nav .aw-user-head img {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+/* 消息/用户下拉浮层 */
+html.jsl.jsl-community .aw-logined-nav .aw-message-dropdown,
+html.jsl.jsl-community .aw-user-dropdown {
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow-pop);
+}
+
+html.jsl.jsl-community .aw-logined-nav .aw-message-dropdown a,
+html.jsl.jsl-community .aw-user-dropdown a {
+  color: var(--jsl-text-2) !important;
+}
+
+html.jsl.jsl-community .aw-logined-nav .aw-message-dropdown a:hover,
+html.jsl.jsl-community .aw-user-dropdown a:hover {
+  color: var(--jsl-accent) !important;
+  background: var(--jsl-surface-hover);
+}
+
+/* -- 2. 社区 tab（广场/用户/数据）：手绘稿移除该行，功能入口由顶栏与卡片导航承担 -- */
+
+html.jsl.jsl-community .aw-nav-main {
+  display: none !important;
+}
+
+html.jsl.jsl-community .aw-top-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  height: auto;
+}
+
+html.jsl.jsl-community .aw-top-nav > li {
+  display: flex;
+  align-items: center;
+}
+
+html.jsl.jsl-community .aw-top-nav > li > a {
+  display: inline-flex !important;
+  align-items: center;
+  /* 站方 .aw-nav-main li a 写死 width:120px，胶囊样式下必须放开 */
+  width: auto !important;
+  height: auto !important;
+  line-height: 1 !important;
+  padding: 7px 14px;
+  border-radius: 6px;
+  color: var(--jsl-text-2);
+  font-size: 13.5px;
+  border-bottom: none;
+  white-space: nowrap;
+  transition:
+    color 0.12s,
+    background 0.12s;
+}
+
+/* 选中态：与第一行统一，品牌色实底胶囊 */
+html.jsl.jsl-community .aw-top-nav > li > a.active {
+  color: #ffffff !important;
+  font-weight: 500;
+  border-bottom: none;
+  background: var(--jsl-accent) !important;
+}
+
+/* 导航条上的老式精灵图图标（三角、方块底图标），统一隐藏让文字居中 */
+html.jsl.jsl-community .aw-top-nav .aw-icon {
+  display: none !important;
+}
+
+/* 数据下拉入口 */
+html.jsl.jsl-community .aw-data-nav-dropdown {
+  position: relative;
+  width: auto !important;
+  float: none !important;
+}
+
+html.jsl.jsl-community .aw-data-nav-dropdown > a {
+  display: inline-flex !important;
+  align-items: center;
+  height: auto !important;
+  padding: 7px 14px;
+  border-radius: 6px;
+  color: var(--jsl-text-2) !important;
+  font-size: 13.5px;
+  transition:
+    color 0.12s,
+    background 0.12s;
+}
+
+html.jsl.jsl-community .aw-data-nav-dropdown > a span {
+  color: var(--jsl-accent) !important;
+  font-size: 13.5px !important;
+}
+
+/* 下拉菜单改为悬浮层，不再挤占文档流 */
+html.jsl.jsl-community .aw-data-nav-dropdown .dropdown-menu {
+  position: absolute !important;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 128px;
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow-pop);
+  padding: 6px !important;
+  margin: 0;
+}
+
+html.jsl.jsl-community .aw-data-nav-dropdown .dropdown-menu li a {
+  display: block;
+  padding: 7px 12px;
+  border-radius: var(--jsl-radius-sm);
+  color: var(--jsl-text-2) !important;
+  font-size: 13px;
+  transition:
+    background 0.1s,
+    color 0.1s;
+}
+
+html.jsl.jsl-community .aw-data-nav-dropdown .dropdown-menu li a:hover {
+  background: var(--jsl-surface-2);
+  color: var(--jsl-text) !important;
+}
+
+/* -- 3. 搜索框：深色条上的内嵌样式，第一行右侧；空间不足时优先收缩 -- */
+
+html.jsl.jsl-community .aw-search-box {
+  order: 1;
+  float: none !important;
+  flex: 0 1 240px;
+  min-width: 180px;
+  margin: 0 0 0 auto !important;
+}
+
+html.jsl.jsl-community .aw-top-menu-wrap .aw-search-box .input-append {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: var(--jsl-header-field);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 2px;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+html.jsl.jsl-community .aw-top-menu-wrap .aw-search-box .input-append:focus-within {
+  border-color: var(--jsl-header-line);
+}
+
+html.jsl.jsl-community .aw-top-menu-wrap .aw-search-box input.search-query {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 5px 10px !important;
+  width: 100%;
+  min-width: 0;
+  color: var(--jsl-header-field-text);
+  font-size: 13px;
+}
+
+html.jsl.jsl-community .aw-top-menu-wrap .aw-search-box input.search-query::placeholder {
+  color: var(--jsl-header-text-dim);
+}
+
+html.jsl.jsl-community .aw-top-menu-wrap .aw-search-box .add-on {
+  border: none !important;
+  background: transparent !important;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px !important;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--jsl-header-text-dim);
+}
+
+html.jsl.jsl-community .aw-top-menu-wrap .aw-search-box .add-on:hover {
+  color: var(--jsl-header-text);
+  background: var(--jsl-header-field);
+}
+
+/* 表单作为下拉的定位基准：撑满搜索框，让下拉与搜索框同宽对齐 */
+html.jsl.jsl-community .aw-search-box .navbar-search {
+  position: relative !important;
+  width: 100% !important;
+}
+
+html.jsl.jsl-community .aw-search-dropdown-box {
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow-pop);
+  /* 站方 left 负偏移 + 写死宽度是旧布局遗留，会让弹窗甩出搜索框；对齐搜索框同宽 */
+  left: 0 !important;
+  right: 0 !important;
+  top: 36px !important;
+  width: auto !important;
+}
+
+/* 站方下拉自带的小三角在错位修复后指向空白 */
+html.jsl.jsl-community .aw-search-dropdown-box .i-dropdown-triangle {
+  display: none !important;
+}
+
+/* -- 4. 发起按钮（圆角与收藏/关注等按钮一致） -- */
+
+html.jsl.jsl-community .aw-nav .span2.aw-pulish {
+  order: 2;
+  width: auto !important;
+  flex-shrink: 0;
+  padding: 0 !important;
+  margin: 0 !important;
+  text-align: center;
+}
+
+html.jsl.jsl-community .aw-pulish .b-start-question {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  padding: 0 16px;
+  background: var(--jsl-accent) !important;
+  background-image: none !important;
+  color: #fff !important;
+  border-radius: var(--jsl-radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  text-indent: 0 !important;
+  text-shadow: none !important;
+  transition: background 0.12s;
+}
+
+html.jsl.jsl-community .aw-pulish .b-start-question:hover {
+  background: var(--jsl-accent-hover) !important;
+}
+
+/* ---------- 主容器：去掉站方浅灰底、加宽利用宽屏 ---------- */
+
+/* 所有 .aw-wecenter（顶栏/导航/主容器/页脚）统一宽度，避免窄容器错位 */
+html.jsl.jsl-community .aw-wecenter {
+  width: 1200px !important;
+  max-width: 95vw !important;
+}
+
+/* 站方：.aw-container{background:#f7f7f7;border:1px solid #c9c9c9} */
+html.jsl.jsl-community .aw-container {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* 站方：.aw-container-wrap{background:#E7EFF3} */
+html.jsl.jsl-community .aw-container-wrap {
+  background: transparent !important;
+}
+
+html.jsl.jsl-community .aw-top-menu-wrap .row,
+html.jsl.jsl-community .aw-nav > .row,
+html.jsl.jsl-community .row.aw-content-wrap,
+html.jsl.jsl-community .row.category {
+  width: auto !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* 内容区：主列自适应 + 侧栏定宽（替换 BS2 固定宽度浮动布局） */
+html.jsl.jsl-community .row.aw-content-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  background: transparent !important;
+}
+
+html.jsl.jsl-community .aw-content-wrap > .span9.aw-main-content {
+  float: none !important;
+  width: auto !important;
+  flex: 1;
+  min-width: 0;
+}
+
+html.jsl.jsl-community .aw-content-wrap > .span3.aw-side-bar {
+  float: none !important;
+  width: 280px !important;
+  flex-shrink: 0;
+  padding: 11px 0 0 !important;
+}
+
+/* 公告滚动行 / 列表页分类条（全部/债券·可转债/…，站方原样为黑 chip + 蓝链 + 红字） */
+html.jsl.jsl-community .row.category {
+  padding: 10px 0 0;
+  font-size: 12px;
+  color: var(--jsl-text-3);
+}
+
+/* 分类条整体重排：chips 居左，BBS 阅读模式推到右侧 */
+html.jsl.jsl-community .row.category > .span12 {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+html.jsl.jsl-community .row.category ul {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+html.jsl.jsl-community .row.category ul li {
+  float: none;
+  margin: 0;
+}
+
+/* 分类 chip：与列表卡片首行 tab 同构 */
+html.jsl.jsl-community .row.category ul li a {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: var(--jsl-text-2);
+  font-size: 13px;
+  line-height: 1.5;
+  transition:
+    color 0.12s,
+    background 0.12s;
+}
+
+html.jsl.jsl-community .row.category ul li a:hover {
+  color: var(--jsl-accent);
+  background: var(--jsl-accent-weak);
+}
+
+/* 当前分类：品牌色实底胶囊（同「广场」tab 选中态） */
+html.jsl.jsl-community .row.category ul li.active a {
+  color: #ffffff !important;
+  background: var(--jsl-accent);
+}
+
+/* BBS 阅读模式：推到行尾，弱化为辅助控件 */
+html.jsl.jsl-community .row.category label[for='disp_mode_bbs'] {
+  margin: 0 0 0 auto !important;
+  padding: 0 !important;
+  height: auto !important;
+  line-height: 1.6 !important;
+  color: var(--jsl-text-3);
+  font-size: 12px;
+}
+
+html.jsl.jsl-community .row.category label[for='disp_mode_bbs'] input {
+  margin-right: 4px;
+  accent-color: var(--jsl-accent);
+}
+
+/* 「会员权益说明」站方红字促销，弱化为辅助文字色 */
+html.jsl.jsl-community .row.category a[style*='color:red'] {
+  color: var(--jsl-text-3) !important;
+  font-size: 12px;
+}
+
+html.jsl.jsl-community .row.category a[style*='color:red']:hover {
+  color: var(--jsl-text-2) !important;
+}
+
+/* 右下角微信二维码浮窗：整体隐藏 */
+html.jsl.jsl-community .scanWeiXinWD {
+  display: none !important;
+}
+
+/* 站方原生回到顶部按钮：扩展有自己的毛玻璃版本，避免双钮并存 */
+html.jsl.jsl-community .aw-back-top {
+  display: none !important;
+}
+
+/* ---------- 通用元素 ---------- */
+
+html.jsl.jsl-community a {
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-community .aw-text-color-999,
+html.jsl.jsl-community .aw-text-color-999 a {
+  color: var(--jsl-text-3) !important;
+}
+
+html.jsl.jsl-community .btn {
+  background-image: none !important;
+  border-radius: var(--jsl-radius-sm);
+  font-family: var(--jsl-font);
+  text-shadow: none !important;
+}
+
+html.jsl.jsl-community .btn-success,
+html.jsl.jsl-community .btn-primary {
+  background-color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+  color: #fff !important;
+}
+
+html.jsl.jsl-community .btn-success:hover,
+html.jsl.jsl-community .btn-primary:hover {
+  background-color: var(--jsl-accent-hover) !important;
+}
+
+/* ---------- 页脚 ---------- */
+
+html.jsl.jsl-community .aw-footer-wrap {
+  background: var(--jsl-surface);
+  border-top: 1px solid var(--jsl-border);
+  margin-top: 24px;
+  padding: 14px 0 !important;
+}
+
+html.jsl.jsl-community .aw-footer {
+  color: var(--jsl-text-3) !important;
+  font-size: 12px;
+  line-height: 1.8;
+  /* 站方 .aw-footer 自带 30px 上下内边距，叠出大留白 */
+  padding: 0 !important;
+}
+
+html.jsl.jsl-community .aw-footer a,
+html.jsl.jsl-community .aw-footer span[style] {
+  color: var(--jsl-text-3) !important;
+}
+
+html.jsl.jsl-community .aw-footer a:hover {
+  color: var(--jsl-text-2) !important;
+}

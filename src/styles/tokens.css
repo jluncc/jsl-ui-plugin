@@ -1,0 +1,75 @@
+/* ============================================================
+   JSL Polish · 设计令牌（浅色为默认，深色经 html[data-theme] 切换）
+   ============================================================ */
+
+:root {
+  --jsl-font:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+  --jsl-mono:
+    ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+
+  --jsl-radius: 10px;
+  --jsl-radius-sm: 6px;
+
+  --jsl-bg: #f4f5f7;
+  --jsl-surface: #ffffff;
+  --jsl-surface-hover: #f7f8fa;
+  --jsl-surface-2: #eef0f3;
+  --jsl-text: #1c2128;
+  --jsl-text-2: #57606a;
+  --jsl-text-3: #8b949e;
+  --jsl-border: #e5e7eb;
+  --jsl-border-2: #d0d7de;
+
+  --jsl-accent: #2f6fed;
+  --jsl-accent-hover: #2557c4;
+  --jsl-accent-weak: rgba(47, 111, 237, 0.09);
+
+  /* 语义色：红涨绿跌（沿用站方语义，仅在深色下调整明度） */
+  --jsl-up: #d6403f;
+  --jsl-down: #1f9d63;
+
+  --jsl-shadow: 0 1px 2px rgba(20, 30, 45, 0.06);
+  --jsl-shadow-pop: 0 6px 24px rgba(20, 30, 45, 0.14);
+
+  /* 顶栏（浅色：无底色附着式） */
+  --jsl-header-bg: transparent;
+  --jsl-header-border: transparent;
+  --jsl-header-text: #1c2128;
+  --jsl-header-text-dim: #57606a;
+  --jsl-header-line: #d0d7de;
+  --jsl-header-field: #eef0f3;
+  --jsl-header-field-text: #1c2128;
+}
+
+html[data-theme='dark'] {
+  --jsl-bg: #101318;
+  --jsl-surface: #171b22;
+  --jsl-surface-hover: #1d222b;
+  --jsl-surface-2: #222834;
+  --jsl-text: #e3e8ef;
+  --jsl-text-2: #a0aab9;
+  --jsl-text-3: #7d8798;
+  --jsl-border: #2a3140;
+  --jsl-border-2: #363f50;
+
+  --jsl-accent: #5c8dff;
+  --jsl-accent-hover: #7ba3ff;
+  --jsl-accent-weak: rgba(92, 141, 255, 0.14);
+
+  --jsl-up: #f0655a;
+  --jsl-down: #3ec78f;
+
+  --jsl-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --jsl-shadow-pop: 0 6px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  /* 顶栏（深色：悬浮胶囊） */
+  --jsl-header-bg: #14181f;
+  --jsl-header-border: rgba(255, 255, 255, 0.07);
+  --jsl-header-text: #d3dae4;
+  --jsl-header-text-dim: #98a2b3;
+  --jsl-header-line: rgba(255, 255, 255, 0.22);
+  --jsl-header-field: rgba(255, 255, 255, 0.08);
+  --jsl-header-field-text: #f2f5f9;
+}

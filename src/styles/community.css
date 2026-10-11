@@ -1,0 +1,832 @@
+/* ============================================================
+   JSL Polish · 社区页面（帖子列表 / 帖子详情 / 侧栏 / 分页）
+   ============================================================ */
+
+/* ---------- 主容器 ---------- */
+
+html.jsl.jsl-community .aw-container-wrap {
+  background: transparent;
+}
+
+html.jsl.jsl-community .aw-main-content {
+  padding-right: 22px;
+  /* 站方右缘 1px #F7F7F7 分隔线，深色下成为贯穿整页的亮竖线 */
+  border: none !important;
+}
+
+/* ---------- 列表卡片顶部：两行导航（手绘稿） ----------
+   第一行 = 分类 + 话题；第二行 = 排序（最新 / 热门 / 按发表时间） */
+
+html.jsl.jsl-community .jsl-card-head {
+  /* 不设下边框：1px 通栏细线在缩放显示下呈虚线感，且与首条行分隔线重复 */
+  padding: 5px 18px 6px;
+}
+
+html.jsl.jsl-community .jsl-card-head-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px 2px;
+}
+
+/* 两行之间留出间隙 */
+html.jsl.jsl-community .jsl-card-head-row + .jsl-card-head-row {
+  margin-top: 5px;
+}
+
+html.jsl.jsl-community .jsl-card-head li {
+  /* 裸 <li> 脱离 <ul> 后默认 list-item 会绘制圆点标记 */
+  list-style: none;
+  margin: 0;
+}
+
+html.jsl.jsl-community .jsl-card-head li a {
+  display: inline-block;
+  padding: 6px 11px;
+  border-radius: 7px;
+  color: var(--jsl-text-2);
+  font-size: 13px;
+  white-space: nowrap;
+  transition:
+    color 0.12s,
+    background 0.12s;
+}
+
+html.jsl.jsl-community .jsl-card-head li a:hover {
+  color: var(--jsl-accent);
+  background: var(--jsl-surface-2);
+}
+
+/* 选中态按维度区分：分类实底（页面维度），排序/话题浅品牌底（筛选维度） */
+html.jsl.jsl-community .jsl-card-head li[data-dim='cat'].active a {
+  color: #ffffff !important;
+  background: var(--jsl-accent);
+  font-weight: 500;
+}
+
+html.jsl.jsl-community .jsl-card-head li[data-dim='sort'].active a {
+  background: var(--jsl-accent-weak);
+  color: var(--jsl-accent);
+  font-weight: 500;
+}
+
+/* ---------- 会员服务推广条：移入侧栏的价目小卡片（内联样式需强覆盖） ---------- */
+
+html.jsl.jsl-community .jsl-promo {
+  background: var(--jsl-surface) !important;
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow);
+  display: flex !important;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px !important;
+  margin: 0 0 14px !important;
+}
+
+html.jsl.jsl-community .jsl-promo > span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 !important;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+html.jsl.jsl-community .jsl-promo a {
+  color: var(--jsl-text) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+html.jsl.jsl-community .jsl-promo a:hover {
+  color: var(--jsl-accent) !important;
+}
+
+html.jsl.jsl-community .jsl-promo span[style*='color:red'] {
+  color: var(--jsl-up) !important;
+  font-size: 12px;
+}
+
+/* 并入会员卡后去掉自身卡片外壳，变成卡内价目区 */
+html.jsl.jsl-community .jsl-promo.jsl-promo-merged {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0;
+  box-shadow: none !important;
+  padding: 2px 0 0 !important;
+  margin: 0 !important;
+  gap: 7px;
+}
+
+/* 站方「集思录会员」橙色卡（背景图 + 全内联样式），重皮肤为与 jsl-promo 同族的卡片 */
+html.jsl.jsl-community .aw-side-bar > div[style*='jsl_bg_member_info'] {
+  width: auto !important;
+  height: auto !important;
+  background: var(--jsl-surface) !important;
+  background-image: none !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: var(--jsl-radius) !important;
+  box-shadow: var(--jsl-shadow);
+  padding: 12px 16px !important;
+  margin-bottom: 14px !important;
+}
+
+html.jsl.jsl-community .aw-side-bar > div[style*='jsl_bg_member_info'] > a > div {
+  color: var(--jsl-text) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  padding: 0 !important;
+}
+
+html.jsl.jsl-community .aw-side-bar > div[style*='jsl_bg_member_info'] img[src*='member2'] {
+  width: 16px !important;
+  vertical-align: -3px;
+  margin-left: 4px;
+}
+
+html.jsl.jsl-community .aw-side-bar > div[style*='jsl_bg_member_info'] > div:last-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* 卡内价目区之下，细分隔线收尾 */
+  margin-top: 10px;
+  padding: 10px 0 0 !important;
+  border-top: 1px solid var(--jsl-border);
+}
+
+/* 「特色数据、功能特权」描述链接 */
+html.jsl.jsl-community .aw-side-bar > div[style*='jsl_bg_member_info'] > div:last-child > a:first-child {
+  width: auto !important;
+  color: var(--jsl-text-3) !important;
+  font-size: 12px !important;
+}
+
+html.jsl.jsl-community .aw-side-bar > div[style*='jsl_bg_member_info'] > div:last-child > a:first-child:hover {
+  color: var(--jsl-text-2) !important;
+}
+
+/* 「购买」站方硬编码蓝底小按钮，统一为品牌色 */
+html.jsl.jsl-community .aw-side-bar > div[style*='jsl_bg_member_info'] a[style*='3692e6'] {
+  margin: 0 !important;
+  padding: 2px 12px !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 6px !important;
+  background-color: var(--jsl-accent) !important;
+  color: #fff !important;
+  font-size: 12px !important;
+  line-height: 1.6 !important;
+  transition: background 0.12s;
+}
+
+html.jsl.jsl-community .aw-side-bar > div[style*='jsl_bg_member_info'] a[style*='3692e6']:hover {
+  background-color: var(--jsl-accent-hover) !important;
+}
+
+/* 热门话题卡：站方每条话题都是同一张灰色占位图（无信息量），隐藏后重排为纯文字行。
+   该卡的 body 类名是 aw-mod-body（发起人/问题状态卡是 aw-side-bar-mod-body，不受影响） */
+html.jsl.jsl-community .aw-side-bar-mod .aw-mod-body dl dt {
+  display: none;
+}
+
+/* 站方为浮动图留的 dd 缩进会把统计文字挤到提前换行，清掉；
+   dd 还被站方写死 141px 宽（为头像布局预留），一并放开 */
+html.jsl.jsl-community .aw-side-bar-mod .aw-mod-body dl dd {
+  float: none !important;
+  margin: 0 !important;
+  width: auto !important;
+}
+
+html.jsl.jsl-community .aw-side-bar-mod .aw-mod-body dl dd p {
+  width: auto !important;
+  max-width: 100%;
+}
+
+/* 站方该 body 无内边距，话题名会比「热门话题」标题更贴左 */
+html.jsl.jsl-community .aw-side-bar-mod .aw-mod-body {
+  text-align: left;
+  padding: 2px 16px 14px;
+}
+
+html.jsl.jsl-community .aw-side-bar-mod dl {
+  margin: 0;
+}
+
+html.jsl.jsl-community .aw-side-bar-mod dl + dl {
+  margin-top: 10px;
+}
+
+html.jsl.jsl-community .aw-side-bar-mod dl dd {
+  float: none !important;
+}
+
+/* 话题名与统计的层级：名字为主、数字弱调 */
+html.jsl.jsl-community .aw-side-bar-mod dl dd a.aw-topic-name {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+html.jsl.jsl-community .aw-side-bar-mod dl dd p {
+  margin: 2px 0 0;
+  color: var(--jsl-text-3);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+html.jsl.jsl-community .aw-side-bar-mod dl dd p b {
+  color: var(--jsl-text-2);
+  font-weight: 600;
+}
+
+/* 「更多话题」：从站方蓝色实底按钮弱化为描边按钮 */
+html.jsl.jsl-community .aw-side-bar-mod dl:last-child .btn-success {
+  display: inline-block;
+  padding: 4px 12px !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: var(--jsl-radius-sm);
+  background: var(--jsl-surface) !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 12px !important;
+  text-shadow: none !important;
+  transition:
+    color 0.12s,
+    border-color 0.12s;
+}
+
+html.jsl.jsl-community .aw-side-bar-mod dl:last-child .btn-success:hover {
+  color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+}
+
+/* ============================================================
+   帖子列表
+   ============================================================ */
+
+html.jsl.jsl-community .aw-question-list {
+  background: var(--jsl-surface);
+  /* 与侧栏卡片同一种边框 */
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow);
+  overflow: hidden;
+}
+
+html.jsl.jsl-community .aw-question-list .aw-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 18px;
+  position: relative;
+  /* 站方给行设了 border-top: 1px dotted（藏在动态样式里），是行间虚线的来源 */
+  border: none !important;
+  transition: background 0.12s;
+}
+
+/* 行分隔：实线、两端随内容留白（V2EX 式）；
+   2px 是为侧栏缩放显示下的抗摩尔纹保留的 */
+html.jsl.jsl-community .aw-question-list .aw-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 0;
+  height: 2px;
+  background: var(--jsl-border);
+}
+
+html.jsl.jsl-community .aw-question-list .aw-item:hover {
+  background: var(--jsl-surface-hover);
+}
+
+html.jsl.jsl-community .jsl-clickable {
+  cursor: pointer;
+}
+
+/* 回复数胶囊 */
+html.jsl.jsl-community .aw-question-replay-count {
+  /* 站方 absolute 挂在行左缘，标题会钻到胶囊底下；拉回 flex 流 */
+  position: static !important;
+  float: none !important;
+  margin: 0 !important;
+  flex-shrink: 0;
+  /* 上下边缘与旁边内容列对齐 */
+  align-self: stretch;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  padding: 4px 6px;
+  height: auto !important;
+  background: var(--jsl-surface-2) !important;
+  border-radius: 8px;
+  color: var(--jsl-text-3);
+  font-size: 11px;
+  line-height: 1.3;
+  text-align: center;
+}
+
+html.jsl.jsl-community .aw-question-replay-count em {
+  display: block;
+  font-style: normal;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--jsl-text);
+  /* 站方给数字单独上白色圆角底，深色下胶囊只剩半截着色 */
+  background: none !important;
+  background-image: none !important;
+  border-radius: 0;
+  padding: 0;
+}
+
+html.jsl.jsl-community .aw-question-replay-count.active em {
+  color: var(--jsl-accent);
+}
+
+/* 帖子内容 */
+html.jsl.jsl-community .aw-questoin-content {
+  flex: 1;
+  min-width: 0;
+}
+
+html.jsl.jsl-community .aw-questoin-content h4 {
+  /* 站方写死 550px（为原版右上角贡献头像预留），会让话题 chip 提前换行 */
+  width: auto !important;
+  margin: 1px 0 6px;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+html.jsl.jsl-community .aw-questoin-content h4 > a {
+  color: var(--jsl-text);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+html.jsl.jsl-community .aw-questoin-content h4 > a:hover {
+  color: var(--jsl-accent);
+}
+
+/* 元信息行：分类 • 最后回复人 • 时间 • 浏览 */
+html.jsl.jsl-community .aw-question-list .aw-text-color-999 {
+  display: block;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* 站方给外层 span 挂了标签形 sprite 贴图（左右两端外露），一并清掉；
+   span 自带的左内边距会让分类 chip 相对标题缩进 */
+html.jsl.jsl-community .aw-question-tags {
+  background: none !important;
+  background-image: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html.jsl.jsl-community .aw-question-tags a {
+  display: inline-block;
+  /* 站方对 chip 有高优先级浅色底（深色下刺眼），强压回主题令牌 */
+  background: var(--jsl-surface-2) !important;
+  background-image: none !important;
+  border-radius: 4px;
+  padding: 0 6px;
+  margin-right: 2px;
+  font-size: 12px;
+  color: var(--jsl-text-3);
+  transition: all 0.12s;
+}
+
+html.jsl.jsl-community .aw-question-tags a:hover {
+  color: var(--jsl-accent) !important;
+  background: var(--jsl-accent-weak) !important;
+}
+
+/* 列表里的“贡献”头像 */
+html.jsl.jsl-community .aw-question-list .aw-questoin-content > p.pull-right {
+  margin: 0 0 0 12px;
+  display: none;
+}
+
+/* 话题 chip（跟在标题后） */
+html.jsl.jsl-community .aw-questoin-content h4 .aw-topic-name {
+  display: inline-block;
+  vertical-align: middle;
+  background: var(--jsl-accent-weak);
+  color: var(--jsl-accent);
+  border-radius: 4px;
+  padding: 0 6px;
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+html.jsl.jsl-community .aw-questoin-content h4 .aw-topic-name:hover {
+  background: var(--jsl-accent);
+  color: #fff;
+}
+
+/* 站方给内层 span 单独上了浅蓝底（#D4F2FF），需清除让 <a> 层的 chip 样式生效 */
+html.jsl.jsl-community .aw-topic-name span {
+  background: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+}
+
+/* 分页 */
+html.jsl.jsl-community .pagination {
+  margin: 16px 0 8px;
+}
+
+html.jsl.jsl-community .pagination ul {
+  display: flex;
+  gap: 6px;
+  box-shadow: none !important;
+}
+
+html.jsl.jsl-community .pagination ul > li > a,
+html.jsl.jsl-community .pagination ul > li > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: 8px !important;
+  background: var(--jsl-surface) !important;
+  color: var(--jsl-text-2);
+  font-size: 13px;
+  transition: all 0.12s;
+}
+
+html.jsl.jsl-community .pagination ul > li > a:hover {
+  border-color: var(--jsl-accent) !important;
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-community .pagination ul > li.active > a,
+html.jsl.jsl-community .pagination ul > li.active > span {
+  background: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+  color: #fff;
+}
+
+/* ============================================================
+   帖子详情
+   ============================================================ */
+
+/* 主帖卡片 */
+html.jsl.jsl-community .aw-question-detail-title {
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow);
+  margin-bottom: 16px;
+}
+
+html.jsl.jsl-community .aw-question-detail-title .aw-mod-head {
+  padding-bottom: 0;
+}
+
+html.jsl.jsl-community .aw-question-detail-title h1 {
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-community .aw-question-detail-title h1 a {
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-community .aw-question-detail-title .aw-topic-editor {
+  margin-top: 2px;
+}
+
+html.jsl.jsl-community .aw-question-detail-title .aw-topic-editor .aw-topic-name {
+  display: inline-block;
+  background: var(--jsl-accent-weak);
+  color: var(--jsl-accent);
+  border-radius: 4px;
+  padding: 1px 8px;
+  margin: 0 6px 0 0;
+  font-size: 12px;
+}
+
+/* 收藏 / 关注按钮 */
+html.jsl.jsl-community .aw-question-follow {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+html.jsl.jsl-community .aw-question-follow .btn {
+  padding: 3px 12px !important;
+  font-size: 12px;
+  background: var(--jsl-surface-2) !important;
+  color: var(--jsl-text-2);
+  border: 1px solid var(--jsl-border);
+}
+
+html.jsl.jsl-community .aw-question-follow .btn:hover {
+  color: var(--jsl-accent);
+  border-color: var(--jsl-accent);
+}
+
+html.jsl.jsl-community .aw-question-follow .aw-active {
+  background: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+  color: #fff !important;
+}
+
+/* 正文排版 */
+html.jsl.jsl-community .markitup-box {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--jsl-text);
+  word-break: break-word;
+}
+
+html.jsl.jsl-community .markitup-box p {
+  margin: 0 0 0.75em;
+}
+
+html.jsl.jsl-community .markitup-box blockquote {
+  margin: 10px 0;
+  padding: 8px 14px;
+  border: none;
+  border-left: 3px solid var(--jsl-accent);
+  border-radius: 0 var(--jsl-radius-sm) var(--jsl-radius-sm) 0;
+  background: var(--jsl-surface-2);
+  color: var(--jsl-text-2);
+  font-size: 14px;
+}
+
+html.jsl.jsl-community .markitup-box code {
+  font-family: var(--jsl-mono);
+  font-size: 0.88em;
+  background: var(--jsl-surface-2);
+  border: 1px solid var(--jsl-border);
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+}
+
+html.jsl.jsl-community .markitup-box pre {
+  background: var(--jsl-surface-2);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius-sm);
+  padding: 12px 14px;
+  overflow-x: auto;
+}
+
+html.jsl.jsl-community .markitup-box pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+html.jsl.jsl-community .markitup-box img {
+  max-width: 100%;
+  border-radius: var(--jsl-radius-sm);
+}
+
+/* 回复区容器 */
+html.jsl.jsl-community .aw-question-detail-box {
+  margin-top: 16px;
+}
+
+html.jsl.jsl-community .aw-question-detail-box .aw-mod-head {
+  border-bottom: 1px solid var(--jsl-border);
+  margin-bottom: 14px;
+}
+
+html.jsl.jsl-community .aw-question-detail-box .aw-mod-head h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--jsl-text);
+  margin: 0;
+  padding: 2px 0 12px;
+}
+
+/* 单条回复：头像挪到左侧，赞成数弱化为竖排小统计 */
+html.jsl.jsl-community .aw-dynamic-topic .aw-item {
+  display: flex;
+  gap: 12px;
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow);
+  margin-bottom: 10px;
+  padding: 14px 16px;
+  position: relative;
+}
+
+html.jsl.jsl-community .aw-dynamic-topic .aw-user-img {
+  float: none !important;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  margin: 0 !important;
+}
+
+html.jsl.jsl-community .aw-dynamic-topic .aw-user-img img {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+}
+
+html.jsl.jsl-community .aw-dynamic-topic > .aw-item > .aw-mod-body {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  float: none !important;
+}
+
+html.jsl.jsl-community .aw-dynamic-topic .aw-vote-count {
+  float: none !important;
+  width: auto !important;
+  min-width: 28px;
+  height: auto !important;
+  text-align: center;
+  background: var(--jsl-surface-2) !important;
+  color: var(--jsl-text-3);
+  border-radius: var(--jsl-radius-sm);
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.6;
+  padding: 3px 4px;
+  align-self: flex-start;
+}
+
+html.jsl.jsl-community .aw-dynamic-topic .aw-vote-count:before {
+  content: '▲';
+  display: block;
+  font-size: 10px;
+}
+
+html.jsl.jsl-community .aw-dynamic-topic .aw-dynamic-topic-content {
+  float: none !important;
+  flex: 1;
+  min-width: 0;
+  width: auto !important;
+}
+
+/* 楼层号（由 content script 注入） */
+html.jsl.jsl-community .jsl-floor {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-family: var(--jsl-mono);
+  font-size: 12px;
+  color: var(--jsl-text-2);
+}
+
+/* 回复作者行 */
+html.jsl.jsl-community .aw-dynamic-topic .publisher {
+  margin: 0 0 4px;
+  font-size: 13px;
+}
+
+html.jsl.jsl-community .aw-dynamic-topic .publisher a.aw-user-name {
+  color: var(--jsl-text);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+html.jsl.jsl-community .aw-dynamic-topic .publisher a.aw-user-name:hover {
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-community .aw-dynamic-topic .publisher img[src*='member'] {
+  width: 18px !important;
+  position: static !important;
+  vertical-align: -3px;
+}
+
+/* 赞同来自：一串用户名链接降为次级色，避免整行品牌色 */
+html.jsl.jsl-community .aw-dynamic-topic .aw-agree-by {
+  font-size: 12px;
+  margin: 2px 0 6px;
+}
+
+html.jsl.jsl-community .aw-dynamic-topic .aw-agree-by a {
+  color: var(--jsl-text-2);
+}
+
+html.jsl.jsl-community .aw-dynamic-topic .aw-agree-by a:hover {
+  color: var(--jsl-accent);
+}
+
+/* 回复底部操作行 */
+html.jsl.jsl-community .aw-dynamic-topic .aw-dynamic-topic-meta {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+html.jsl.jsl-community .aw-dynamic-topic .aw-dynamic-topic-meta > span.pull-left {
+  float: none !important;
+  font-size: 12px;
+}
+
+html.jsl.jsl-community .aw-dynamic-topic .aw-add-comment {
+  font-size: 12px;
+  color: var(--jsl-text-3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  transition: all 0.12s;
+}
+
+html.jsl.jsl-community .aw-dynamic-topic .aw-add-comment:hover {
+  color: var(--jsl-accent);
+  background: var(--jsl-accent-weak);
+}
+
+/* 回复中的“更多操作”下拉 */
+html.jsl.jsl-community .aw-dynamic-topic-more-operate .aw-dropdown {
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius-sm);
+  box-shadow: var(--jsl-shadow-pop);
+}
+
+/* ============================================================
+   侧栏
+   ============================================================ */
+
+html.jsl.jsl-community .aw-side-bar {
+  padding-top: 11px;
+}
+
+html.jsl.jsl-community .aw-side-bar-mod {
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow);
+  margin-bottom: 14px;
+}
+
+/* 侧栏卡片标题两种站方类名：aw-side-bar-mod-head（详情页）/ aw-mod-head（热门话题） */
+html.jsl.jsl-community .aw-side-bar-mod-head h3,
+html.jsl.jsl-community .aw-side-bar-mod .aw-mod-head h3 {
+  color: var(--jsl-text-2) !important;
+  text-shadow: none !important;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+  padding: 12px 16px 0;
+}
+
+html.jsl.jsl-community .aw-side-bar-mod-body {
+  padding: 10px 16px 14px;
+  font-size: 13px;
+}
+
+/* ============================================================
+   回到顶部按钮（由 content script 注入）
+   ============================================================ */
+
+html.jsl.jsl-community .jsl-back-top {
+  position: fixed;
+  /* 右缘对齐侧栏卡片右缘：容器右缘 - 20px 侧栏留白 */
+  right: max(18px, calc(50% - 580px));
+  bottom: 36px;
+  z-index: 90;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--jsl-border);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--jsl-surface) 82%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--jsl-text-2);
+  box-shadow: var(--jsl-shadow-pop);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition:
+    opacity 0.2s,
+    transform 0.2s,
+    color 0.12s;
+}
+
+html.jsl.jsl-community .jsl-back-top.jsl-show {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+html.jsl.jsl-community .jsl-back-top:hover {
+  color: var(--jsl-accent);
+  border-color: var(--jsl-accent);
+}

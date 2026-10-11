@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JSL Polish 设置</title>
+    <style>
+      :root {
+        --bg: #f5f6f8;
+        --surface: #ffffff;
+        --border: #e4e7ec;
+        --text: #1a1d21;
+        --text-2: #55606e;
+        --accent: #2f6fed;
+        --radius: 10px;
+      }
+      [data-theme='dark'] {
+        --bg: #101216;
+        --surface: #171a20;
+        --border: #2a2f38;
+        --text: #e6e9ee;
+        --text-2: #9aa4b2;
+        --accent: #5b8cff;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB',
+          'Microsoft YaHei', sans-serif;
+        display: flex;
+        justify-content: center;
+        padding: 48px 16px;
+      }
+      .wrap {
+        width: 100%;
+        max-width: 560px;
+      }
+      header {
+        margin-bottom: 24px;
+      }
+      h1 {
+        margin: 0 0 4px;
+        font-size: 22px;
+      }
+      header p {
+        margin: 0;
+        color: var(--text-2);
+        font-size: 13px;
+      }
+      section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 4px 20px;
+        margin-bottom: 16px;
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 0;
+      }
+      .row + .row {
+        border-top: 1px solid var(--border);
+      }
+      .row .label {
+        font-size: 14px;
+        font-weight: 500;
+      }
+      .row .desc {
+        margin: 2px 0 0;
+        font-size: 12px;
+        color: var(--text-2);
+      }
+      .seg {
+        display: inline-flex;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 2px;
+        gap: 2px;
+      }
+      .seg button {
+        border: none;
+        background: transparent;
+        color: var(--text-2);
+        font-size: 13px;
+        padding: 5px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .seg button.active {
+        background: var(--accent);
+        color: #fff;
+      }
+      .switch {
+        position: relative;
+        width: 40px;
+        height: 22px;
+        flex-shrink: 0;
+      }
+      .switch input {
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        cursor: pointer;
+        position: relative;
+        z-index: 1;
+      }
+      .switch .track {
+        position: absolute;
+        inset: 0;
+        background: var(--border);
+        border-radius: 999px;
+        transition: background 0.15s;
+      }
+      .switch .track::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #fff;
+        transition: transform 0.15s;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      }
+      .switch input:checked + .track {
+        background: var(--accent);
+      }
+      .switch input:checked + .track::after {
+        transform: translateX(18px);
+      }
+      footer {
+        text-align: center;
+        color: var(--text-2);
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>JSL Polish</h1>
+        <p>集思录界面现代化 · 设置保存在浏览器同步存储中</p>
+      </header>
+
+      <section>
+        <div class="row">
+          <div>
+            <div class="label">主题模式</div>
+            <p class="desc">自动模式下跟随系统深浅色偏好</p>
+          </div>
+          <div class="seg" id="theme-seg">
+            <button data-value="auto">自动</button>
+            <button data-value="light">浅色</button>
+            <button data-value="dark">深色</button>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <div class="label">启用美化</div>
+            <p class="desc">关闭后恢复集思录原生界面</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="opt-enabled" />
+            <span class="track"></span>
+          </label>
+        </div>
+      </section>
+
+      <section>
+        <div class="row">
+          <div>
+            <div class="label">帖子列表现代化</div>
+            <p class="desc">列表卡片化、回复数胶囊、悬停反馈、分页器美化</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="opt-list" />
+            <span class="track"></span>
+          </label>
+        </div>
+        <div class="row">
+          <div>
+            <div class="label">帖子详情现代化</div>
+            <p class="desc">正文排版、引用与代码块美化、回复楼层号、回到顶部</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="opt-detail" />
+            <span class="track"></span>
+          </label>
+        </div>
+      </section>
+
+      <footer>v0.2.0</footer>
+    </div>
+    <script src="scripts/options.js"></script>
+  </body>
+</html>

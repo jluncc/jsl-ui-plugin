@@ -1,0 +1,33 @@
+{
+  "name": "jsl-polish",
+  "version": "0.1.0",
+  "description": "为集思录带来现代化界面的 Chrome 扩展",
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "lint": "eslint . && tsc --noEmit",
+    "format": "prettier --write ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.21.0",
+      "onFail": "download"
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/chrome": "^0.3.5",
+    "@types/node": "^26.6.5",
+    "eslint": "^10.12.0",
+    "prettier": "^3.9.9",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.1"
+  },
+  "private": true,
+  "type": "module"
+}
