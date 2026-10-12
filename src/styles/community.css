@@ -9,9 +9,10 @@ html.jsl.jsl-community .aw-container-wrap {
 }
 
 html.jsl.jsl-community .aw-main-content {
-  padding-right: 22px;
   /* 站方右缘 1px #F7F7F7 分隔线，深色下成为贯穿整页的亮竖线 */
   border: none !important;
+  /* 22→12：与侧栏 margin 合计 22px，避免两列间隙过大 */
+  padding-right: 12px;
 }
 
 /* ---------- 列表卡片顶部：两行导航（手绘稿） ----------

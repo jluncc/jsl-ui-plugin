@@ -42,12 +42,12 @@ html.jsl.jsl-community .aw-top-menu-wrap {
   align-items: center;
   /* 站方无全局 border-box，width:100% + padding 会溢出视口 */
   box-sizing: border-box;
-  /* 通栏附着在顶部，两个主题共用同一布局，只换配色 */
+  /* 通栏附着在顶部（浅色无底色/深色深色条），高度 52px */
   width: 100% !important;
   margin: 0 !important;
-  /* 左右内边距把内容约束进 1200 容器；左边 +56 让「集思录」字标与列表卡片左缘对齐 */
-  padding: 10px max(18px, calc((100% - 1200px) / 2 + 18px)) 12px
-    max(18px, calc((100% - 1200px) / 2 + 56px));
+  /* 左内边距实测校准：让「集思录」字标与下方列表卡片左缘对齐；右侧与侧栏卡右缘（容器缘）对齐 */
+  padding: 6px max(18px, calc((100% - 1200px) / 2)) 6px
+    max(18px, calc((100% - 1200px) / 2 + 50px));
   /* 顶栏所有子项的统一间距；各自的零散 margin 全部清零 */
   gap: 10px;
   row-gap: 12px;
@@ -202,16 +202,174 @@ html.jsl.jsl-community .span6.aw-login-register a:hover {
 }
 
 /* 登录态右侧区（通知/私信/用户名/头像） */
+/* 登录态头部右侧：通知/私信/用户名/头像 排成一行，与按钮簇同规格
+   顺序按需求：通知 → 私信 → 用户名+头像；span6 撑满剩余空间让按钮贴右缘 */
+html.jsl.jsl-community .span6.aw-login-register {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 auto;
+  width: auto !important;
+}
+
+html.jsl.jsl-community .span6.aw-login-register .aw-logined-nav {
+  float: none !important;
+  order: 1;
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  width: auto !important;
+}
+
+/* 通知/私信在外层 ul 里，gap 要设到 ul 上 */
+html.jsl.jsl-community .aw-logined-nav ul {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html.jsl.jsl-community .aw-logined-nav ul li {
+  float: none !important;
+  margin: 0 !important;
+}
+
+/* 用户名+头像按钮的容器：作为其下拉菜单的定位基准；margin-left:auto 推到右缘 */
+html.jsl.jsl-community .span6.aw-login-register .aw-user-nav-dropdown {
+  order: 2;
+  position: relative !important;
+  float: none !important;
+  display: flex !important;
+  align-items: center;
+  margin: 0 0 0 auto !important;
+  width: auto !important;
+}
+
 html.jsl.jsl-community .aw-logined-nav a {
-  height: auto !important;
+  display: inline-flex !important;
+  align-items: center;
+  box-sizing: border-box;
+  height: 30px !important;
+  padding: 0 12px;
+  border: 1px solid var(--jsl-header-line) !important;
+  border-radius: 6px;
   line-height: 1.4 !important;
-  color: var(--jsl-header-text) !important;
-  font-size: 13px;
-  text-shadow: none !important;
 }
 
 html.jsl.jsl-community .aw-logined-nav a:hover {
   color: var(--jsl-header-text) !important;
+  background: var(--jsl-header-field);
+}
+
+html.jsl.jsl-community .span6.aw-login-register .aw-user-nav-dropdown > a {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--jsl-header-line);
+  border-radius: 6px;
+}
+
+/* 用户名+头像链接内部的头像（站方 pull-left 浮动清除；站方还给它 absolute 定位会压住文字） */
+html.jsl.jsl-community .span6.aw-login-register .aw-user-nav-dropdown > a img {
+  position: static !important;
+  float: none !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50% !important;
+}
+
+/* 用户菜单：正对按钮下方，卡片化 */
+html.jsl.jsl-community .span6.aw-login-register .aw-user-nav-dropdown .dropdown-menu {
+  position: absolute !important;
+  top: calc(100% + 6px) !important;
+  left: 0 !important;
+  right: auto !important;
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow-pop);
+  padding: 6px !important;
+  min-width: 128px;
+}
+
+html.jsl.jsl-community .aw-user-nav-dropdown .dropdown-menu ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 站方给每个 li/链接自带边框盒子、点状分隔线与右对齐 sprite 图标，全部清掉 */
+html.jsl.jsl-community .aw-user-nav-dropdown .dropdown-menu li {
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  float: none !important;
+  width: auto !important;
+  list-style: none;
+}
+
+html.jsl.jsl-community .aw-user-nav-dropdown .dropdown-menu a {
+  display: block;
+  padding: 7px 12px;
+  border: none !important;
+  border-radius: var(--jsl-radius-sm);
+  color: var(--jsl-text-2) !important;
+  font-size: 13px;
+  transition:
+    background 0.1s,
+    color 0.1s;
+}
+
+html.jsl.jsl-community .aw-user-nav-dropdown .dropdown-menu a:hover {
+  color: var(--jsl-text) !important;
+  background: var(--jsl-surface-2);
+}
+
+html.jsl.jsl-community .aw-user-nav-dropdown .dropdown-menu i {
+  display: none !important;
+}
+
+/* 站方下拉小三角指向空白，去掉 */
+html.jsl.jsl-community .aw-user-nav-dropdown .i-dropdown-triangle {
+  display: none !important;
+}
+
+/* 通知/私信下拉：与搜索/用户菜单统一的卡片皮肤，对齐按钮左缘、挂按钮下方 */
+html.jsl.jsl-community .aw-logined-nav ul li .aw-message-dropdown {
+  left: 0 !important;
+  right: auto !important;
+  top: calc(100% + 6px) !important;
+  margin: 0 !important;
+  width: max-content !important;
+  min-width: 148px;
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow-pop);
+  padding: 6px !important;
+}
+
+html.jsl.jsl-community .aw-logined-nav ul li .aw-message-dropdown .i-dropdown-triangle {
+  display: none !important;
+}
+
+html.jsl.jsl-community .aw-logined-nav ul li .aw-message-dropdown ul {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html.jsl.jsl-community .aw-logined-nav ul li .aw-message-dropdown p {
+  margin: 0 !important;
+  padding: 8px 12px !important;
+  color: var(--jsl-text-3) !important;
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
 }
 
 html.jsl.jsl-community .aw-logined-nav img.aw-user-head,
@@ -366,6 +524,8 @@ html.jsl.jsl-community .aw-top-menu-wrap .aw-search-box .input-append {
   border: 1px solid transparent;
   border-radius: 8px;
   padding: 2px;
+  /* 站方 input-append 自带 margin-bottom:10px，会撑厚头部 */
+  margin: 0 !important;
   transition:
     border-color 0.15s,
     background 0.15s;
@@ -410,6 +570,8 @@ html.jsl.jsl-community .aw-top-menu-wrap .aw-search-box .add-on:hover {
 html.jsl.jsl-community .aw-search-box .navbar-search {
   position: relative !important;
   width: 100% !important;
+  /* 站方 navbar-search 自带 margin-top:10px，会撑厚头部 */
+  margin: 0 !important;
 }
 
 html.jsl.jsl-community .aw-search-dropdown-box {
@@ -420,7 +582,7 @@ html.jsl.jsl-community .aw-search-dropdown-box {
   /* 站方 left 负偏移 + 写死宽度是旧布局遗留，会让弹窗甩出搜索框；对齐搜索框同宽 */
   left: 0 !important;
   right: 0 !important;
-  top: 36px !important;
+  top: 46px !important;
   width: auto !important;
 }
 
@@ -493,7 +655,9 @@ html.jsl.jsl-community .row.category {
 html.jsl.jsl-community .row.aw-content-wrap {
   display: flex;
   align-items: flex-start;
-  gap: 20px;
+  /* 两列间隙由 主栏 padding-right:12 + 侧栏 margin-left:10 组成（22px）；
+     这里的 gap 曾与它们叠出 42px */
+  gap: 0 !important;
   background: transparent !important;
 }
 
@@ -508,6 +672,8 @@ html.jsl.jsl-community .aw-content-wrap > .span3.aw-side-bar {
   float: none !important;
   width: 280px !important;
   flex-shrink: 0;
+  /* 站方栅格 margin-left:20px，与主栏 padding-right 叠出 42px 大间隙，收窄 */
+  margin-left: 10px !important;
   padding: 11px 0 0 !important;
 }
 
