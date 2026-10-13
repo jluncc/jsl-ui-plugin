@@ -123,7 +123,7 @@ sim = """
     }
   }
 
-  // detail.ts：楼层号 + 回到顶部（与真实扩展一致：滚动 600px 后才出现）
+  // detail.ts：楼层号 + 回到顶部 + 长回复折叠（与真实扩展一致：滚动 600px 后出现）
   document.querySelectorAll('.aw-dynamic-topic > .aw-item').forEach(function (el, i) {
     var s = document.createElement('span');
     s.className = 'jsl-floor';
@@ -134,6 +134,9 @@ sim = """
   top.className = 'jsl-back-top';
   top.type = 'button';
   top.title = '回到顶部';
+  top.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
   top.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
   var toggleTop = function () {
     top.classList.toggle('jsl-show', window.scrollY > 600);
@@ -141,6 +144,45 @@ sim = """
   window.addEventListener('scroll', toggleTop, { passive: true });
   toggleTop();
   document.body.appendChild(top);
+
+  // 长回复折叠
+  document.querySelectorAll('.aw-dynamic-topic > .aw-item').forEach(function (item) {
+    var content = item.querySelector('.aw-dynamic-topic-content');
+    if (!content) return;
+    var btn = document.createElement('button');
+    btn.className = 'jsl-reply-expand-btn';
+    btn.type = 'button';
+    btn.textContent = '展开回复';
+    btn.addEventListener('click', function () {
+      var collapsed = item.classList.toggle('jsl-reply-collapsed');
+      btn.textContent = collapsed ? '展开回复' : '收起回复';
+      // 收起后内容大幅缩短，视口可能停在已消失的区域；滚到整条回复可见
+      if (collapsed) item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
+    var evaluateFold = function () {
+      if (content.scrollHeight > 500) {
+        // 按钮已挂载说明初判已折叠，复检不再动状态，避免覆盖用户手动展开/收起
+        if (!btn.isConnected) {
+          item.classList.add('jsl-reply-collapsed');
+          // 插进正文容器末尾（meta 行之后）：item/mod-body 都是 flex 行，
+          // 插在外面会变成同排 flex 子项；容器内部是普通文档流，
+          // 展开态按钮才能块级独占一行。收起态按钮绝对定位，不受容器
+          // overflow:hidden 影响，照常浮在渐隐区上
+          content.insertAdjacentElement('beforeend', btn);
+        }
+      } else {
+        item.classList.remove('jsl-reply-collapsed');
+        btn.remove();
+      }
+    };
+    evaluateFold();
+    content.querySelectorAll('img').forEach(function (img) {
+      if (!img.complete) {
+        img.addEventListener('load', evaluateFold, { once: true });
+        img.addEventListener('error', evaluateFold, { once: true });
+      }
+    });
+  });
 })();
 </script>
 """

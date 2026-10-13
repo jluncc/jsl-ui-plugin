@@ -38,20 +38,33 @@ html.jsl.jsl-community .aw-top-menu-wrap {
   /* 站方给 .aw-item 设了 z-index:1000，header 需压过它（含下拉浮层） */
   z-index: 1200;
   display: flex;
-  flex-wrap: wrap;
+  /* 不换行：保证各子项与内容区边缘的对齐关系不因宽度改变 */
+  flex-wrap: nowrap;
+  /* 不设 overflow：下拉菜单（通知/私信/用户菜单/搜索）向下弹出，
+     overflow-x 一旦滚动/裁剪，overflow-y 必然跟随裁剪，会剪掉全部下拉。
+     横向滚动只在真放不下的窄屏启用（见下方媒体查询） */
   align-items: center;
   /* 站方无全局 border-box，width:100% + padding 会溢出视口 */
   box-sizing: border-box;
   /* 通栏附着在顶部（浅色无底色/深色深色条），高度 52px */
   width: 100% !important;
   margin: 0 !important;
-  /* 左内边距实测校准：让「集思录」字标与下方列表卡片左缘对齐；右侧与侧栏卡右缘（容器缘）对齐 */
+  /* 左内边距实测校准：容器缘 +61（row 10 + 主栏 30 + 卡边框 1 + 卡内边距 20），
+     与帖子标题/正文文字左缘精确对齐；右侧即容器缘，与侧栏卡右缘对齐 */
   padding: 6px max(18px, calc((100% - 1200px) / 2)) 6px
-    max(18px, calc((100% - 1200px) / 2 + 50px));
+    max(18px, calc((100% - 1200px) / 2 + 61px));
   /* 顶栏所有子项的统一间距；各自的零散 margin 全部清零 */
   gap: 10px;
-  row-gap: 12px;
   background: var(--jsl-header-bg) !important;
+}
+
+/* 窄屏放不下时才启用横向滚动。已知边界：滚动态下 overflow-y 被连带裁剪，
+   通知/用户菜单等下拉不可用（完整解法需 CSS anchor 定位，暂缓） */
+@media (max-width: 880px) {
+  html.jsl.jsl-community .aw-top-menu-wrap {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
 }
 
 /* 打平站方嵌套：wecenter / row / nav-wrap / nav-middle 不生成盒子 */
@@ -60,6 +73,14 @@ html.jsl.jsl-community .aw-top-menu-wrap .row,
 html.jsl.jsl-community .aw-top-menu-wrap .span10.aw-nav-wrap,
 html.jsl.jsl-community .aw-top-menu-wrap .aw-nav-middle {
   display: contents !important;
+}
+
+/* 站方 .row 的清除浮动伪元素（::before/::after，display:table）在 display:contents
+   下会被提升成 0 宽 flex 子项，各自吃掉两侧 10px gap——logo 前凭空多出 10px，
+   窄屏还白占 30px+ 滚动空间。display:none 摘除 */
+html.jsl.jsl-community .aw-top-menu-wrap .row::before,
+html.jsl.jsl-community .aw-top-menu-wrap .row::after {
+  display: none !important;
 }
 
 html.jsl.jsl-community .aw-top-menu-wrap .aw-nav-left,
@@ -174,7 +195,8 @@ html.jsl.jsl-community .span6.aw-login-register p.pull-right {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 0;
+  /* 登录簇推到顶栏右缘（该 span 有 flex:1 占满剩余空间），与侧栏卡右缘对齐 */
+  margin: 0 0 0 auto;
 }
 
 /* 登录/注册同款描边胶囊，高度与主题切换按钮一致 */
@@ -293,12 +315,15 @@ html.jsl.jsl-community .span6.aw-login-register .aw-user-nav-dropdown .dropdown-
   border-radius: var(--jsl-radius);
   box-shadow: var(--jsl-shadow-pop);
   padding: 6px !important;
-  min-width: 128px;
+  /* 站方动态注入规则会把 min-width 清成 0（弹窗缩成 98px 一小条），必须 !important */
+  min-width: 128px !important;
 }
 
 html.jsl.jsl-community .aw-user-nav-dropdown .dropdown-menu ul {
   margin: 0;
   padding: 0;
+  /* 站方 ul 收缩包裹（不铺满弹窗），菜单项宽度跟着文字走——锁满弹窗内容宽 */
+  width: 100%;
   list-style: none;
 }
 
@@ -313,8 +338,15 @@ html.jsl.jsl-community .aw-user-nav-dropdown .dropdown-menu li {
 }
 
 html.jsl.jsl-community .aw-user-nav-dropdown .dropdown-menu a {
-  display: block;
-  padding: 7px 12px;
+  /* flex 垂直居中：站方 24px 行高 + 7px 内边距在 30px 盒里会把文字顶偏 */
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  /* 站方写死 width:75px，菜单项不铺满弹窗 */
+  width: auto !important;
+  min-height: 30px;
+  padding: 4px 12px;
+  line-height: 1.4;
   border: none !important;
   border-radius: var(--jsl-radius-sm);
   color: var(--jsl-text-2) !important;
@@ -520,6 +552,11 @@ html.jsl.jsl-community .aw-top-menu-wrap .aw-search-box .input-append {
   display: flex;
   align-items: center;
   width: 100%;
+  /* 站方无全局 border-box：不加这条 padding+border 会把 240px 盒撑到 246px，
+     外溢吃掉与「发起」按钮的间隙，高度也比按钮高 6px */
+  box-sizing: border-box;
+  /* 与顶栏按钮簇（发起/主题切换/登录注册）统一 30px 高 */
+  height: 30px;
   background: var(--jsl-header-field);
   border: 1px solid transparent;
   border-radius: 8px;
@@ -539,7 +576,12 @@ html.jsl.jsl-community .aw-top-menu-wrap .aw-search-box input.search-query {
   border: none !important;
   box-shadow: none !important;
   background: transparent !important;
-  padding: 5px 10px !important;
+  /* 定高填满 30px 胶囊内域（30 - 上下 padding 2×2 - 上下边框 1×1 = 26），
+     高度不受站方 input 行高/内边距波动影响 */
+  box-sizing: border-box;
+  height: 26px !important;
+  padding: 0 10px !important;
+  line-height: 26px !important;
   width: 100%;
   min-width: 0;
   color: var(--jsl-header-field-text);
@@ -574,6 +616,11 @@ html.jsl.jsl-community .aw-search-box .navbar-search {
   margin: 0 !important;
 }
 
+/* 详情页回复表单的站方细边框 */
+html.jsl.jsl-community .aw-mod-replay-box form {
+  border: none !important;
+}
+
 html.jsl.jsl-community .aw-search-dropdown-box {
   background: var(--jsl-surface);
   border: 1px solid var(--jsl-border);
@@ -582,7 +629,8 @@ html.jsl.jsl-community .aw-search-dropdown-box {
   /* 站方 left 负偏移 + 写死宽度是旧布局遗留，会让弹窗甩出搜索框；对齐搜索框同宽 */
   left: 0 !important;
   right: 0 !important;
-  top: 46px !important;
+  /* 搜索胶囊 30px + 10px 间距 */
+  top: 40px !important;
   width: auto !important;
 }
 
@@ -672,9 +720,10 @@ html.jsl.jsl-community .aw-content-wrap > .span3.aw-side-bar {
   float: none !important;
   width: 280px !important;
   flex-shrink: 0;
-  /* 站方栅格 margin-left:20px，与主栏 padding-right 叠出 42px 大间隙，收窄 */
-  margin-left: 10px !important;
-  padding: 11px 0 0 !important;
+  /* 两列间隙统一在这里控制 */
+  margin-left: 12px !important;
+  /* 10px + 首卡边框 1px：侧栏首卡顶与主栏卡片顶同线（容器顶 + 10px） */
+  padding: 10px 0 0 !important;
 }
 
 /* 公告滚动行 / 列表页分类条（全部/债券·可转债/…，站方原样为黑 chip + 蓝链 + 红字） */

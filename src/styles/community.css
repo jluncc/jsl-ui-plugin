@@ -11,8 +11,8 @@ html.jsl.jsl-community .aw-container-wrap {
 html.jsl.jsl-community .aw-main-content {
   /* 站方右缘 1px #F7F7F7 分隔线，深色下成为贯穿整页的亮竖线 */
   border: none !important;
-  /* 22→12：与侧栏 margin 合计 22px，避免两列间隙过大 */
-  padding-right: 12px;
+  /* 两列间隙统一由 .row.aw-content-wrap 的 gap 控制，这里不再叠加 */
+  padding-right: 0;
 }
 
 /* ---------- 列表卡片顶部：两行导航（手绘稿） ----------
@@ -476,8 +476,642 @@ html.jsl.jsl-community .pagination ul > li.active > span {
 }
 
 /* ============================================================
-   帖子详情
+   帖子详情精修（对齐列表页语言：单卡 + 两端留白实线分隔）
    ============================================================ */
+
+/* 站方老 sprite/金币图片图标 → 14px 线性图标
+   （mask + currentColor：颜色随文字/悬停态自动变化） */
+html.jsl.jsl-community .aw-dynamic-topic .aw-add-comment .i-remark,
+html.jsl.jsl-community .aw-dynamic-topic-meta i[style*='gold_coins'],
+html.jsl.jsl-community .aw-question-detail-meta .i-share,
+html.jsl.jsl-community .aw-question-detail-meta .i-no-help,
+html.jsl.jsl-community .aw-question-detail-meta .i-thank {
+  display: inline-block !important;
+  width: 14px !important;
+  height: 14px !important;
+  margin-right: 5px !important;
+  vertical-align: -2px !important;
+  background-image: none !important;
+  background-color: currentColor !important;
+  -webkit-mask: var(--jsl-icon) center / contain no-repeat;
+  mask: var(--jsl-icon) center / contain no-repeat;
+}
+
+/* 引用 = 对话气泡 */
+html.jsl.jsl-community .aw-add-comment .i-remark {
+  --jsl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z'/%3E%3C/svg%3E");
+}
+
+/* 答谢 = 礼物 */
+html.jsl.jsl-community .aw-dynamic-topic-meta i[style*='gold_coins'] {
+  --jsl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z'/%3E%3C/svg%3E");
+}
+
+/* 分享 */
+html.jsl.jsl-community .aw-question-detail-meta .i-share {
+  --jsl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13'/%3E%3C/svg%3E");
+}
+
+/* 举报 = 旗帜 */
+html.jsl.jsl-community .aw-question-detail-meta .i-no-help {
+  --jsl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7'/%3E%3C/svg%3E");
+}
+
+/* 感谢 = 心形 */
+html.jsl.jsl-community .aw-question-detail-meta .i-thank {
+  --jsl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z'/%3E%3C/svg%3E");
+}
+
+/* 「新人」站方 PNG 徽章 → 主题 accent 小 chip（挂在用户名链接后） */
+html.jsl.jsl-community .aw-dynamic-topic-content a > img[src*='new_user'] {
+  display: none !important;
+}
+
+html.jsl.jsl-community
+  .aw-dynamic-topic-content
+  a.aw-user-name:has(+ a > img[src*='new_user'])::after {
+  content: '新人';
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--jsl-accent-weak);
+  color: var(--jsl-accent);
+  font-size: 11px;
+  line-height: 18px;
+  vertical-align: 1px;
+}
+
+/* 「会员」站方 PNG 徽章 → 琥珀色小 chip（答谢橙同族，用于区分身份） */
+html.jsl.jsl-community .aw-dynamic-topic-content a > img[src*='member.png'] {
+  display: none !important;
+}
+
+html.jsl.jsl-community
+  .aw-dynamic-topic-content
+  a.aw-user-name:has(+ a > img[src*='member.png'])::after {
+  content: '会员';
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: rgba(244, 136, 23, 0.15);
+  color: #e8890f;
+  font-size: 11px;
+  line-height: 18px;
+  vertical-align: 1px;
+}
+
+/* 投票栏：赞/踩 chip 统一底色，sprite 图标换 mask 三角形 */
+html.jsl.jsl-community .aw-vote-bar a {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 6px !important;
+  background: var(--jsl-surface-2) !important;
+}
+
+html.jsl.jsl-community .aw-vote-bar a .i-up,
+html.jsl.jsl-community .aw-vote-bar a .i-down {
+  display: inline-block !important;
+  width: 12px !important;
+  height: 12px !important;
+  background-image: none !important;
+  background-color: var(--jsl-text-3) !important;
+  -webkit-mask: var(--jsl-icon) center / contain no-repeat;
+  mask: var(--jsl-icon) center / contain no-repeat;
+}
+
+html.jsl.jsl-community .aw-vote-bar a .i-up.active {
+  background-color: var(--jsl-accent) !important;
+}
+
+html.jsl.jsl-community .aw-vote-bar a .i-up {
+  --jsl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpolygon points='12 4 20 14 4 14'/%3E%3C/svg%3E");
+}
+
+html.jsl.jsl-community .aw-vote-bar a .i-down {
+  --jsl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpolygon points='4 10 20 10 12 20'/%3E%3C/svg%3E");
+}
+
+/* 收藏 = 星形（标题卡操作条用） */
+html.jsl.jsl-community .aw-question-detail-meta .i-collect {
+  --jsl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/%3E%3C/svg%3E");
+}
+
+/* 回复元信息行：flex 排布，动作组悬浮于行右端（见下） */
+html.jsl.jsl-community .aw-dynamic-topic-meta {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+html.jsl.jsl-community .aw-dynamic-topic-meta > div {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* 回复动作组：默认隐藏，行悬停时以悬浮芯片出现在行右端。
+   绝对定位脱离文档流——任何窗口宽度下都不挤压/换行/省略号化其他元素 */
+html.jsl.jsl-community .aw-dynamic-topic-more-operate {
+  float: none !important;
+  margin: 0 !important;
+  display: none !important;
+}
+
+html.jsl.jsl-community .aw-item:hover .aw-dynamic-topic-more-operate {
+  display: flex !important;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  align-items: center;
+  gap: 6px;
+  padding-left: 10px;
+  background: var(--jsl-surface);
+  white-space: nowrap;
+}
+
+/* 线性图标（mask + currentColor，颜色随文字/悬停变化）：
+   标题卡操作条与回复动作组共用同一套 */
+html.jsl.jsl-community .aw-question-detail-meta .i-share,
+html.jsl.jsl-community .aw-question-detail-meta .i-no-help,
+html.jsl.jsl-community .aw-question-detail-meta .i-thank,
+html.jsl.jsl-community .aw-dynamic-topic-more-operate .i-no-help,
+html.jsl.jsl-community .aw-dynamic-topic-more-operate .i-collect,
+html.jsl.jsl-community .aw-dynamic-topic-more-operate .i-thank {
+  display: inline-block !important;
+  width: 14px !important;
+  height: 14px !important;
+  margin-right: 5px !important;
+  vertical-align: -2px !important;
+  background-image: none !important;
+  background-color: currentColor !important;
+  -webkit-mask: var(--jsl-icon) center / contain no-repeat;
+  mask: var(--jsl-icon) center / contain no-repeat;
+}
+
+/* 举报 = 旗帜 */
+html.jsl.jsl-community .i-no-help {
+  --jsl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7'/%3E%3C/svg%3E");
+}
+
+/* 感谢 = 心形 */
+html.jsl.jsl-community .i-thank {
+  --jsl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z'/%3E%3C/svg%3E");
+}
+
+/* 收藏 = 星形（回复动作组） */
+html.jsl.jsl-community .aw-dynamic-topic-more-operate .i-collect {
+  --jsl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/%3E%3C/svg%3E");
+}
+
+/* 标题行：标题 + 话题标签 + 收藏/关注 同行，垂直居中（站方各层 padding 为 0，此处补齐） */
+html.jsl.jsl-community .aw-question-detail-title > .aw-mod-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px 12px;
+  border-bottom: none;
+}
+
+html.jsl.jsl-community .aw-question-detail-title > .aw-mod-head > h1 {
+  margin: 0;
+  /* 站方给详情标题写死固定宽（动态注入，CSSOM 搜不到，实测 455px），文字没那么长
+     时话题标签被推出一大截空——与列表页 h4 写死 550px 同款陷阱，放开收窄到文字宽 */
+  width: auto !important;
+  font-size: 20px;
+  line-height: 30px;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+html.jsl.jsl-community .aw-question-detail-title .aw-topic-editor {
+  order: 1;
+  flex-shrink: 0;
+}
+
+/* 收藏/关注：站方 absolute 钉在右上，拉回 flex 流并推到内容右缘（与正文右缘对齐）。
+   注意 margin 要带 !important 且整组只此一条——曾因重复定义的 margin:0 !important
+   把 margin-left:auto 压死，按钮悬在半路 */
+html.jsl.jsl-community .aw-question-detail-title .aw-question-follow {
+  position: static !important;
+  order: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 0 auto !important;
+  flex-shrink: 0;
+}
+
+html.jsl.jsl-community .aw-question-detail-title > .aw-mod-body {
+  padding: 0 20px 16px;
+}
+
+/* 收藏/关注：与描边按钮簇同规格（站方 .aw-active/.btn-success 蓝底需高特异性压制） */
+html.jsl.jsl-community .aw-question-detail-title .aw-mod-head a.aw-follow-question {
+  display: inline-flex !important;
+  align-items: center;
+  box-sizing: border-box;
+  height: 28px !important;
+  padding: 0 14px !important;
+  margin: 0 !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: 6px !important;
+  background: var(--jsl-surface-2) !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 13px !important;
+  text-shadow: none !important;
+  transition:
+    color 0.12s,
+    border-color 0.12s,
+    background 0.12s;
+}
+
+html.jsl.jsl-community .aw-question-detail-title .aw-mod-head a.aw-follow-question:hover {
+  color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+  background: transparent !important;
+}
+
+/* 标题卡 head 的通栏细线（缩放下成虚线）：改为主标题下方的内嵌留白即可 */
+html.jsl.jsl-community .aw-question-detail-title .aw-mod-head {
+  border-bottom: none !important;
+}
+
+/* 标题卡底部操作条：站方 inline 45px 行高撑出大留白，压缩为紧凑文字行 */
+html.jsl.jsl-community .aw-question-detail-meta span,
+html.jsl.jsl-community .aw-question-detail-meta div {
+  height: auto !important;
+  line-height: 1.8 !important;
+}
+
+/* meta 行 flex 化：分享并入「发表时间…来自 xx」行尾不换行；站方 <br> 摘除，
+   赞同来自独占第二行；分享链接上的站方内联 45px 行高压平，两行间距收紧 */
+html.jsl.jsl-community .aw-question-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 4px;
+}
+
+html.jsl.jsl-community .aw-question-detail-meta > br {
+  display: none;
+}
+
+html.jsl.jsl-community .aw-question-detail-meta > p.aw-agree-by {
+  flex: 0 0 100%;
+  /* 站方内联 margin-top:30px 把两行撑开近一行高——必须 !important 压过内联样式 */
+  margin: 6px 0 0 !important;
+}
+
+html.jsl.jsl-community .aw-question-detail-meta .aw-share-dropdown a {
+  height: auto !important;
+  line-height: 1.8 !important;
+}
+
+html.jsl.jsl-community .aw-question-detail-meta a {
+  color: var(--jsl-text-3) !important;
+  font-size: 12px;
+}
+
+html.jsl.jsl-community .aw-question-detail-meta a:hover {
+  color: var(--jsl-accent) !important;
+}
+
+/* 回复区：整体一张卡，回复行为行 + 两端留白实线分隔 */
+html.jsl.jsl-community .aw-question-detail-box {
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow);
+}
+
+/* 「回复计数 + 排序」行：flex 对齐（计数左、tab 右），覆盖站方 nav-tabs/浮动样式 */
+html.jsl.jsl-community .aw-question-detail-box > .aw-mod-head {
+  padding: 0;
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+html.jsl.jsl-community .aw-question-detail-box > .aw-mod-head > ul.aw-reset-nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 18px;
+  border-bottom: none;
+}
+
+/* 「195 个回复」计数：与其他行文字同高居中 */
+html.jsl.jsl-community .aw-question-detail-box > .aw-mod-head > ul.aw-reset-nav-tabs > h2 {
+  order: -1;
+  /* 站方 h2 是 absolute 定位 hack（原版钉在左侧、tab 浮动靠右），必须拉回 flex 流 */
+  position: static !important;
+  margin: 0 12px 0 0 !important;
+  /* 站方还塞了 padding: 2px 0 12px，盒高 44、文字比旁边 tab 高 5px——归零交由 flex 居中 */
+  padding: 0 !important;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--jsl-text);
+  line-height: 30px;
+}
+
+html.jsl.jsl-community .aw-question-detail-box > .aw-mod-head > ul.aw-reset-nav-tabs > li {
+  float: none;
+  margin: 0;
+}
+
+html.jsl.jsl-community .aw-question-detail-box > .aw-mod-head > ul.aw-reset-nav-tabs > li > a {
+  display: inline-block;
+  padding: 4px 10px;
+  border: none !important;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--jsl-text-2);
+  font-size: 13px;
+  line-height: 22px;
+  transition:
+    color 0.12s,
+    background 0.12s;
+}
+
+/* 当前排序：浅品牌底 + 品牌色文字（与列表页排序行同构） */
+html.jsl.jsl-community .aw-question-detail-box > .aw-mod-head > ul.aw-reset-nav-tabs > li.active > a {
+  background: var(--jsl-accent-weak);
+  color: var(--jsl-accent) !important;
+  border: none;
+}
+
+/* 站方 tab 的 hover 边框/底色 */
+html.jsl.jsl-community .aw-question-detail-box > .aw-mod-head > ul.aw-reset-nav-tabs > li > a:hover {
+  border: none;
+  background: transparent;
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-community .aw-question-detail-box > .aw-mod-head a {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: var(--jsl-text-2);
+  font-size: 13px;
+  transition:
+    color 0.12s,
+    background 0.12s;
+}
+
+html.jsl.jsl-community .aw-question-detail-box > .aw-mod-head a:hover {
+  color: var(--jsl-accent);
+  background: var(--jsl-accent-weak);
+}
+
+html.jsl.jsl-community .aw-dynamic-topic .aw-item {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 14px 18px;
+  position: relative;
+}
+
+/* 行分隔：两端留白实线（末条回复后接分页区，不加） */
+html.jsl.jsl-community .aw-dynamic-topic .aw-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 0;
+  height: 2px;
+  background: var(--jsl-border);
+}
+
+/* 回复分页区 */
+html.jsl.jsl-community .aw-question-detail-box > .clearfix {
+  padding: 10px 18px;
+}
+
+/* 长回复折叠（detail.ts foldLongReplies）：收起时限高 + 底部渐隐。
+   渐隐不用 mask-image——mask 会连子树里的「展开回复」胶囊一起淡化；
+   改用 ::after 渐变覆盖层（z 序在胶囊之下，胶囊 z-index:1 清晰浮于其上） */
+html.jsl.jsl-community .aw-question-detail-box .aw-item.jsl-reply-collapsed .aw-dynamic-topic-content {
+  max-height: 500px;
+  overflow: hidden;
+}
+
+html.jsl.jsl-community
+  .aw-question-detail-box
+  .aw-item.jsl-reply-collapsed
+  .aw-dynamic-topic-content::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 90px;
+  background: linear-gradient(to bottom, transparent, var(--jsl-surface));
+  pointer-events: none;
+}
+
+/* 折叠/展开两态按钮共用同一居中基准：悬浮胶囊若锚到 .aw-item（楼层号的定位基准），
+   中心线会比正文列偏右；以正文列为定位基准后，与展开态 margin:auto 的中心线重合 */
+html.jsl.jsl-community .aw-dynamic-topic-content {
+  position: relative;
+}
+
+html.jsl.jsl-community .jsl-reply-expand-btn {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  width: 132px;
+  height: 36px;
+  /* 实底 accent + 白字（与「发起」按钮同对比度）：accent-weak 淡底在渐隐区上
+     实测仍不清晰，加深一档 */
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background: var(--jsl-accent);
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    background 0.12s,
+    filter 0.12s;
+}
+
+html.jsl.jsl-community .jsl-reply-expand-btn:hover {
+  background: var(--jsl-accent-hover);
+}
+
+/* 浅色主题：实底墨色 + 白字——与蓝色「发起」按钮错开、深浅适中不模糊；
+   深色主题仍用 accent（墨色令牌在深色下近白，不可直接复用） */
+html.jsl.jsl-community:not([data-theme='dark']) .jsl-reply-expand-btn {
+  background: var(--jsl-text);
+  color: #fff;
+}
+
+html.jsl.jsl-community:not([data-theme='dark']) .jsl-reply-expand-btn:hover {
+  background: var(--jsl-text-2);
+}
+
+/* 展开态的「收起回复」按钮回到文档流：detail.ts 把它插在正文容器末尾（meta 行之后），
+   块级独占一行、auto 外边距在正文列内居中，把下方内容自然推开——不悬浮遮挡。
+   注意不能插在正文容器外面：item / mod-body 都是 flex 行，按钮会挤成同排子项 */
+html.jsl.jsl-community
+  .aw-question-detail-box
+  .aw-item:not(.jsl-reply-collapsed)
+  .jsl-reply-expand-btn {
+  position: static;
+  left: auto;
+  transform: none;
+  display: block;
+  margin: 10px auto 12px;
+}
+
+/* 回复编辑器：卡片化 */
+html.jsl.jsl-community .aw-mod.aw-mod-replay-box {
+  background: var(--jsl-surface);
+  /* 站方边框是浅色 #d5d5d5 系，深色下成白框，必须 !important 压回令牌 */
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow);
+  padding: 12px 18px 16px;
+  margin-bottom: 24px !important;
+}
+
+html.jsl.jsl-community .aw-mod-replay-box form {
+  margin: 0 !important;
+}
+
+/* 编辑器文本域与工具条容器 */
+html.jsl.jsl-community .aw-mod-replay-box textarea,
+html.jsl.jsl-community .aw-mod-replay-box .markItUpEditor {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  background: var(--jsl-bg) !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: 6px !important;
+  color: var(--jsl-text) !important;
+}
+
+/* 「回复」提交按钮：品牌色圆角 */
+html.jsl.jsl-community .aw-mod-replay-box .btn-success {
+  background: var(--jsl-accent) !important;
+  border: none !important;
+  border-radius: 6px !important;
+  text-shadow: none !important;
+}
+
+/* markitup 编辑器站方亮色部件压成深色 */
+html.jsl.jsl-community .aw-mod-replay-box .markItUp {
+  background: var(--jsl-surface-2) !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: 6px !important;
+  padding: 4px !important;
+}
+
+html.jsl.jsl-community .aw-mod-replay-box .markItUpHeader {
+  background: transparent !important;
+  border-bottom: 1px solid var(--jsl-border) !important;
+}
+
+/* 工具条图标是深色 sprite，反色后适配深色底 */
+html.jsl.jsl-community .aw-mod-replay-box .markItUpHeader ul li a {
+  border: none !important;
+  filter: invert(0.9) hue-rotate(180deg);
+}
+
+/* 站方 .aw-mod-body 的 #E7EFF2 亮底（编辑器白框来源） */
+html.jsl.jsl-community .aw-mod-replay-box .aw-mod-body {
+  background: transparent !important;
+}
+
+html.jsl.jsl-community .aw-mod-replay-box .markItUpEditor {
+  background: var(--jsl-bg) !important;
+  color: var(--jsl-text) !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: 6px !important;
+  font-family: var(--jsl-font) !important;
+  box-shadow: none !important;
+}
+
+/* 「预览模式」白盒压成深色 */
+html.jsl.jsl-community .aw-mod-replay-box .markItUpPreviewFrame {
+  background: var(--jsl-surface-2) !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: 6px !important;
+  color: var(--jsl-text-3) !important;
+}
+
+html.jsl.jsl-community .aw-mod-replay-box .markItUpPreviewFrame .title {
+  color: var(--jsl-text-3) !important;
+  border-color: var(--jsl-border) !important;
+}
+
+/* 站方 markdown 编辑器嵌套初始化：外层 markItUp 实例的工具栏与内层（真正持有
+   textarea 的实例）完全重复，渲染出两条工具栏。隐藏嵌套实例外层的工具栏，
+   保留内层的——它的按钮才绑定着实际编辑区 */
+html.jsl.jsl-community .markItUp .markItUp > .markItUpContainer > .markItUpHeader {
+  display: none !important;
+}
+
+/* 「赏」（金币答谢）：改为圆角矩形（发起按钮形状），保留站方答谢橙；
+   站方 JS 会把它定位到卡片中间，改为文档流内左对齐 */
+html.jsl.jsl-community #jsl_donate_popover {
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: auto !important;
+  height: 36px !important;
+  padding: 0 24px !important;
+  border-radius: 6px !important;
+  background: #f48817 !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+html.jsl.jsl-community #jsl_donate_popover:hover {
+  background: #e0760f !important;
+}
+
+/* 赏按钮容器：水平居中 + 上下留白（与正文/元信息行拉开距离）。
+   空的 #question_donate_info 有站方宽度会把按钮挤偏——给它独占一行：
+   空时零高不可见，答谢名单填充后自然落在按钮下方 */
+html.jsl.jsl-community .aw-question-detail-title .donate_info_wrap {
+  display: flex !important;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 0 !important;
+  margin: 4px 0 0 !important;
+}
+
+html.jsl.jsl-community .aw-question-detail-title .donate_info_wrap #question_donate_info {
+  flex: 0 0 100% !important;
+  width: auto !important;
+  float: none !important;
+}
+
+/* 全站弹窗菜单统一卡片皮肤（分享/用户/数据/通知均为此类） */
+html.jsl.jsl-community .dropdown-menu.aw-dropdown-menu {
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow-pop);
+  padding: 6px;
+}
 
 /* 主帖卡片 */
 html.jsl.jsl-community .aw-question-detail-title {
@@ -504,7 +1138,11 @@ html.jsl.jsl-community .aw-question-detail-title h1 a {
 }
 
 html.jsl.jsl-community .aw-question-detail-title .aw-topic-editor {
-  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  /* 站方 margin-bottom:10px（原绝对定位布局的遗产）会让 flex 按 margin 盒居中，
+     chip 整体抬高 5px；归零后与标题文字、收藏/关注按钮共享同一中心线 */
+  margin: 0 !important;
 }
 
 html.jsl.jsl-community .aw-question-detail-title .aw-topic-editor .aw-topic-name {
@@ -549,6 +1187,11 @@ html.jsl.jsl-community .markitup-box {
   line-height: 1.75;
   color: var(--jsl-text);
   word-break: break-word;
+}
+
+/* 主帖正文两端对齐：中文行尾参差不齐观感差；末行/段尾保持左对齐（justify 默认行为） */
+html.jsl.jsl-community .aw-question-detail-txt {
+  text-align: justify;
 }
 
 html.jsl.jsl-community .markitup-box p {
@@ -628,14 +1271,14 @@ html.jsl.jsl-community .aw-dynamic-topic .aw-item {
 html.jsl.jsl-community .aw-dynamic-topic .aw-user-img {
   float: none !important;
   flex-shrink: 0;
-  width: 38px;
-  height: 38px;
+  width: 48px;
+  height: 48px;
   margin: 0 !important;
 }
 
 html.jsl.jsl-community .aw-dynamic-topic .aw-user-img img {
-  width: 38px;
-  height: 38px;
+  width: 48px;
+  height: 48px;
   border-radius: 8px;
 }
 
@@ -727,13 +1370,21 @@ html.jsl.jsl-community .aw-dynamic-topic .aw-dynamic-topic-meta {
   margin-top: 8px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  /* 6px 间距给 hover 动作组留出安全余量：此行在部分窗口宽度下只有几px富余，
+     间距稍大就会把时间文本挤成省略号 */
+  gap: 6px;
+  /* 不换行：动作组（举报/收藏/感谢/拉黑）必须与时间/引用/答谢同行；
+     窄屏时由时间文本收缩兜底（见下） */
+  flex-wrap: nowrap;
 }
 
 html.jsl.jsl-community .aw-dynamic-topic .aw-dynamic-topic-meta > span.pull-left {
   float: none !important;
   font-size: 12px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 html.jsl.jsl-community .aw-dynamic-topic .aw-add-comment {
@@ -762,7 +1413,8 @@ html.jsl.jsl-community .aw-dynamic-topic-more-operate .aw-dropdown {
    ============================================================ */
 
 html.jsl.jsl-community .aw-side-bar {
-  padding-top: 11px;
+  /* 10px + 卡边框 1px：首卡顶与主栏卡片顶（容器顶 + 10px）同线 */
+  padding-top: 10px;
 }
 
 html.jsl.jsl-community .aw-side-bar-mod {
@@ -770,7 +1422,10 @@ html.jsl.jsl-community .aw-side-bar-mod {
   border: 1px solid var(--jsl-border);
   border-radius: var(--jsl-radius);
   box-shadow: var(--jsl-shadow);
-  margin-bottom: 14px;
+  /* 卡间距与主栏卡片一致（16px）；站方 padding-bottom:10px 死底摘除，
+     底部留白由 body 的 padding 统一控制 */
+  margin-bottom: 16px;
+  padding-bottom: 0;
 }
 
 /* 侧栏卡片标题两种站方类名：aw-side-bar-mod-head（详情页）/ aw-mod-head（热门话题） */
@@ -781,12 +1436,31 @@ html.jsl.jsl-community .aw-side-bar-mod .aw-mod-head h3 {
   font-size: 13px;
   font-weight: 600;
   margin: 0;
-  padding: 12px 16px 0;
+  /* 上下留白对齐详情卡 16px 节奏：label 顶距 ≈16，label→内容 16 */
+  padding: 12px 14px 0;
 }
 
 html.jsl.jsl-community .aw-side-bar-mod-body {
-  padding: 10px 16px 14px;
+  padding: 6px 14px 10px;
   font-size: 13px;
+}
+
+/* 发起人/问题状态卡：dt(头像) + dd(文字) 改 flex 对齐，
+   站方 dd 浮动清除后 margin 只剩 10px，名字会压到 32px 头像上 */
+html.jsl.jsl-community .aw-side-bar-mod-body dl {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+html.jsl.jsl-community .aw-side-bar-mod-body dl dt,
+html.jsl.jsl-community .aw-side-bar-mod-body dl dd {
+  float: none !important;
+  margin: 0 !important;
+}
+
+html.jsl.jsl-community .aw-side-bar-mod-body dl dt img {
+  border-radius: 6px;
 }
 
 /* ============================================================

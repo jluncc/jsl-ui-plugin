@@ -4,7 +4,7 @@
 
 ## 项目是什么
 
-为 [集思录](https://www.jisilu.cn/) 社区（WeCenter / Bootstrap 2 / jQuery 老站）做界面现代化的 Chrome MV3 扩展。零运行时依赖，TypeScript + tsup + pnpm。当前版本 0.2.0：列表页布局已按用户手绘稿完成重构并通过逐项验收，详情页为早期状态（见「待办」）。
+为 [集思录](https://www.jisilu.cn/) 社区（WeCenter / Bootstrap 2 / jQuery 老站）做界面现代化的 Chrome MV3 扩展。零运行时依赖，TypeScript + tsup + pnpm。当前版本 0.3.0：列表页与详情页均已按用户手绘稿完成精修并通过逐项验收（登录态实测）。
 
 ## 常用命令
 
@@ -47,6 +47,8 @@ pnpm format  # prettier
    - 搜索下拉 `.aw-search-dropdown-box`：定位基准是 form 层，站方 `left: -164px / width: 362px`；需把 `.navbar-search` 设 `position: relative; width: 100%` 再 `left/right/top/width` 对齐。
    - 给链接类元素设 `display: inline-flex` 会顶掉 `[hidden]` 的 UA 样式（曾让已隐藏的「首页」复活），需配 `a[hidden] { display: none !important }` 兜底。
    - `.aw-footer` 自带 30px 上下 padding，与扩展层的 padding 叠加会让页脚虚胖。
+   - 顶栏把站方 `.row` 打成 `display: contents` 后，它的 clearfix 伪元素（`::before/::after`，`display: table`）会被提升成 0 宽 flex 子项，各自吃掉两侧 10px gap——logo 前凭空多 10px 偏移、窄屏白占滚动空间；必须 `display: none` 摘除（global.css 顶栏区有现成规则）。
+   - 站方输入控件无全局 `border-box`：`width: 100%` + padding/border 会外溢（搜索框曾撑到 246×36，吃掉与「发起」按钮的间隙），自绘胶囊一律补 `box-sizing: border-box` + 定高。
 3. **1px 细线在侧栏缩放显示下会摩尔纹成虚线**（面板把 1280px 页面缩小渲染，细线周期性丢像素）。行分隔线用 2px；用户参考 V2EX 式"两端 18px 留白的实线"，用 `.aw-item:not(:last-child)::after` 伪元素实现。
 
 ## 布局决策记录（用户手绘稿定稿，勿轻易改）
@@ -69,7 +71,7 @@ pnpm format  # prettier
 
 ## 待办 / 已知边界
 
-- [ ] 详情页按列表页同套语言精修（当前仅早期适配：楼层号、回顶、引用/代码块样式）。
+- [x] 详情页按列表页同套语言精修（标题行对齐、正文两端对齐、meta 行 flex 化、长回复折叠双向切换、侧栏 16px 节奏、登录态下拉适配）。
 - [ ] 二期：数据页（可转债/LOF/ETF）表格美化——sticky 表头、斑马纹、tabular-nums。
 - [ ] 登录态页面深度适配（发帖页、个人中心、消息下拉）。
 - [ ] 预览页主题切换不持久（真实扩展走 chrome.storage，行为差异已知）。
