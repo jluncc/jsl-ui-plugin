@@ -24,12 +24,16 @@ for name in ("tokens.css", "global.css", "community.css"):
 # 模拟 content script 全部 DOM 增强（与 src/content 保持一致）
 inject_style = f"<style>{css}</style>"
 
-# 页面标志按快照内容判断，而不是文件名
-flags = "jsl jsl-community"
+# 页面标志按快照内容判断，而不是文件名（与 index.ts applyPageFlags 保持一致）
+flags = "jsl"
+if "aw-wecenter" in html:
+    flags += " jsl-community"
 if "aw-question-list" in html:
     flags += " jsl-page-list"
 if "aw-question-detail-box" in html:
     flags += " jsl-page-detail"
+if "wrapper_content" in html or "header_navbar_bg" in html:
+    flags += " jsl-page-portal"
 
 sim = """
 <script>
@@ -43,9 +47,19 @@ sim = """
     link.textContent = text;
   });
 
+  // polishPortalNav：门户导航简化（去首页、社区-知识库 → 社区）
+  var portalHome = document.getElementById('top_nav_menu_home');
+  if (portalHome) portalHome.remove();
+  var portalForum = document.querySelector('#top_nav_menu_forum a');
+  if (portalForum) portalForum.textContent = '社区';
+
   // injectThemeToggle：注入主题切换按钮；预览版点击直接翻转 data-theme
-  var wrap = document.querySelector('.aw-top-menu-wrap');
-  if (wrap && !wrap.querySelector('.jsl-theme-toggle')) {
+  // 社区页注入 WeCenter 顶栏末尾；门户首页注入搜索框之后（右侧控件簇起点）
+  var communityWrap = document.querySelector('.aw-top-menu-wrap');
+  var portalSearchBox = document.querySelector('.header_navbar_content .search_box');
+  var injectTarget = communityWrap || portalSearchBox;
+  var injectAfter = !communityWrap && portalSearchBox;
+  if (injectTarget && !injectTarget.querySelector('.jsl-theme-toggle')) {
     var SUN = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>';
     var MOON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
     var b = document.createElement('button');
@@ -62,7 +76,8 @@ sim = """
       syncBtn();
     });
     syncBtn();
-    wrap.appendChild(b);
+    if (injectAfter) injectTarget.insertAdjacentElement('afterend', b);
+    else injectTarget.appendChild(b);
   }
 
   // list.ts：卡片顶部两行导航——第一行分类+话题，第二行排序
@@ -99,6 +114,28 @@ sim = """
       if (!rowMain.contains(picked[k]) && !rowSort.contains(picked[k])) rowMain.appendChild(picked[k]);
     });
     list.insertBefore(head, list.firstChild);
+
+    // 「热门」天数子筛并入排序行右端
+    var dayTabs = document.querySelector('.aw-main-content > .aw-tabs');
+    if (dayTabs) {
+      dayTabs.classList.add('jsl-card-head-days');
+      rowSort.appendChild(dayTabs);
+    }
+
+    // 站方对会员数据链接做了字符混淆（自定义字体渲染），预览环境显示为乱码——还原明文
+    document.querySelectorAll('.aw-side-bar a[href*="member_data"]').forEach(function (a) {
+      if ((a.textContent || '').indexOf('\uFFFD') >= 0) a.textContent = '特色数据、功能特权';
+    });
+
+    // 预览专用：排序/天数点击仅切换激活态（快照数据不随排序变化，真实站点行为不变）
+    rowSort.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        var li = a.parentElement;
+        li.parentElement.querySelectorAll('li').forEach(function (x) { x.classList.remove('active'); });
+        li.classList.add('active');
+      });
+    });
     var rc = document.querySelector('.row.category');
     if (rc) rc.remove();
     if (sortUl) sortUl.remove();
@@ -144,6 +181,46 @@ sim = """
   window.addEventListener('scroll', toggleTop, { passive: true });
   toggleTop();
   document.body.appendChild(top);
+
+  // 搜索结果页：结果由站方 AJAX 渲染，本地预览无后端、失败后行被清空——
+  // sim 时点结果已在快照里（服务端直出），克隆备份；3 秒后若被站方 JS 清空则还原
+  if (document.querySelector('.search_rows')) {
+    var searchBackup = [];
+    document.querySelectorAll('.search_rows').forEach(function (row) {
+      searchBackup.push({ row: row, html: row.innerHTML });
+    });
+    setTimeout(function () {
+      searchBackup.forEach(function (b) {
+        if (!b.row.innerHTML.trim() && b.html.trim()) b.row.innerHTML = b.html;
+      });
+    }, 3000);
+  }
+
+  // 个人中心信息流：同为 AJAX 渲染，本地失败后主列只剩转圈——同款还原（4 秒，
+  // 条件是 .aw-item 缺失，避免与站方正常渲染互相打架）
+  var mainContent = document.querySelector('.aw-main-content');
+  if (mainContent && mainContent.querySelector('.aw-item')) {
+    var mainBackup = mainContent.innerHTML;
+    setTimeout(function () {
+      if (!mainContent.querySelector('.aw-item')) mainContent.innerHTML = mainBackup;
+    }, 4000);
+  }
+
+  // 门户搜索联想弹窗：由站方 JS 异步构建，本地无后端不出现——
+  // 烘焙一份静态打开态（数据/问题两组样例）供样式验收，真实站点不受影响
+  var portalSearchBox = document.querySelector('.search_box');
+  if (portalSearchBox && !document.getElementById('jsl-baked-suggest')) {
+    var dd = document.createElement('div');
+    dd.id = 'jsl-baked-suggest';
+    dd.innerHTML =
+      '<div class="search_type data"><div class="title">数据</div><div class="more"><a href="javascript:;">更多数据&gt;&gt;</a></div>' +
+      '<div class="search_item"><a href="javascript:;"><div class="search_text">可转债</div><div class="search_info">数据</div></a></div>' +
+      '<div class="search_item"><a href="javascript:;"><div class="search_text">可转债ETF</div><div class="search_info">数据</div></a></div></div>' +
+      '<div class="search_type question"><div class="title">问题</div><div class="more"><a href="javascript:;">更多问题&gt;&gt;</a></div>' +
+      '<div class="search_item"><a href="javascript:;"><div class="search_text">聊聊财务自由的几个层次</div><div class="search_info">212 个回答</div></a></div>' +
+      '<div class="search_item"><a href="javascript:;"><div class="search_text">2026 转债策略及实盘</div><div class="search_info">495 个回答</div></a></div></div>';
+    portalSearchBox.appendChild(dd);
+  }
 
   // 长回复折叠
   document.querySelectorAll('.aw-dynamic-topic > .aw-item').forEach(function (item) {

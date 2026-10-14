@@ -13,10 +13,9 @@ const MOON_SVG = `
   <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
 </svg>`;
 
-/** 向社区 header 注入深浅主题切换按钮；写入显式 themeMode 并由设置监听即时生效 */
+/** 向社区 header / 门户首页导航注入深浅主题切换按钮；写入显式 themeMode 并由设置监听即时生效 */
 export function injectThemeToggle(): void {
-  const wrap = document.querySelector<HTMLElement>('.aw-top-menu-wrap');
-  if (!wrap || wrap.querySelector('.jsl-theme-toggle')) return;
+  if (document.querySelector('.jsl-theme-toggle')) return;
 
   const button = document.createElement('button');
   button.className = 'jsl-theme-toggle';
@@ -41,5 +40,14 @@ export function injectThemeToggle(): void {
   });
   syncIcon();
 
-  wrap.appendChild(button);
+  // 社区页：WeCenter 顶栏末尾；门户首页：搜索框之后（右侧控件簇的起点）
+  const communityWrap = document.querySelector<HTMLElement>('.aw-top-menu-wrap');
+  if (communityWrap) {
+    communityWrap.appendChild(button);
+    return;
+  }
+  const portalSearch = document.querySelector<HTMLElement>(
+    '.header_navbar_content .search_box',
+  );
+  portalSearch?.insertAdjacentElement('afterend', button);
 }

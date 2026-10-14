@@ -55,7 +55,11 @@ html.jsl.jsl-community .jsl-card-head li a {
 
 html.jsl.jsl-community .jsl-card-head li a:hover {
   color: var(--jsl-accent);
-  background: var(--jsl-surface-2);
+}
+
+/* 灰带上的排序链接：hover 只变色（surface-2 底在灰带上不可见） */
+html.jsl.jsl-community .jsl-card-head-row.jsl-card-head-sort li a:hover {
+  background: transparent;
 }
 
 /* 选中态按维度区分：分类实底（页面维度），排序/话题浅品牌底（筛选维度） */
@@ -69,6 +73,84 @@ html.jsl.jsl-community .jsl-card-head li[data-dim='sort'].active a {
   background: var(--jsl-accent-weak);
   color: var(--jsl-accent);
   font-weight: 500;
+}
+
+/* 排序行：通栏浅色底带分区（不用线）——负边距通栏到卡片边缘，
+   分类行白底 / 排序行灰带 / 信息流白底，以色调分层 */
+html.jsl.jsl-community .jsl-card-head-row.jsl-card-head-sort {
+  position: relative;
+  margin: 2px -18px 0;
+  padding: 5px 18px;
+  background: var(--jsl-surface-2);
+}
+
+/* 天数子筛（30天/7天/当天，热门排序下出现）：一体式分段控件——
+   surface-2 轨道 + 浮起选中段，视觉上明确从属于「热门」主排序。
+   站方 .aw-tabs 自带 #f7f7f7 底、bootstrap .pull-right 挂 float:right !important——都压掉 */
+html.jsl.jsl-community .jsl-card-head-sort .aw-tabs {
+  /* 轨道定高 28（内容 24 + 上下 2px）+ overflow hidden 兜底：
+     无论站方样式/字体如何波动，段永远不会戳出轨道下缘 */
+  margin-left: auto;
+  background: transparent !important;
+  border: none;
+  padding: 2px 0;
+  height: 28px;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+html.jsl.jsl-community .jsl-card-head-sort .aw-tabs ul {
+  display: flex;
+  gap: 0;
+  float: none !important;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+  height: 100%;
+}
+
+html.jsl.jsl-community .jsl-card-head-sort .aw-tabs li {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/* 段显式定高 24px 并自身 flex 居中：站方页面的字体行盒异常（normal 行高达 30px）
+   会把块级段撑高戳出轨道——显式高度 + overflow hidden 双保险 */
+html.jsl.jsl-community .jsl-card-head-sort .aw-tabs li a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 5px;
+  color: var(--jsl-text-2);
+  font-size: 12px;
+  white-space: nowrap;
+  transition:
+    color 0.12s,
+    background 0.12s,
+    box-shadow 0.12s;
+}
+
+html.jsl.jsl-community .jsl-card-head-sort .aw-tabs li a:hover {
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-community .jsl-card-head-sort .aw-tabs li a:hover {
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-community .jsl-card-head-sort .aw-tabs li.active a {
+  background: var(--jsl-surface);
+  color: var(--jsl-text);
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
 }
 
 /* ---------- 会员服务推广条：移入侧栏的价目小卡片（内联样式需强覆盖） ---------- */
@@ -141,10 +223,30 @@ html.jsl.jsl-community .aw-side-bar > div[style*='jsl_bg_member_info'] > a > div
   padding: 0 !important;
 }
 
-html.jsl.jsl-community .aw-side-bar > div[style*='jsl_bg_member_info'] img[src*='member2'] {
-  width: 16px !important;
-  vertical-align: -3px;
-  margin-left: 4px;
+/* 侧栏会员卡标题的 PNG 徽章 → 琥珀色文字 chip（与详情页身份徽章同族）。
+   标题内层的站方 div 是块级，会把 chip 挤到第二行——改为内联让 chip 紧跟标题 */
+html.jsl.jsl-community .aw-side-bar img[src*='member2'] {
+  display: none !important;
+}
+
+html.jsl.jsl-community
+  .aw-side-bar
+  a:has(> div > img[src*='member2'])
+  > div {
+  display: inline;
+}
+
+html.jsl.jsl-community .aw-side-bar a:has(> div > img[src*='member2'])::after {
+  content: '会员';
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: rgba(244, 136, 23, 0.15);
+  color: #e8890f;
+  font-size: 11px;
+  line-height: 18px;
+  vertical-align: 1px;
 }
 
 html.jsl.jsl-community .aw-side-bar > div[style*='jsl_bg_member_info'] > div:last-child {
@@ -1504,4 +1606,890 @@ html.jsl.jsl-community .jsl-back-top.jsl-show {
 html.jsl.jsl-community .jsl-back-top:hover {
   color: var(--jsl-accent);
   border-color: var(--jsl-accent);
+}
+
+/* ============================================================
+   门户首页（www.jisilu.cn/ 新版自定义皮肤，非 WeCenter 架构）
+   站方基座：Bootstrap3 + jisilu_framework.css + 页面内联样式，
+   960px 定宽、颜色硬编码浅色、正文为浏览器默认宋体。
+   本节：字体现代化、深浅双主题令牌化、面板/宫格/列表节奏统一。
+   页面标志：html.jsl.jsl-page-portal（index.ts / preview.sh）
+   ============================================================ */
+
+html.jsl.jsl-page-portal body {
+  background: var(--jsl-bg);
+  font-family: var(--jsl-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 站方 framework 在内层容器也写死了宋体，body 层继承不进去——全量穿透 */
+html.jsl.jsl-page-portal body,
+html.jsl.jsl-page-portal body * {
+  font-family: var(--jsl-font);
+}
+
+/* ---- 站方硬编码颜色逐项令牌化（清单来自页面内联样式块，深浅通用） ---- */
+
+/* 左右面板底（#f5f5f5） */
+html.jsl.jsl-page-portal .first_column .left,
+html.jsl.jsl-page-portal .first_column .right,
+html.jsl.jsl-page-portal .tag_column > div.right {
+  background: var(--jsl-surface);
+}
+
+/* 面板标题条（#eaeaea / #efeff1） */
+html.jsl.jsl-page-portal .first_column .left .title,
+html.jsl.jsl-page-portal .first_column .right .title_box {
+  background: var(--jsl-surface-2);
+  color: var(--jsl-text);
+}
+
+/* 日历标题链接的内联 color:#333 */
+html.jsl.jsl-page-portal .first_column .title a {
+  color: var(--jsl-text) !important;
+}
+
+/* 投资提示面板标题链接（#4d4d4d / hover #337ab7） */
+html.jsl.jsl-page-portal .first_column .right .title_box .title a {
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-page-portal .first_column .right .title_box .title a:hover {
+  color: var(--jsl-accent);
+}
+
+/* 数据宫格 tab 条（#fff）与链接（#4d4d4d / #AEAEAE） */
+html.jsl.jsl-page-portal .tag_top div {
+  background: var(--jsl-surface);
+}
+
+html.jsl.jsl-page-portal .tag_top div.link a:link,
+html.jsl.jsl-page-portal .tag_top div.link a:visited,
+html.jsl.jsl-page-portal .tag_top div.link a:hover {
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-page-portal .tag_top div.link span {
+  color: var(--jsl-text-3);
+}
+
+/* 数据宫格模块卡（#eceaea）与模块标题（#006699） */
+html.jsl.jsl-page-portal .tag_content > div {
+  background: var(--jsl-surface-2);
+}
+
+html.jsl.jsl-page-portal .tag_content > div .title,
+html.jsl.jsl-page-portal .tag_content > div .title a:link,
+html.jsl.jsl-page-portal .tag_content > div .title a:visited {
+  color: var(--jsl-accent);
+}
+
+/* 宫格子链接（#4d4d4d）与分隔符（#AEAEAE） */
+html.jsl.jsl-page-portal .tag_content > div a:link,
+html.jsl.jsl-page-portal .tag_content > div a:visited,
+html.jsl.jsl-page-portal .tag_content > div a:hover {
+  color: var(--jsl-text-2);
+}
+
+html.jsl.jsl-page-portal .tag_content > div .sub_tag > span {
+  color: var(--jsl-text-3);
+}
+
+/* 等权指数红字：站方内联 color:red 在深色下发暗，换主题红涨色 */
+html.jsl.jsl-page-portal .tag_content .index_quote_info span[style*="color"] {
+  color: var(--jsl-up) !important;
+}
+
+/* 投资提示事件行提亮一档（站方 #999 系在深色下偏暗） */
+html.jsl.jsl-page-portal .first_column .right .event-meta,
+html.jsl.jsl-page-portal .first_column .right .event-detail-short,
+html.jsl.jsl-page-portal .first_column .right .event-detail-long {
+  color: var(--jsl-text-2);
+}
+
+/* 社区区块（#006699 分类 / #eee 分隔线） */
+html.jsl.jsl-page-portal .tag_column .category {
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-page-portal .tag_column .line {
+  background: var(--jsl-border);
+}
+
+/* 帖子标题（#4d4d4d / hover #337ab7）与摘要（#999） */
+html.jsl.jsl-page-portal .question_list .title a:link,
+html.jsl.jsl-page-portal .question_list .title a:visited {
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-page-portal .question_list .title a:hover {
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-page-portal .question_list .text {
+  color: var(--jsl-text-3);
+}
+
+/* 标签 chip（#D4F2FF 淡蓝底） */
+html.jsl.jsl-page-portal .question_list .text a > span {
+  background: var(--jsl-accent-weak);
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-page-portal .ad_item .ad_mark {
+  background: var(--jsl-accent-weak);
+  color: var(--jsl-accent);
+}
+
+/* ---- 顶部导航：对齐社区页 header 语言（文字 logo / 13px 导航 / 30px 控件） ---- */
+
+html.jsl.jsl-page-portal .header_navbar_bg {
+  background: var(--jsl-surface);
+  border-bottom: 1px solid var(--jsl-border);
+}
+
+html.jsl.jsl-page-portal .header_navbar_content {
+  /* 内容宽度与下方面板一致：960px 居中（门户主体为 960 定宽栅格） */
+  width: 960px !important;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  margin: 0 auto !important;
+  padding: 0 !important;
+}
+
+/* 站方整段导航是固定子宽（130/380/210/240）+ 子项各自 margin-top(9/14/15/20)
+   + 菜单 li 58px 高的浮动布局——全部接管：
+   子盒宽度放行、边距归零、行内垂直居中，flex 负责左右分布 */
+html.jsl.jsl-page-portal .header_navbar_content .flex {
+  display: flex !important;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 10px;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .flex > div {
+  float: none !important;
+  margin: 0 !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .flex > div,
+html.jsl.jsl-page-portal .header_navbar_content .flex div {
+  margin-top: 0 !important;
+}
+
+/* 搜索框与用户簇推到右缘（社区页 header 同构：左 logo/导航，右搜索/用户）。
+   搜索框清站方 margin-top、盒高锁 30，flex 行内与按钮垂直对齐 */
+html.jsl.jsl-page-portal .header_navbar_content .flex > .search_box {
+  margin-left: auto !important;
+  margin-top: 0 !important;
+  /* 站方固定 210px 盒 + 组内 185px 输入框，按钮外溢 9px 会压到后面的主题按钮：
+     盒宽改自适应、组锁 100%，按钮 flex-shrink:0 永不出盒 */
+  width: auto !important;
+  flex: 0 1 220px;
+  min-width: 150px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .flex > .user_box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-flow: row nowrap;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .notification,
+html.jsl.jsl-page-portal .header_navbar_content .user_icon {
+  margin: 0 !important;
+  width: auto !important;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .user_icon {
+  text-align: right;
+}
+
+/* 菜单 li：站方 58px 高 / 16px 字，压回导航尺度 */
+html.jsl.jsl-page-portal .header_navbar_content .menu ul li {
+  height: auto;
+  line-height: normal;
+  padding: 0;
+  font-size: 13px;
+}
+
+/* logo：站方图形（logo.svg 图章，mask 随主题变色）+「集思录」文字组合；
+   盒高 26px，flex 行内与 30px 控件垂直居中 */
+html.jsl.jsl-page-portal .header_navbar_content .logo {
+  background: none !important;
+  margin: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  display: flex;
+  align-items: center;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .logo a {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
+  width: auto !important;
+  height: 26px !important;
+  background: none !important;
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--jsl-text);
+}
+
+/* 图形：站方 logo.svg 的图章部分（viewBox 裁剪），内联 data URI——
+   mask 方案对远程 SVG 渲染不稳定；深色版重着色为顶栏文字色 */
+html.jsl.jsl-page-portal .header_navbar_content .logo a::before {
+  content: '';
+  width: 26px;
+  height: 26px;
+  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20viewBox%3D%220%200%20243%20307%22%3E%3Cdefs%3E%3Cpath%20id%3D%22a%22%20d%3D%22M0%20.4h243V305H0z%22%2F%3E%3Cpath%20id%3D%22c%22%20d%3D%22M0%20305.6h763.6V1H0z%22%2F%3E%3C%2Fdefs%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%20transform%3D%22translate%281%29%22%3E%3Cg%20transform%3D%22translate%280%20.6%29%22%3E%3Cmask%20id%3D%22b%22%20fill%3D%22%23fff%22%3E%3Cuse%20xlink%3Ahref%3D%22%23a%22%2F%3E%3C%2Fmask%3E%3Cpath%20fill%3D%22%230D6290%22%20d%3D%22M77.4%2084.6c8.7-40%2030.4-70.8%2067.4-71.3%2035.4-.4%2067.9%2023%2067.9%2067.1%200%208%201.3%2020.7-.8%2028l30.2%2015c1.1-7.5.9-18.5.9-27.1C243%2041%20200.4.4%20145.2.4%2074.4.4%2042%2054.5%2042%20102a103.6%20103.6%200%2000-42%2086.1C0%20258.1%2047.6%20305%20108.3%20305c6%200%2011.8-.6%2017.5-1.5C68%20279.4%2035%20238%2039.2%20189.4c4.6-54.6%2040-100%2092.5-108.5a110%20110%200%2000-17.5-1.5c-12.8%200-25.2%201.8-36.8%205.2%22%20mask%3D%22url%28%23b%29%22%2F%3E%3C%2Fg%3E%3Cpath%20fill%3D%22%230D6290%22%20d%3D%22M179%20191.6c0-19.1%206-36.2%2015.3-47.1a70.5%2070.5%200%2000-4.9-4.9c-11%209.1-27.8%2015-46.7%2015-18.9%200-45-5.9-56-15-2.4%202.2-2.2%202.3-4.3%204.9%2010%2010.9%2017.5%2028.4%2017.5%2048.4%200%2017.7-9.4%2037.4-17.5%2048.3%201.2%201.3%203%203.7%204.4%204.9%2011-9.1%2037-17.4%2056-17.4%2018.8%200%2035.6%205.9%2046.6%2015l5-4.9c-9.4-11-15.4-28-15.4-47.2%22%2F%3E%3Cmask%20id%3D%22d%22%20fill%3D%22%23fff%22%3E%3Cuse%20xlink%3Ahref%3D%22%23c%22%2F%3E%3C%2Fmask%3E%3Cpath%20fill%3D%22%234C4C4C%22%20d%3D%22M340.8%20109.5h44.4V97h-44.4v12.5zm0-20h44.4V76.4h-44.4v13zm0-20.6h44.4V55.7h-44.4V69zm-29.3%2072.5v-8.8H379v-10h10v10h68v8.8h-59.3c14.6%2011.2%2035%2019%2061.3%2023a97.3%2097.3%200%2000-5.6%209.4c-28.4-7-49.9-17.2-64.4-30.6v36.3h-10v-35.6a163.3%20163.3%200%2001-65%2031.2c-.5-1.2-1.3-2.9-2.5-5-1.3-1.7-2.1-3.1-2.5-4.4%2026.6-5.4%2046.8-13.5%2060.6-24.3h-58.1zm19.3-18.2V67c-5.4%206.2-11%2012-16.8%2017.5a45.5%2045.5%200%2000-5.7-8.8c14.2-12%2026.5-27.2%2036.9-45.6l10%203.1c-.8%201.7-2.5%204.2-5%207.5-2%203.4-3.7%205.9-5%207.5h46.3C388%2042%20385%2036.8%20382%2032.6l9.4-3.1%205%207.5c2.5%203.7%204.1%206.5%205%208.1l-7%203.1h57.6v7.5h-56.9V69h50v7.5h-50v13h50V97h-50v12.5h57.5v8.1H340.8v5.6h-10zM602.2%20162c-6.7-10.4-14-20.8-21.9-31.3l8.2-5c7.9%209.6%2015.6%2020%2023%2031.3l-9.3%205zM541%20104.5h43.7V80H541v24.4zm0-33.1h43.7V47H541v24.4zm1.2%2075.6a297.4%20297.4%200%2000-17.5-23.8l8.8-5.6a500%20500%200%200118%2023.1l-9.3%206.3zm-22.5%2026.9c-13.7.4-20.4-5.7-20-18.2v-28h10v25.5c-.8%208%203.8%2011.7%2013.8%2011.3H551c8.7.4%2013.7-2.7%2015-9.4.8-5.4%201.4-10.4%201.8-15a1801.6%201801.6%200%200010.7%203.8c-.5%201.2-.9%203-1.3%205.6%200%203-.6%206.5-1.9%2010.6-2.5%209.6-10%2014.2-22.5%2013.8h-33zm-32.5-69.4H531V80h-43.8v24.4zm0-33.1H531V47h-43.8v24.4zm-10%2042.5h117.5V37.6H477.2V114zm-6.2%2053.7c-.5-.4-1.3-.8-2.5-1.2-2.1-1.3-4.6-2.3-7.5-3.2%207-12.9%2012.2-25.2%2015.6-36.8l10%203a23%2023%200%2000-1.3%203.2%20232.6%20232.6%200%2001-14.3%2035zM653.6%20133.2c-3-2.5-8.4-6.2-16.3-11.2l-11.2-7.5%206.2-7.5c3.4%202%208.2%205.2%2014.4%209.4a263%20263%200%200013.8%208.7l-7%208.1zm-20.6-60v-8.7h95.6V47h-98.8v-8.8h109.4v53.2H763v9.3h-68.8v3.2a105.6%20105.6%200%200016.9%2026.2c8.7-5.4%2019.6-12.9%2032.5-22.5l7.5%208.1c-12.1%208-23.1%2014.8-33.1%2020.7%209.1%208.3%2024.3%2015.6%2045.6%2021.8a33.1%2033.1%200%2000-6.3%208.8c-32-9.2-53.1-24.4-63.1-45.6v36.2c.8%2012.5-5%2018.6-17.5%2018.1-3.3.5-9.4.7-18.1.7-.4-1.3-.9-3-1.3-5-.4-2.5-.8-4.4-1.2-5.7%203.7.5%209%20.7%2015.6.7%208.8.4%2013-3.4%2012.5-11.3v-18.7c-4.2%201.6-11.9%205-23.1%2010-22.1%209.1-36.9%2015-44.4%2017.5l-4.4-9.4c28-10%2051.9-19.6%2071.9-28.8v-25h-70.6v-9.3h115V73.2H633z%22%20mask%3D%22url%28%23d%29%22%2F%3E%3Cpath%20fill%3D%22%23888%22%20d%3D%22M336.9%20249.3c0%209.9-2.1%2017.5-6.3%2023-4.2%205.3-9.9%208-17.1%208-3.3%200-6.1-.5-8.3-1.5v-10.3c2.2%201.6%205%202.4%208.2%202.4%208.6%200%2013-7.2%2013-21.6v-52h10.5v52zM372.4%20206.2h-7.8V270h7.8v9h-26.2v-9h7.8v-63.8h-7.8v-9h26.2zM378.7%20263.6a37.4%2037.4%200%200022%207.5c11.4%200%2017.2-4.1%2017.2-12.3%200-2.2-.6-4.3-1.9-6.1-1.2-1.9-2.9-3.5-5-4.9a133%20133%200%2000-12.1-6.5c-8.2-4-13.6-7.8-16.2-11.3a19.6%2019.6%200%2001-4-12%2019%2019%200%20018.3-16.2%2034%2034%200%200120.6-6c8.1%200%2014%201%2017.9%203v11.5a32%2032%200%2000-18.7-5.1c-5%200-9%201-12.2%203.1a10%2010%200%2000-4.7%208.8c0%203.3%201%206%203.2%208%202.2%202.1%207%205%2014.2%208.5%208%203.9%2013.6%207.7%2016.8%2011.5%203.2%203.9%204.8%208.2%204.8%2013%200%207.1-2.6%2012.6-7.8%2016.4a36%2036%200%2001-21.6%205.8c-3.3%200-7-.5-11.4-1.3-4.3-1-7.4-2-9.4-3.4v-12zM460%20206.2h-7.8V270h7.8v9h-26.2v-9h7.8v-63.8h-7.8v-9H460zM513.2%20279h-43v-81.8h10.5v72.4h32.5zM581.2%20245.7c0%2023-10.5%2034.6-31.4%2034.6-20%200-30.1-11.2-30.1-33.4v-49.7h10.5v49.2c0%2016.3%206.9%2024.5%2020.6%2024.5%2013.3%200%2019.9-7.9%2019.9-23.7v-50h10.5v48.5zM593.8%20273.5a6.6%206.6%200%20016.8-6.8c2%200%203.6.7%205%202%201.2%201.3%201.9%203%201.9%204.8%200%201.8-.7%203.4-2%204.7-1.3%201.3-3%202-5%202-1.9%200-3.5-.7-4.8-2a6.5%206.5%200%2001-1.9-4.7M676.7%20275.5c-6%203.2-13.5%204.8-22.6%204.8-11.7%200-21-3.7-28-11.2a41.2%2041.2%200%2001-10.5-29.5c0-13.1%203.9-23.7%2011.8-31.7%207.8-8%2017.8-12%2030-12%207.8%200%2014.2%201%2019.3%203.3v11a39%2039%200%2000-19.2-4.8c-9.1%200-16.5%203-22.3%209-5.7%206.1-8.6%2014.3-8.6%2024.6%200%209.8%202.7%2017.5%208%2023.3a27.3%2027.3%200%200021%208.6c8.1%200%2015.1-1.8%2021.1-5.5v10.1zM756.5%20279H744l-41-63.6a30.5%2030.5%200%2001-2.8-5.3h-.4c.3%201.8.5%205.6.5%2011.4v57.4h-10.5v-81.7h13.3l40%2062.5c1.8%203%203%204.8%203.3%205.6h.2c-.3-2.3-.5-6.3-.5-11.9v-56.2h10.4V279z%22%20mask%3D%22url%28%23d%29%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") center / contain no-repeat;
+}
+
+html[data-theme='dark'].jsl-page-portal .header_navbar_content .logo a::before {
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20viewBox%3D%220%200%20243%20307%22%3E%3Cdefs%3E%3Cpath%20id%3D%22a%22%20d%3D%22M0%20.4h243V305H0z%22%2F%3E%3Cpath%20id%3D%22c%22%20d%3D%22M0%20305.6h763.6V1H0z%22%2F%3E%3C%2Fdefs%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%20transform%3D%22translate%281%29%22%3E%3Cg%20transform%3D%22translate%280%20.6%29%22%3E%3Cmask%20id%3D%22b%22%20fill%3D%22%23fff%22%3E%3Cuse%20xlink%3Ahref%3D%22%23a%22%2F%3E%3C%2Fmask%3E%3Cpath%20fill%3D%22%23d3dae4%22%20d%3D%22M77.4%2084.6c8.7-40%2030.4-70.8%2067.4-71.3%2035.4-.4%2067.9%2023%2067.9%2067.1%200%208%201.3%2020.7-.8%2028l30.2%2015c1.1-7.5.9-18.5.9-27.1C243%2041%20200.4.4%20145.2.4%2074.4.4%2042%2054.5%2042%20102a103.6%20103.6%200%2000-42%2086.1C0%20258.1%2047.6%20305%20108.3%20305c6%200%2011.8-.6%2017.5-1.5C68%20279.4%2035%20238%2039.2%20189.4c4.6-54.6%2040-100%2092.5-108.5a110%20110%200%2000-17.5-1.5c-12.8%200-25.2%201.8-36.8%205.2%22%20mask%3D%22url%28%23b%29%22%2F%3E%3C%2Fg%3E%3Cpath%20fill%3D%22%23d3dae4%22%20d%3D%22M179%20191.6c0-19.1%206-36.2%2015.3-47.1a70.5%2070.5%200%2000-4.9-4.9c-11%209.1-27.8%2015-46.7%2015-18.9%200-45-5.9-56-15-2.4%202.2-2.2%202.3-4.3%204.9%2010%2010.9%2017.5%2028.4%2017.5%2048.4%200%2017.7-9.4%2037.4-17.5%2048.3%201.2%201.3%203%203.7%204.4%204.9%2011-9.1%2037-17.4%2056-17.4%2018.8%200%2035.6%205.9%2046.6%2015l5-4.9c-9.4-11-15.4-28-15.4-47.2%22%2F%3E%3Cmask%20id%3D%22d%22%20fill%3D%22%23fff%22%3E%3Cuse%20xlink%3Ahref%3D%22%23c%22%2F%3E%3C%2Fmask%3E%3Cpath%20fill%3D%22%234C4C4C%22%20d%3D%22M340.8%20109.5h44.4V97h-44.4v12.5zm0-20h44.4V76.4h-44.4v13zm0-20.6h44.4V55.7h-44.4V69zm-29.3%2072.5v-8.8H379v-10h10v10h68v8.8h-59.3c14.6%2011.2%2035%2019%2061.3%2023a97.3%2097.3%200%2000-5.6%209.4c-28.4-7-49.9-17.2-64.4-30.6v36.3h-10v-35.6a163.3%20163.3%200%2001-65%2031.2c-.5-1.2-1.3-2.9-2.5-5-1.3-1.7-2.1-3.1-2.5-4.4%2026.6-5.4%2046.8-13.5%2060.6-24.3h-58.1zm19.3-18.2V67c-5.4%206.2-11%2012-16.8%2017.5a45.5%2045.5%200%2000-5.7-8.8c14.2-12%2026.5-27.2%2036.9-45.6l10%203.1c-.8%201.7-2.5%204.2-5%207.5-2%203.4-3.7%205.9-5%207.5h46.3C388%2042%20385%2036.8%20382%2032.6l9.4-3.1%205%207.5c2.5%203.7%204.1%206.5%205%208.1l-7%203.1h57.6v7.5h-56.9V69h50v7.5h-50v13h50V97h-50v12.5h57.5v8.1H340.8v5.6h-10zM602.2%20162c-6.7-10.4-14-20.8-21.9-31.3l8.2-5c7.9%209.6%2015.6%2020%2023%2031.3l-9.3%205zM541%20104.5h43.7V80H541v24.4zm0-33.1h43.7V47H541v24.4zm1.2%2075.6a297.4%20297.4%200%2000-17.5-23.8l8.8-5.6a500%20500%200%200118%2023.1l-9.3%206.3zm-22.5%2026.9c-13.7.4-20.4-5.7-20-18.2v-28h10v25.5c-.8%208%203.8%2011.7%2013.8%2011.3H551c8.7.4%2013.7-2.7%2015-9.4.8-5.4%201.4-10.4%201.8-15a1801.6%201801.6%200%200010.7%203.8c-.5%201.2-.9%203-1.3%205.6%200%203-.6%206.5-1.9%2010.6-2.5%209.6-10%2014.2-22.5%2013.8h-33zm-32.5-69.4H531V80h-43.8v24.4zm0-33.1H531V47h-43.8v24.4zm-10%2042.5h117.5V37.6H477.2V114zm-6.2%2053.7c-.5-.4-1.3-.8-2.5-1.2-2.1-1.3-4.6-2.3-7.5-3.2%207-12.9%2012.2-25.2%2015.6-36.8l10%203a23%2023%200%2000-1.3%203.2%20232.6%20232.6%200%2001-14.3%2035zM653.6%20133.2c-3-2.5-8.4-6.2-16.3-11.2l-11.2-7.5%206.2-7.5c3.4%202%208.2%205.2%2014.4%209.4a263%20263%200%200013.8%208.7l-7%208.1zm-20.6-60v-8.7h95.6V47h-98.8v-8.8h109.4v53.2H763v9.3h-68.8v3.2a105.6%20105.6%200%200016.9%2026.2c8.7-5.4%2019.6-12.9%2032.5-22.5l7.5%208.1c-12.1%208-23.1%2014.8-33.1%2020.7%209.1%208.3%2024.3%2015.6%2045.6%2021.8a33.1%2033.1%200%2000-6.3%208.8c-32-9.2-53.1-24.4-63.1-45.6v36.2c.8%2012.5-5%2018.6-17.5%2018.1-3.3.5-9.4.7-18.1.7-.4-1.3-.9-3-1.3-5-.4-2.5-.8-4.4-1.2-5.7%203.7.5%209%20.7%2015.6.7%208.8.4%2013-3.4%2012.5-11.3v-18.7c-4.2%201.6-11.9%205-23.1%2010-22.1%209.1-36.9%2015-44.4%2017.5l-4.4-9.4c28-10%2051.9-19.6%2071.9-28.8v-25h-70.6v-9.3h115V73.2H633z%22%20mask%3D%22url%28%23d%29%22%2F%3E%3Cpath%20fill%3D%22%23888%22%20d%3D%22M336.9%20249.3c0%209.9-2.1%2017.5-6.3%2023-4.2%205.3-9.9%208-17.1%208-3.3%200-6.1-.5-8.3-1.5v-10.3c2.2%201.6%205%202.4%208.2%202.4%208.6%200%2013-7.2%2013-21.6v-52h10.5v52zM372.4%20206.2h-7.8V270h7.8v9h-26.2v-9h7.8v-63.8h-7.8v-9h26.2zM378.7%20263.6a37.4%2037.4%200%200022%207.5c11.4%200%2017.2-4.1%2017.2-12.3%200-2.2-.6-4.3-1.9-6.1-1.2-1.9-2.9-3.5-5-4.9a133%20133%200%2000-12.1-6.5c-8.2-4-13.6-7.8-16.2-11.3a19.6%2019.6%200%2001-4-12%2019%2019%200%20018.3-16.2%2034%2034%200%200120.6-6c8.1%200%2014%201%2017.9%203v11.5a32%2032%200%2000-18.7-5.1c-5%200-9%201-12.2%203.1a10%2010%200%2000-4.7%208.8c0%203.3%201%206%203.2%208%202.2%202.1%207%205%2014.2%208.5%208%203.9%2013.6%207.7%2016.8%2011.5%203.2%203.9%204.8%208.2%204.8%2013%200%207.1-2.6%2012.6-7.8%2016.4a36%2036%200%2001-21.6%205.8c-3.3%200-7-.5-11.4-1.3-4.3-1-7.4-2-9.4-3.4v-12zM460%20206.2h-7.8V270h7.8v9h-26.2v-9h7.8v-63.8h-7.8v-9H460zM513.2%20279h-43v-81.8h10.5v72.4h32.5zM581.2%20245.7c0%2023-10.5%2034.6-31.4%2034.6-20%200-30.1-11.2-30.1-33.4v-49.7h10.5v49.2c0%2016.3%206.9%2024.5%2020.6%2024.5%2013.3%200%2019.9-7.9%2019.9-23.7v-50h10.5v48.5zM593.8%20273.5a6.6%206.6%200%20016.8-6.8c2%200%203.6.7%205%202%201.2%201.3%201.9%203%201.9%204.8%200%201.8-.7%203.4-2%204.7-1.3%201.3-3%202-5%202-1.9%200-3.5-.7-4.8-2a6.5%206.5%200%2001-1.9-4.7M676.7%20275.5c-6%203.2-13.5%204.8-22.6%204.8-11.7%200-21-3.7-28-11.2a41.2%2041.2%200%2001-10.5-29.5c0-13.1%203.9-23.7%2011.8-31.7%207.8-8%2017.8-12%2030-12%207.8%200%2014.2%201%2019.3%203.3v11a39%2039%200%2000-19.2-4.8c-9.1%200-16.5%203-22.3%209-5.7%206.1-8.6%2014.3-8.6%2024.6%200%209.8%202.7%2017.5%208%2023.3a27.3%2027.3%200%200021%208.6c8.1%200%2015.1-1.8%2021.1-5.5v10.1zM756.5%20279H744l-41-63.6a30.5%2030.5%200%2001-2.8-5.3h-.4c.3%201.8.5%205.6.5%2011.4v57.4h-10.5v-81.7h13.3l40%2062.5c1.8%203%203%204.8%203.3%205.6h.2c-.3-2.3-.5-6.3-.5-11.9v-56.2h10.4V279z%22%20mask%3D%22url%28%23d%29%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .logo a::after {
+  content: '集思录';
+  font-size: 17px;
+}
+
+/* 导航链接：13px、圆角 hover */
+html.jsl.jsl-page-portal .header_navbar_content .menu ul li a {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: var(--jsl-radius-sm);
+  color: var(--jsl-text-2);
+  font-size: 13px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    color 0.12s,
+    background 0.12s;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .menu ul li a:hover {
+  color: var(--jsl-text);
+  background: var(--jsl-surface-2);
+}
+
+/* 站方菜单字色（#333）压回令牌 */
+html.jsl.jsl-page-portal .header_navbar_content .menu ul li a:link,
+html.jsl.jsl-page-portal .header_navbar_content .menu ul li a:visited {
+  color: var(--jsl-text-2);
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .menu ul li a:hover {
+  color: var(--jsl-text);
+  background: var(--jsl-surface-2);
+}
+
+/* 搜索框：贴社区页搜索观感（surface-2 胶囊 + 无描边按钮） */
+html.jsl.jsl-page-portal .header_navbar_content .search_box {
+  margin-left: auto;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .search_box form.search {
+  display: flex;
+  width: 100%;
+  margin: 0;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .search_box .input-group {
+  display: flex;
+  align-items: center;
+  width: 100% !important;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .search_box .input-group-btn {
+  /* Bootstrap3 遗留 width:1%（表格布局 hack），把按钮容器挤到 2px、按钮溢出压住主题按钮 */
+  width: auto !important;
+  flex: 0 0 auto;
+  display: flex;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .search_box .input-group .form-control {
+  flex: 1 1 auto;
+  width: auto !important;
+  min-width: 0;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .search_box .form-control {
+  height: 30px;
+  background: var(--jsl-surface-2);
+  border: none;
+  border-radius: var(--jsl-radius-sm) 0 0 var(--jsl-radius-sm);
+  box-shadow: none;
+  color: var(--jsl-text);
+  font-size: 13px;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .search_box .form-control::placeholder {
+  color: var(--jsl-text-3);
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .search_box .input-group-btn .btn {
+  height: 30px;
+  background: var(--jsl-surface-2);
+  border: none;
+  border-radius: 0 var(--jsl-radius-sm) var(--jsl-radius-sm) 0;
+  box-shadow: none;
+  color: var(--jsl-text-3);
+}
+
+/* 通知/私信：与社区页登录簇同款描边胶囊（btn-group 拆开，间隙 10px） */
+html.jsl.jsl-page-portal .header_navbar_content .user_box .btn-group {
+  display: inline-flex;
+  gap: 10px;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .user_box .btn-group .btn {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--jsl-border-2);
+  border-radius: var(--jsl-radius-sm);
+  background: transparent;
+  box-shadow: none;
+  color: var(--jsl-text);
+  font-size: 13px;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .user_box .btn-group .btn:hover {
+  color: var(--jsl-accent);
+  border-color: var(--jsl-accent);
+}
+
+/* 用户名 + 头像：同款 30px 胶囊 */
+html.jsl.jsl-page-portal .header_navbar_content .user_icon > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--jsl-border-2);
+  border-radius: var(--jsl-radius-sm);
+  background: transparent;
+  color: var(--jsl-text);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .user_icon > a img {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+/* 站方给用户名 span 挂 margin-right:10px，与 flex gap 叠出 16px 间隙（社区页为 6px） */
+html.jsl.jsl-page-portal .header_navbar_content .user_icon > a span {
+  margin-right: 0 !important;
+}
+
+/* 用户下拉面板：卡片化（站方 popover） */
+html.jsl.jsl-page-portal .header_navbar_content .popover-menu {
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow-pop);
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .popover-menu .name_info .font_16 {
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .popover-menu .darkgray {
+  color: var(--jsl-text-3) !important;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .popover-menu .member_bar {
+  background: var(--jsl-surface-2);
+  border-radius: var(--jsl-radius-sm);
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .popover-menu .menu_links a {
+  color: var(--jsl-text-2);
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .popover-menu .menu_links a:hover {
+  color: var(--jsl-accent);
+  background: transparent;
+}
+
+html.jsl.jsl-page-portal .header_navbar_bg {
+  background: var(--jsl-surface);
+  border-bottom: 1px solid var(--jsl-border);
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .menu a {
+  color: var(--jsl-text-2);
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .menu li.active a,
+html.jsl.jsl-page-portal .header_navbar_content .menu a:hover {
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .search_box form.search {
+  display: flex;
+  width: 100%;
+  margin: 0;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .search_box .input-group {
+  display: flex;
+  align-items: center;
+  width: 100% !important;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .search_box .input-group-btn {
+  /* Bootstrap3 遗留 width:1%（表格布局 hack），把按钮容器挤到 2px、按钮溢出压住主题按钮 */
+  width: auto !important;
+  flex: 0 0 auto;
+  display: flex;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .search_box .input-group .form-control {
+  flex: 1 1 auto;
+  width: auto !important;
+  min-width: 0;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .search_box .form-control {
+  background: var(--jsl-surface-2);
+  border-color: var(--jsl-border);
+  color: var(--jsl-text);
+}
+
+/* 门户导航内的主题切换按钮（与社区页同 class，尺寸贴合导航；
+   注入位置在搜索框之后，与左侧间距由导航容器 gap 统一） */
+html.jsl.jsl-page-portal .header_navbar_content .jsl-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--jsl-border-2);
+  border-radius: var(--jsl-radius-sm);
+  background: transparent;
+  color: var(--jsl-text-2);
+  cursor: pointer;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .jsl-theme-toggle:hover {
+  color: var(--jsl-accent);
+  border-color: var(--jsl-accent);
+}
+
+/* ---- 主体：面板通用（日历/收费数据/投资提示/宫格/社区）——
+   详情页式圆润卡片：surface + 1px 边框 + 10px 圆角 + 投影，内部标题条圆角随容器 ---- */
+
+html.jsl.jsl-page-portal .first_column .left,
+html.jsl.jsl-page-portal .first_column .right,
+html.jsl.jsl-page-portal .tag_box {
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow);
+  overflow: hidden;
+}
+
+/* 面板标题条：灰底压圆角内，字重 600 */
+html.jsl.jsl-page-portal .first_column .left .title,
+html.jsl.jsl-page-portal .first_column .right .title_box {
+  background: var(--jsl-surface-2);
+  color: var(--jsl-text);
+  font-weight: 600;
+}
+
+/* 面板间与面板内的分隔线令牌化（站方内联 #cccccc 与 .divider-line） */
+html.jsl.jsl-page-portal .first_column div[style*="border-top"] {
+  border-color: var(--jsl-border) !important;
+}
+
+html.jsl.jsl-page-portal .tag_box {
+  margin-bottom: 0;
+}
+
+/* 宫格模块卡圆角（surface-2 小卡） */
+html.jsl.jsl-page-portal .tag_content > div {
+  border-radius: var(--jsl-radius-sm);
+}
+
+html.jsl.jsl-page-portal .wrapper_content {
+  background: transparent;
+}
+
+html.jsl.jsl-page-portal .tag_box,
+html.jsl.jsl-page-portal .first_column > div,
+html.jsl.jsl-page-portal .first_column .left,
+html.jsl.jsl-page-portal .first_column .right {
+  background: var(--jsl-surface);
+  border-color: var(--jsl-border);
+}
+
+/* 面板标题条（「投资日历」「收费数据」「实时投资数据」「社区-知识库」） */
+html.jsl.jsl-page-portal .first_column .title,
+html.jsl.jsl-page-portal .tag_top .active,
+html.jsl.jsl-page-portal #home-member-data {
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-page-portal .tag_top .relative a {
+  color: var(--jsl-text-2);
+}
+
+/* ---- 投资日历 ---- */
+
+html.jsl.jsl-page-portal .cal-date,
+html.jsl.jsl-page-portal .cal-weekday {
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-page-portal .cal-btn {
+  color: var(--jsl-text-2);
+}
+
+html.jsl.jsl-page-portal .divider-line {
+  background: var(--jsl-border);
+}
+
+html.jsl.jsl-page-portal .event-title {
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-page-portal .event-meta {
+  color: var(--jsl-text-2);
+}
+
+/* ---- 收费数据 / 数据宫格 ---- */
+
+html.jsl.jsl-page-portal #home-member-data + ul a {
+  color: var(--jsl-text-2);
+}
+
+html.jsl.jsl-page-portal .tag_content .title > a {
+  color: var(--jsl-text);
+  font-weight: 600;
+}
+
+html.jsl.jsl-page-portal .tag_content .sub_tag a {
+  color: var(--jsl-text-2);
+}
+
+html.jsl.jsl-page-portal .tag_content .sub_tag a:hover,
+html.jsl.jsl-page-portal .tag_content .title > a:hover,
+html.jsl.jsl-page-portal #home-member-data + ul a:hover {
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-page-portal .tag_content .sub_tag span {
+  color: var(--jsl-text-3);
+}
+
+/* ---- 社区-知识库列表 ---- */
+
+html.jsl.jsl-page-portal .question_list .title a:link,
+html.jsl.jsl-page-portal .question_list .title a:visited {
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-page-portal .question_list .title a:hover {
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-page-portal .question_list li,
+html.jsl.jsl-page-portal .question_list li span,
+html.jsl.jsl-page-portal .question_list li a {
+  font-family: inherit;
+}
+
+/* 回复/浏览计数：等宽数字对齐 */
+html.jsl.jsl-page-portal .question_list li span {
+  color: var(--jsl-text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 页脚 ---- */
+
+html.jsl.jsl-page-portal .footer_bg {
+  background: var(--jsl-surface);
+  border-top: 1px solid var(--jsl-border);
+}
+
+html.jsl.jsl-page-portal .footer_bg,
+html.jsl.jsl-page-portal .footer_bg a,
+html.jsl.jsl-page-portal .footer_bg .statement {
+  color: var(--jsl-text-3) !important;
+}
+
+/* ---- 门户架构 · 搜索联想弹窗（预览为烘焙态；真实站点由站方 JS 构建同名结构） ---- */
+
+html.jsl.jsl-page-portal .search_box {
+  position: relative;
+}
+
+/* 预览烘焙态：默认隐藏，聚焦搜索框时显示（模拟站方联想弹窗交互） */
+html.jsl.jsl-page-portal .search_box #jsl-baked-suggest {
+  display: none;
+}
+
+html.jsl.jsl-page-portal .search_box:focus-within #jsl-baked-suggest {
+  display: block;
+}
+
+html.jsl.jsl-page-portal .search_box #jsl-baked-suggest,
+html.jsl.jsl-page-portal .search_box .search_down {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow-pop);
+  padding: 8px;
+}
+
+html.jsl.jsl-page-portal .search_box .search_type {
+  background: transparent;
+  border: none;
+  padding: 6px 8px;
+  margin: 0 0 6px;
+}
+
+html.jsl.jsl-page-portal .search_box .search_type + .search_type {
+  border-top: 1px solid var(--jsl-border);
+}
+
+html.jsl.jsl-page-portal .search_box .search_type .title {
+  font-size: 13px;
+}
+
+html.jsl.jsl-page-portal .search_box .search_item {
+  padding: 6px 4px;
+}
+
+/* ---- 门户架构 · 搜索结果页（/search/，复用门户导航与令牌底座） ---- */
+
+/* 结果分组容器（#data/#questions/... 每组一个 .search_type 区块） */
+html.jsl.jsl-page-portal .search_rows .search_item {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--jsl-border);
+}
+
+html.jsl.jsl-page-portal .search_rows .search_item:last-child {
+  border-bottom: none;
+}
+
+html.jsl.jsl-page-portal .search_rows .search_item a {
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-page-portal .search_rows .search_item a:hover {
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-page-portal .search_rows .data_info {
+  color: var(--jsl-text-2);
+  font-size: 13px;
+}
+
+/* 结果标签 chip（站方 span.tag 淡蓝底） */
+html.jsl.jsl-page-portal .search_rows .data_info span.tag {
+  background: var(--jsl-accent-weak);
+  color: var(--jsl-accent);
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-right: 6px;
+  font-size: 12px;
+}
+
+/* 「点击查看更多」按钮（站方白底） */
+html.jsl.jsl-page-portal .data_more .search_result_more,
+html.jsl.jsl-page-portal a.search_result_more {
+  display: block;
+  text-align: center;
+  background: var(--jsl-surface-2);
+  border-radius: var(--jsl-radius-sm);
+  color: var(--jsl-text-2) !important;
+  padding: 8px 0;
+  font-size: 13px;
+}
+
+html.jsl.jsl-page-portal .data_more .search_result_more:hover,
+html.jsl.jsl-page-portal a.search_result_more:hover {
+  color: var(--jsl-accent) !important;
+}
+
+/* 门户导航：菜单与主题切换按钮同行垂直居中（防按钮溢出到导航带外）。
+   ul 与按钮都不可收缩——flex 收缩会把菜单项文字裁断 */
+html.jsl.jsl-page-portal .header_navbar_content .menu {
+  display: flex;
+  align-items: center;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .menu ul {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .menu ul li,
+html.jsl.jsl-page-portal .header_navbar_content .menu ul li a {
+  white-space: nowrap;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .jsl-theme-toggle {
+  flex-shrink: 0;
+}
+
+
+/* 结果分组卡片 */
+html.jsl.jsl-page-portal .search_type {
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+
+html.jsl.jsl-page-portal .search_type .title {
+  color: var(--jsl-text);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+html.jsl.jsl-page-portal .search_type .more a {
+  color: var(--jsl-text-3);
+  font-size: 12px;
+}
+
+html.jsl.jsl-page-portal .search_type .more a:hover {
+  color: var(--jsl-accent);
+}
+
+/* 结果行 */
+html.jsl.jsl-page-portal .search_item {
+  border-bottom: 1px solid var(--jsl-border);
+}
+
+html.jsl.jsl-page-portal .search_item:last-child {
+  border-bottom: none;
+}
+
+html.jsl.jsl-page-portal .search_item .search_text {
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-page-portal .search_item .search_info {
+  color: var(--jsl-text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+html.jsl.jsl-page-portal .search_item a:hover .search_text {
+  color: var(--jsl-accent);
+}
+
+/* ============================================================
+   话题广场（/topic/，WeCenter 架构，aw-topic-* 专属组件）
+   ============================================================ */
+
+/* 主列话题卡片行：站方把话题图片设为 absolute（50×50 压在话题名上），
+   内容列统一让出头像位；分隔线用 2px 实线（1px 细线缩放下摩尔纹成虚线） */
+html.jsl.jsl-community .aw-topic-content .aw-item {
+  position: relative;
+  padding: 14px 0 14px 66px;
+  /* 站方动态注入 1px dotted border-top（AGENTS 陷阱 1），分隔线已由 ::after 承担 */
+  border-top: none !important;
+}
+
+html.jsl.jsl-community .aw-topic-content .aw-item:not(:last-child)::after {
+  content: '';
+  display: block;
+  height: 2px;
+  margin-top: 14px;
+  background: var(--jsl-border);
+}
+
+html.jsl.jsl-community .aw-topic-content .aw-topic-img {
+  position: absolute !important;
+  left: 0;
+  top: 14px;
+}
+
+html.jsl.jsl-community .aw-topic-content .aw-topic-img img {
+  border-radius: var(--jsl-radius-sm);
+}
+
+html.jsl.jsl-community .aw-topic-content .aw-topic-name {
+  display: block;
+  margin-bottom: 6px;
+}
+
+html.jsl.jsl-community .aw-topic-content .aw-topic-name span {
+  color: var(--jsl-text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+html.jsl.jsl-community .aw-topic-content .aw-topic-name:hover span {
+  color: var(--jsl-accent);
+}
+
+/* 话题关联帖子行 */
+html.jsl.jsl-community .aw-topic-content .aw-item ul li {
+  padding: 3px 0;
+}
+
+html.jsl.jsl-community .aw-topic-content .aw-item ul li a {
+  color: var(--jsl-text-2);
+}
+
+html.jsl.jsl-community .aw-topic-content .aw-item ul li a:hover {
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-community .aw-topic-content .aw-item ul li span,
+html.jsl.jsl-community .aw-topic-content .aw-topic-options {
+  color: var(--jsl-text-3);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 板块标题（「热门话题」） */
+html.jsl.jsl-community .aw-topic-content .aw-mod-head h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--jsl-text);
+}
+
+/* 个人中心信息流标题（「最新动态」，站方 #006699 在深色下发暗） */
+html.jsl.jsl-community .aw-main-content .aw-mod-head h2,
+html.jsl.jsl-community .aw-main-content h2#main_title {
+  color: var(--jsl-text);
 }

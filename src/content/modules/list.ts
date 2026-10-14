@@ -73,9 +73,25 @@ function buildCardHead(list: HTMLElement): void {
   }
   list.insertBefore(head, list.firstChild);
 
+  // 「热门」的天数子筛（30天/7天/当天，.aw-tabs）：并入排序行右端
+  const dayTabs = document.querySelector('.aw-main-content > .aw-tabs');
+  if (dayTabs) {
+    dayTabs.classList.add('jsl-card-head-days');
+    rowSort.appendChild(dayTabs);
+  }
+
   // 来源容器已清空，整体移除避免残留空条（含 BBS 阅读模式、会员权益说明）
   document.querySelector('.row.category')?.remove();
   sortUl?.remove();
+
+  // 站方对会员数据链接做了字符混淆（自定义字体渲染），扩展环境下显示为乱码——还原明文
+  document
+    .querySelectorAll<HTMLAnchorElement>('.aw-side-bar a[href*="member_data"]')
+    .forEach((link) => {
+      if (link.textContent?.includes('\uFFFD')) {
+        link.textContent = '特色数据、功能特权';
+      }
+    });
 }
 
 /** 手绘稿：侧栏只留「集思录会员」「热门话题」两卡，价目条并入会员卡内部 */

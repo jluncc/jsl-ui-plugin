@@ -12,11 +12,23 @@ function applyPageFlags(): void {
   if (document.querySelector('.aw-wecenter')) root.classList.add('jsl-community');
   if (document.querySelector('.aw-question-list')) root.classList.add('jsl-page-list');
   if (document.querySelector('.aw-question-detail-box')) root.classList.add('jsl-page-detail');
+  // 门户新架构页（www.jisilu.cn/ 首页、搜索结果等，非 WeCenter 架构，共用新版导航）
+  if (document.querySelector('.wrapper_content') || document.querySelector('.header_navbar_bg')) {
+    root.classList.add('jsl-page-portal');
+  }
 }
 
 function applySettings(settings: { enabled: boolean; themeMode: 'auto' | 'light' | 'dark' }): void {
   document.documentElement.classList.toggle('jsl', settings.enabled);
   syncTheme(settings.themeMode);
+}
+
+/** 门户导航简化：去掉「首页」入口、「社区-知识库」简化为「社区」（与社区页导航一致） */
+function polishPortalNav(): void {
+  if (!document.querySelector('.header_navbar_bg')) return;
+  document.getElementById('top_nav_menu_home')?.remove();
+  const forumLink = document.querySelector('#top_nav_menu_forum a');
+  if (forumLink) forumLink.textContent = '社区';
 }
 
 /** 站方顶栏文案装饰（「»首 页」）清理；「首页」入口去掉（logo 即首页）、「社区-知识库」简化为「社区」 */
@@ -39,6 +51,7 @@ function polishHeaderLinks(): void {
 document.addEventListener('DOMContentLoaded', () => {
   applyPageFlags();
   polishHeaderLinks();
+  polishPortalNav();
   injectThemeToggle();
 
   void loadSettings().then((settings) => {

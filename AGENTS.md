@@ -4,7 +4,7 @@
 
 ## 项目是什么
 
-为 [集思录](https://www.jisilu.cn/) 社区（WeCenter / Bootstrap 2 / jQuery 老站）做界面现代化的 Chrome MV3 扩展。零运行时依赖，TypeScript + tsup + pnpm。当前版本 0.3.0：列表页与详情页均已按用户手绘稿完成精修并通过逐项验收（登录态实测）。
+为 [集思录](https://www.jisilu.cn/) 社区（WeCenter / Bootstrap 2 / jQuery 老站）做界面现代化的 Chrome MV3 扩展。零运行时依赖，TypeScript + tsup + pnpm。当前版本 0.4.0：列表、详情、门户首页、话题广场、搜索结果、个人中心均已精修（登录态实测）。站点存在两套架构：WeCenter 社区页（aw-* 组件）与门户新版自定义皮肤（960px 定宽，标志类 jsl-page-portal）。
 
 ## 常用命令
 
@@ -49,6 +49,9 @@ pnpm format  # prettier
    - `.aw-footer` 自带 30px 上下 padding，与扩展层的 padding 叠加会让页脚虚胖。
    - 顶栏把站方 `.row` 打成 `display: contents` 后，它的 clearfix 伪元素（`::before/::after`，`display: table`）会被提升成 0 宽 flex 子项，各自吃掉两侧 10px gap——logo 前凭空多 10px 偏移、窄屏白占滚动空间；必须 `display: none` 摘除（global.css 顶栏区有现成规则）。
    - 站方输入控件无全局 `border-box`：`width: 100%` + padding/border 会外溢（搜索框曾撑到 246×36，吃掉与「发起」按钮的间隙），自绘胶囊一律补 `box-sizing: border-box` + 定高。
+   - 门户架构页（首页/搜索）的搜索结果与联想弹窗由站方 AJAX 异步渲染，本地预览无后端会被清空——preview.sh 里做了克隆还原兜底（真实站点不受影响）。
+   - 站方对部分文案做字符混淆（自定义字体渲染 PUA 字形），扩展环境下是乱码替换符（U+FFFD）——按已知文案还原（如侧栏「特色数据、功能特权」，list.ts）。
+   - 门户导航（header_navbar_content）靠固定子宽 + 子项 margin-top + 58px 高菜单 li 排版，接管时须整段清零重排，只清直接子级会残留；Bootstrap3 的 `.input-group-btn` 挂 `width: 1%` 表格 hack，按钮会溢出容器。
 3. **1px 细线在侧栏缩放显示下会摩尔纹成虚线**（面板把 1280px 页面缩小渲染，细线周期性丢像素）。行分隔线用 2px；用户参考 V2EX 式"两端 18px 留白的实线"，用 `.aw-item:not(:last-child)::after` 伪元素实现。
 
 ## 布局决策记录（用户手绘稿定稿，勿轻易改）
