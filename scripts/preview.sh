@@ -160,27 +160,230 @@ sim = """
     }
   }
 
-  // detail.ts：楼层号 + 回到顶部 + 长回复折叠（与真实扩展一致：滚动 600px 后出现）
+  // portal.ts：门户首页内容区重排（与 src/content/modules/portal.ts 双实现同步）——
+  // 收费数据移除 / 温度计上移左栏「市场温度」区 / 日历折叠开关移除 / APP 链接入页脚
+  (function () {
+    var memberTitle = document.getElementById('home-member-data');
+    if (memberTitle && memberTitle.parentElement) memberTitle.parentElement.remove();
+
+    var indBox = document.querySelector('.first_column .right .title_box .indicator');
+    var leftCol = document.querySelector('.first_column .left');
+    if (indBox && leftCol) {
+      var section = document.createElement('div');
+      section.className = 'jsl-temp-panel';
+      var secTitle = document.createElement('div');
+      secTitle.className = 'title';
+      secTitle.textContent = '市场温度';
+      var cells = document.createElement('div');
+      cells.className = 'cells';
+      Array.prototype.slice.call(indBox.children).forEach(function (a) {
+        cells.appendChild(a);
+      });
+      section.appendChild(secTitle);
+      section.appendChild(cells);
+      leftCol.insertBefore(section, leftCol.firstElementChild);
+      indBox.remove();
+    }
+
+    var calToggle = document.getElementById('cal-btn-toggle');
+    if (calToggle) calToggle.remove();
+
+    // 「社区-知识库」tab 文案简化为「社区」（与 portal.ts polishCommunityTab 同步；
+    // 页面有两个 .tag_top，按文案命中）
+    document.querySelectorAll('.tag_top .active').forEach(function (el) {
+      if (/社区/.test(el.textContent || '')) el.textContent = '社区';
+    });
+
+    // 投资提示正文：<br> 事件行拆「名称：描述」两栏网格（与 portal.ts gridifyInvestmentEvents 同步）
+    var eventText = document.querySelector('.first_column .right .content .text');
+    if (eventText && !eventText.querySelector('.jsl-event-grid')) {
+      var segments = [];
+      var buffer = [];
+      var flushBuf = function () {
+        if (!buffer.length) return;
+        var wrap = document.createElement('div');
+        buffer.forEach(function (n) { wrap.appendChild(n.cloneNode(true)); });
+        segments.push(wrap.innerHTML);
+        buffer = [];
+      };
+      Array.prototype.slice.call(eventText.childNodes).forEach(function (node) {
+        if (node.nodeName === 'BR') { flushBuf(); return; }
+        buffer.push(node);
+      });
+      flushBuf();
+      if (segments.length) {
+        var grid = document.createElement('div');
+        grid.className = 'jsl-event-grid';
+        segments.forEach(function (seg) {
+          var item = document.createElement('div');
+          item.className = 'jsl-event-item';
+          item.innerHTML = seg;
+          var first = item.firstChild;
+          if (first && first.nodeType === 3) {
+            var raw = (first.textContent || '').trim();
+            var cut = raw.indexOf('\uFF1A');
+            if (cut > 0) {
+              var name = document.createElement('span');
+              name.className = 'name';
+              name.textContent = raw.slice(0, cut);
+              first.textContent = '\uFF1A' + raw.slice(cut + 1);
+              item.insertBefore(name, first);
+            }
+          }
+          grid.appendChild(item);
+        });
+        eventText.replaceWith(grid);
+      }
+    }
+
+    var editLinks = document.querySelector('.first_column .right .edit_links');
+    var footerLeft = document.querySelector('.footer_bg .footer_left');
+    if (editLinks && footerLeft) {
+      var keep = [];
+      editLinks.querySelectorAll('a').forEach(function (a) {
+        var t = (a.textContent || '').trim();
+        if (t === '苹果APP' || t === '安卓APP' || t.indexOf('用户指引') === 0) keep.push(a);
+      });
+      if (keep.length) {
+        var row = document.createElement('div');
+        row.className = 'jsl-footer-apps';
+        keep.forEach(function (a) {
+          a.querySelectorAll('font').forEach(function (f) {
+            while (f.firstChild) f.parentNode.insertBefore(f.firstChild, f);
+            f.remove();
+          });
+          row.appendChild(a);
+        });
+        var legalRow = null;
+        Array.prototype.slice.call(footerLeft.children).forEach(function (d) {
+          if (!legalRow && /用户协议/.test(d.textContent || '')) legalRow = d;
+        });
+        if (legalRow) legalRow.insertAdjacentElement('afterend', row);
+        else footerLeft.appendChild(row);
+      }
+      editLinks.remove();
+    }
+
+    // 页脚文案整理：7 行压成 4 行（与 portal.ts reorganizeFooter 同步）——
+    // 版权·邮箱 / 产品与法律链接（并入 APP 行）/ 备案合行 / 声明；删浏览器推荐行
+    var sponsorTitle = document.querySelector('.footer_ad_box .title');
+    if (sponsorTitle) sponsorTitle.textContent = '赞助商';
+    if (footerLeft && !footerLeft.querySelector('.jsl-footer-meta')) {
+      var fRows = Array.prototype.slice.call(footerLeft.children);
+      var fPlain = function (e) { return (e.textContent || '').replace(/\\s+/g, ''); };
+      var fFind = function (re) { return fRows.find(function (d) { return re.test(fPlain(d)); }); };
+      var fCopyright = fFind(/版权所有/);
+      var fEmail = fFind(/客服邮箱/);
+      var fLegal = fFind(/用户协议/);
+      var fBeianGov = fRows.find(function (d) { return d.querySelector('a[href*="beian.gov.cn"]'); });
+      var fBeianMiit = fFind(/京ICP证/);
+      var appsRow = footerLeft.querySelector('.jsl-footer-apps');
+      var statement = footerLeft.querySelector('.statement');
+      if (fCopyright && fEmail && fLegal && appsRow) {
+        var dotEl = function () { var s = document.createElement('span'); s.className = 'jsl-footer-dot'; s.textContent = '·'; return s; };
+        var metaRow = document.createElement('div');
+        metaRow.className = 'jsl-footer-meta';
+        metaRow.appendChild(document.createTextNode(fPlain(fCopyright)));
+        metaRow.appendChild(dotEl());
+        metaRow.appendChild(document.createTextNode(fPlain(fEmail)));
+        fLegal.querySelectorAll('a').forEach(function (a) { appsRow.appendChild(a); });
+        var beianRow = document.createElement('div');
+        beianRow.className = 'jsl-footer-beian';
+        if (fBeianGov) Array.prototype.slice.call(fBeianGov.childNodes).forEach(function (n) { beianRow.appendChild(n.cloneNode(true)); });
+        if (fBeianMiit) {
+          beianRow.appendChild(dotEl());
+          Array.prototype.slice.call(fBeianMiit.childNodes).forEach(function (n) { beianRow.appendChild(n.cloneNode(true)); });
+        }
+        if (statement) statement.remove();
+        Array.prototype.slice.call(footerLeft.children).forEach(function (c) { c.remove(); });
+        footerLeft.appendChild(metaRow);
+        footerLeft.appendChild(appsRow);
+        footerLeft.appendChild(beianRow);
+        if (statement) footerLeft.appendChild(statement);
+      }
+    }
+
+    // 预览烘焙：温度数据走站方 AJAX，本地无后端 canvas 空白——按站方 indicator.js
+    // 的半环仪表样式（四段色带/外向刻度/指针/温度文案）画仿真占位，真实站点不受影响
+    document.querySelectorAll('.jsl-temp-panel .cells > a').forEach(function (a, i) {
+      var canvas = a.querySelector('canvas');
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      var label = i === 0 ? 'A股温度' : '转债温度';
+      var value = i === 0 ? 38 : 78;
+      var dark = document.documentElement.dataset.theme === 'dark';
+      var ink = dark ? '#8b949e' : '#57606a';
+      var dpr = canvas.width / 100;
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, 100, 80);
+      // 盘面上抬（cy=63），文案基线 cy+15 落在色带端点之下，互不遮挡
+      var cx = 50, cy = 63, r = 38;
+      var segs = [[0, '#00CCFF'], [0.25, '#468847'], [0.5, '#F89406'], [0.75, '#B94A48']];
+      segs.forEach(function (s, idx) {
+        var end = idx < segs.length - 1 ? segs[idx + 1][0] : 1;
+        ctx.beginPath();
+        ctx.strokeStyle = s[1];
+        ctx.lineWidth = 4;
+        ctx.arc(cx, cy, r, Math.PI * (1 + s[0]), Math.PI * (1 + end));
+        ctx.stroke();
+      });
+      segs.forEach(function (s) {
+        [0, 0.5].forEach(function (off) {
+          var frac = s[0] + off;
+          if (frac > 1) return;
+          var ang = Math.PI * (1 + frac);
+          ctx.beginPath();
+          ctx.strokeStyle = s[1];
+          ctx.lineWidth = 1;
+          ctx.moveTo(cx + Math.cos(ang) * (r + 2), cy + Math.sin(ang) * (r + 2));
+          ctx.lineTo(cx + Math.cos(ang) * (r + 7), cy + Math.sin(ang) * (r + 7));
+          ctx.stroke();
+        });
+      });
+      var vAng = Math.PI * (1 + value / 100);
+      ctx.beginPath();
+      ctx.strokeStyle = ink;
+      ctx.lineWidth = 3;
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(vAng) * (r - 10), cy + Math.sin(vAng) * (r - 10));
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.fillStyle = ink;
+      ctx.arc(cx, cy, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = ink;
+      ctx.font = '600 12px -apple-system, "PingFang SC", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(label + ' ' + value + '\u2103', cx, cy + 15);
+      ctx.restore();
+    });
+  })();
+
+  // detail.ts：楼层号 + 回到顶部 + 长回复折叠（与真实扩展一致：仅详情页，滚动 600px 后出现）
   document.querySelectorAll('.aw-dynamic-topic > .aw-item').forEach(function (el, i) {
     var s = document.createElement('span');
     s.className = 'jsl-floor';
     s.textContent = '#' + (i + 2);
     el.appendChild(s);
   });
-  var top = document.createElement('button');
-  top.className = 'jsl-back-top';
-  top.type = 'button';
-  top.title = '回到顶部';
-  top.addEventListener('click', function () {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-  top.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
-  var toggleTop = function () {
-    top.classList.toggle('jsl-show', window.scrollY > 600);
-  };
-  window.addEventListener('scroll', toggleTop, { passive: true });
-  toggleTop();
-  document.body.appendChild(top);
+  if (document.querySelector('.aw-dynamic-topic')) {
+    var top = document.createElement('button');
+    top.className = 'jsl-back-top';
+    top.type = 'button';
+    top.title = '回到顶部';
+    top.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    top.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+    var toggleTop = function () {
+      top.classList.toggle('jsl-show', window.scrollY > 600);
+    };
+    window.addEventListener('scroll', toggleTop, { passive: true });
+    toggleTop();
+    document.body.appendChild(top);
+  }
 
   // 搜索结果页：结果由站方 AJAX 渲染，本地预览无后端、失败后行被清空——
   // sim 时点结果已在快照里（服务端直出），克隆备份；3 秒后若被站方 JS 清空则还原

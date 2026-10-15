@@ -2,6 +2,7 @@ import { loadSettings, watchSettings } from '../shared/settings';
 import { applyThemeEarly, syncTheme } from './theme';
 import { enhanceListPage } from './modules/list';
 import { enhanceDetailPage } from './modules/detail';
+import { enhancePortalHome } from './modules/portal';
 import { injectThemeToggle } from './modules/theme-toggle';
 
 applyThemeEarly();
@@ -63,6 +64,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (settings.modernDetail && document.querySelector('.aw-question-detail-box')) {
         enhanceDetailPage();
+      }
+      // 门户首页内容区重排（温度计上移/收费数据移除/APP 链接入页脚），
+      // 以文章标题条的温度计容器为门户首页标志（搜索页等其他门户架构页不命中）
+      if (document.querySelector('.first_column .right .title_box .indicator')) {
+        enhancePortalHome();
       }
     }
 

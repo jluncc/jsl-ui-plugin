@@ -21,7 +21,7 @@ pnpm format  # prettier
 
 - **content script（document_start）**：`src/content/index.ts` 按 DOM 特征在 `<html>` 上挂 `jsl` / `jsl-community` / `jsl-page-list` / `jsl-page-detail` 标志类。全部 CSS 挂钩在这些类下——**总开关 = 移除一个 class**。
 - **样式三段式**：`src/styles/tokens.css`（深浅两套 CSS 变量，`html[data-theme]` 切换）→ `global.css`（顶栏/页脚/通用）→ `community.css`（列表/详情/侧栏）。顶栏颜色单独走 `--jsl-header-*` 令牌组。
-- **DOM 增强**：`src/content/modules/list.ts`（合并导航、侧栏重排）、`detail.ts`（楼层号、回顶按钮）、`theme-toggle.ts`（顶栏主题切换按钮）。
+- **DOM 增强**：`src/content/modules/list.ts`（合并导航、侧栏重排）、`detail.ts`（楼层号、回顶按钮）、`portal.ts`（门户首页内容区重排：温度计上移、收费数据移除、APP 链接入页脚）、`theme-toggle.ts`（顶栏主题切换按钮）。
 - **设置**：`src/shared/settings.ts`，chrome.storage.sync，含总开关与模块开关；options 页在 `static/options.html`。
 
 ## 预览与验收工作流（不装扩展即可验证样式）
@@ -39,6 +39,10 @@ pnpm format  # prettier
 1. **站方样式覆盖欲极强，且部分是运行时动态注入**（不在初始 CSSOM 里，遍历 `document.styleSheets` 搜不到）。判断样式来源要直接查 `getComputedStyle`；定位"多出来的装饰线"最有效的办法是**对边界坐标做全元素扫描**（遍历 `querySelectorAll` 找 rect 跨越该 y/x 的元素，逐一查 border / 伪元素 / background-image），不要只搜规则文本。
 2. 已知被站方坑过的具体点：
    - `.aw-item`（帖子行）有 `border-top: 1px dotted`（动态注入）→ 行间"虚线"的真凶，已 `border: none !important` 清除。
+   - 门户 `.tag_top div`（tab）与文章 `.title_box`：白底 + 3px 蓝顶边 + **1px solid #fff 底边**——深色下白底刺眼、白底边成悬空白线；tab 已改下划线式（inset box-shadow 贴行底），白底边一律令牌化为 `--jsl-border`。
+   - 门户 `.first_column .left` 写死 `height: 315px`（配 `overflow-y: auto` 隐滚条）；`.first_column` 是 flex `align-items: stretch` 等高布局——重排内容必须放开 `height: auto`，且左栏内容加高会被 `.right` 的 `overflow: hidden` 裁行（收费数据加 padding 后第三行被裁的教训：行高勿动，站方 `line-height:30px` 是节奏基准）。
+   - 门户 `.jisilu-icons`（PUA 图标字体，收费数据「会员服务」徽标、页脚 Edge/Chrome 前缀）扩展环境必渲染为乱码替换符 → 整页 `display: none`。
+   - 门户页脚纯文本 div/span/`|` separator 是站方 #333 硬编码，深色下不可见；`<font color>` 残片在链接行内需剥壳保文字。
    - `.aw-question-replay-count`（回复数胶囊）：站方 `position: absolute; left: 0`，必须强制 `position: static` 拉回 flex 流，否则标题钻到胶囊下面；内部 `em` 有独立白色圆角底，需一并清掉。
    - `h4` 标题站方写死 `width: 550px`（给"贡献"头像留位），导致话题 chip 提前换行；已 `width: auto !important`。
    - `.aw-question-tags` 外层 span 带标签形 sprite 贴图（左右两瓣外露），内层 `a` 有高优先级浅色底——两层都要清。
@@ -57,6 +61,17 @@ pnpm format  # prettier
 ## 布局决策记录（用户手绘稿定稿，勿轻易改）
 
 - 顶栏：**通栏附着式**，深浅两主题同一布局（深色=深色条 #14181f，浅色=无底色）；去掉「首页」入口（logo 即首页）；「社区-知识库」文案简化为「社区」且不特殊着色（站方 `.on` 仅表当前位置）；顶栏所有间距统一由容器 `gap: 10px` 控制，勿给子项加 margin。
+- 门户首页内容区（用户定稿，portal.ts + preview.sh sim 双实现）：
+  - 「收费数据」面板整块移除；
+  - A股温度/转债温度两只 echarts（canvas 自带「xx温度 NN℃」文案，站方 indicator.js）从文章标题条移入左栏顶部「市场温度」区，置于投资日历上方；投资日历折叠开关（▿）移除、日历常开；
+  - 文章卡尾部链接行只留 苹果APP/安卓APP/用户指引&常见问题，剥 `<font>` 壳后入页脚，紧跟「用户协议」行，`|` 分隔；
+  - 投资提示正文按 `<br>` 拆「名称：描述」两栏网格（.jsl-event-grid），网格在剩余高度垂直居中、「全文>>」钉右下，标题条压到 15px/自适应高（站方 height:76px 是给浮动的 .indicator 留位的，搬走后放开了）；
+  - 社区区头右侧六个分类按钮（.tag_top .link）移除；「投资前必看」为幽灵描边胶囊（透明底+红描边+状态点+语义红字）；
+  - 卡片头语言全页统一为投资提示 title_box 同款灰底条（47px = 15px/24 + 11px 15px + 1px 底边）：左栏两条（.first_column .left .title，站方 16px/30px 定高压平）+ 两处 .tag_top（数据宫格/社区卡，站方 height:45 条与子项 39px 定高全接管，「持仓」为条内次级链接）+ 右卡 title_box；`.tag_box` 站方 padding-top:10px 清零（否则灰底条上方露出一条卡底线）；社区卡头文案「社区-知识库」简化为「社区」（页面有两个 .tag_top，文案替换要遍历按文案命中，不能只取第一个）；
+  - 页脚整理（reorganizeFooter）：7 行压 4 行——版权·客服邮箱 / 产品与法律 6 链接（复用 APP 行 `|` 分隔）/ 两条备案合行 / 声明；站方「使用 Edge/Chrome」推荐行删除；`.footer_left` 站方 margin-left:90px 清零（文字左基线与「赞助商」卡左缘对齐）；`.footer_content .flex` 垂直居中（左文字块与右二维码列中线对齐）；站方 `.footer_bg` 写死 height:240px 放开为 auto+18px 上下 padding（内容实高 ~165，否则底部一大截死空白）；右侧二维码 96px 白底圆角卡（标题在上、码在下、flex gap 28px）；
+  - 广告物料圆角化：顶部通栏横条（.banner_ad img）10px 圆角通栏；「赞助商」区并入卡片语言（.footer_ad_box = surface 卡 + title_box 同款标题条，文案冒号去掉），广告小图 6px 圆角（网格布局沿用站方 footer_ad_row，不动尺寸避免溢出裁切）；
+  - 三板块帖子列表（最新/热门/实盘 .question_list）对齐列表页语言：去站方 disc 圆点与 .title 定宽 425px 截断（改通栏单行省略、15px/500），行距统一 + `li:not(:last-child)::after` 2px 分隔，meta（chip/回复/浏览）flex gap 单源间距并与标题同一条左基线（站方缩进 15px 已清）；板块头 = accent 竖条 + 主文字色 + 行尾细线（站方「热门/实盘」间整宽 .line 隐藏）；
+  - 预览烘焙：温度计 canvas 按 indicator.js 的半环样式画仿真占位（四段色带/刻度/指针/文案，随主题换 ink 色；盘面 cy=63 上抬、文案基线 cy+15 落在色带端点之下），真实站点不受影响。
 - 列表卡片头**两行**：第一行 = 全部/分类/话题（`data-dim: cat|topic`），第二行 = 最新/热门/按发表时间（`sort`）；选中态：cat 实底蓝、sort 浅蓝薄底。
 - 列表行：回复数胶囊 `align-self: stretch` 与内容列上下对齐；标题/分类 chip/胶囊左缘同线（18px 基线）。
 - 侧栏仅两卡：「集思录会员」（价目三行并入卡内，第三行文案规范为「会员优惠 • 会员福利」）+「热门话题」（占位图与空 dt 隐藏，纯文字行）。

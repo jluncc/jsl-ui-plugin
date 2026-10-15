@@ -2121,6 +2121,11 @@ html.jsl.jsl-page-portal .first_column .right .title_box {
   font-weight: 600;
 }
 
+/* 文章标题条下沿：站方 1px solid #fff（深色成悬空白线），随主题边界色 */
+html.jsl.jsl-page-portal .first_column .right .title_box {
+  border-bottom: 1px solid var(--jsl-border);
+}
+
 /* 面板间与面板内的分隔线令牌化（站方内联 #cccccc 与 .divider-line） */
 html.jsl.jsl-page-portal .first_column div[style*="border-top"] {
   border-color: var(--jsl-border) !important;
@@ -2412,6 +2417,494 @@ html.jsl.jsl-page-portal .search_item .search_info {
 
 html.jsl.jsl-page-portal .search_item a:hover .search_text {
   color: var(--jsl-accent);
+}
+
+/* ---- 门户精修二轮（r8）：tab 下划线化 / 深色漏网硬编码 / 图标字体乱码 ---- */
+
+/* 卡片头语言统一（r11 定稿）：两处 .tag_top（数据宫格/社区卡）与右卡 title_box
+   同款灰底标题条——15px/600 主文字 + 1px 边界色底边。站方 .tag_top（height:45 +
+   padding-top:6 + 子项 39px 定高/18px 微软雅黑/居中/白底/蓝顶边）整段接管：
+   子项全部 height:auto + padding:0 + 左对齐，白底蓝边由下面一条清掉 */
+html.jsl.jsl-page-portal .tag_top {
+  display: flex;
+  align-items: center;
+  height: auto;
+  margin: 0;
+  padding: 11px 15px;
+  background: var(--jsl-surface-2);
+  border-bottom: 1px solid var(--jsl-border);
+}
+
+html.jsl.jsl-page-portal .tag_top div {
+  height: auto;
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  text-align: left;
+  line-height: 24px;
+}
+
+html.jsl.jsl-page-portal .tag_top .active {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--jsl-text);
+  box-shadow: none;
+}
+
+/* 次级 tab（持仓）：灰底条上的次级动作 → 幽灵小胶囊（与「必看」pill 同族、中性色） */
+html.jsl.jsl-page-portal .tag_top .relative {
+  margin: 0 0 0 20px;
+  font-size: 12px;
+  color: var(--jsl-text-2);
+}
+
+html.jsl.jsl-page-portal .tag_top .relative a {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 10px;
+  border: 1px solid var(--jsl-border-2);
+  border-radius: 999px;
+  color: var(--jsl-text-2);
+}
+
+html.jsl.jsl-page-portal .tag_top .relative a:hover {
+  border-color: var(--jsl-accent);
+  color: var(--jsl-accent);
+}
+
+/* Beta 上标：站方红底白字药丸过重，改 10px 小红字缀在 tab 后 */
+html.jsl.jsl-page-portal .tag_top sup {
+  margin-left: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--jsl-up);
+  background: none;
+  padding: 0;
+}
+
+/* 社区区头：红链接居左（「必看」提示语义红，站方内联 color:red 令牌化）、
+   右侧分类导航推到行尾并垂直居中 */
+html.jsl.jsl-page-portal .tag_top .text {
+  display: flex;
+  align-items: center;
+  margin-left: 6px;
+}
+
+html.jsl.jsl-page-portal .tag_top .text a {
+  color: var(--jsl-up) !important;
+  font-size: 13px;
+}
+
+html.jsl.jsl-page-portal .tag_top .link {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+/* 宫格标题里的站方红字（T+0 QDII / REITs，内联 color:red）：导航语义统一主题蓝 */
+html.jsl.jsl-page-portal .tag_content .title a[style] {
+  color: var(--jsl-accent) !important;
+}
+
+/* 投资提示正文：站方 #4d4d4d 深色下不可读（.content/.text 未被既有规则覆盖） */
+html.jsl.jsl-page-portal .first_column .right .content,
+html.jsl.jsl-page-portal .first_column .right .content .text {
+  color: var(--jsl-text-2);
+}
+
+/* 「全文>>」与卡片尾链接行：站方 #337ab7/#066/内联红 混色，统一 accent */
+html.jsl.jsl-page-portal .first_column .right .more a,
+html.jsl.jsl-page-portal .first_column .right .edit_links a,
+html.jsl.jsl-page-portal .first_column .right .edit_links font {
+  color: var(--jsl-accent) !important;
+}
+
+html.jsl.jsl-page-portal .first_column .right .edit_links {
+  /* 站方 1px dotted 分隔线（缩放下成碎线），链接行的灰字本身已足够区分 */
+  border-top: none;
+  color: var(--jsl-text-3);
+}
+
+/* 收费数据行：站方 1px dashed 分隔（缩放下摩尔纹成碎线）换 2px 实线。
+   行高不动（站方 line-height:30px 的节奏）：左右栏等高（=文章卡），
+   内容高 105px 上限，加内边距会把第三行挤出 overflow:hidden 裁掉 */
+html.jsl.jsl-page-portal #home-member-data + ul li {
+  border: none;
+}
+
+html.jsl.jsl-page-portal #home-member-data + ul li + li {
+  border-top: 2px solid var(--jsl-border);
+}
+
+/* 站方图标字体（.jisilu-icons，PUA 码位）：扩展环境必渲染为乱码替换符
+   （AGENTS 陷阱 2），整页隐藏——收费数据「会员服务」徽标、页脚「使用 Edge」前缀 */
+html.jsl.jsl-page-portal .jisilu-icons {
+  display: none !important;
+}
+
+/* 页脚纯文本与分隔符：站方 #333 硬编码，深色下不可见（链接已有令牌规则） */
+html.jsl.jsl-page-portal .footer_bg div,
+html.jsl.jsl-page-portal .footer_bg span,
+html.jsl.jsl-page-portal .footer_bg p,
+html.jsl.jsl-page-portal .footer_bg font {
+  color: var(--jsl-text-3) !important;
+}
+
+/* ---- 门户精修三轮（r9，用户定稿）：市场温度上移左栏 / 收费数据移除 / APP 链接入页脚 ---- */
+
+/* 左栏高度站方写死 315px（配 overflow-y:auto 隐滚条）：内容重排后放开，随内容生长 */
+html.jsl.jsl-page-portal .first_column .left {
+  height: auto;
+}
+
+/* 市场温度区（portal.ts 把两只温度计 echarts 搬进来）：标题条复用左栏 .title
+   既有规则（结构选择器自动命中），格子行居中排布；
+   温度计 canvas 自带「A股温度/转债温度 xx℃」文案（站方 indicator.js），无需文字标签 */
+html.jsl.jsl-page-portal .jsl-temp-panel .cells {
+  display: flex;
+  padding: 10px 8px 12px;
+}
+
+html.jsl.jsl-page-portal .jsl-temp-panel .cells > a {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* 站方给两只温度计的 float + margin（.title_box 排版遗留），在 flex 格子里居中即可 */
+html.jsl.jsl-page-portal .jsl-temp-panel .cells #indicator,
+html.jsl.jsl-page-portal .jsl-temp-panel .cells #cb_indicator {
+  float: none;
+  margin: 0;
+}
+
+/* ---- 门户精修四轮（r10，用户定稿）：文章卡事件网格 / 社区头减负 / 必看 pill ---- */
+
+/* 文章标题条：站方 18px/28px + width:565px + height:76px 压回卡片语言
+   （15px、自适应宽、高度随内容——温度计搬走后不再需要给浮动的 .indicator 留位） */
+html.jsl.jsl-page-portal .first_column .right .title_box {
+  height: auto;
+}
+
+html.jsl.jsl-page-portal .first_column .right .title_box .title {
+  width: auto;
+  font: 600 15px/24px var(--jsl-font);
+  padding: 11px 15px;
+}
+
+/* 投资提示内容区：转纵向后事件网格 flex:1 撑满、行组在剩余高度居中
+   （空白均分到上下，不再堆在底部），「全文>>」钉右下 */
+html.jsl.jsl-page-portal .first_column .right .content {
+  flex-direction: column;
+  padding: 12px 15px 10px;
+  box-sizing: border-box;
+}
+
+html.jsl.jsl-page-portal .first_column .right .content .more {
+  align-self: flex-end;
+}
+
+html.jsl.jsl-page-portal .first_column .right .content .jsl-event-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 20px;
+  align-content: center;
+  align-items: start;
+  align-self: stretch;
+}
+
+html.jsl.jsl-page-portal .jsl-event-item {
+  color: var(--jsl-text-2);
+  font-size: 13px;
+  line-height: 22px;
+}
+
+html.jsl.jsl-page-portal .jsl-event-item .name {
+  color: var(--jsl-text);
+  font-weight: 600;
+}
+
+/* 社区区头右侧六个分类按钮（新手专区|新股|…|闲聊）：用户定稿移除 */
+html.jsl.jsl-page-portal .tag_top .link {
+  display: none !important;
+}
+
+/* 「投资前必看」：幽灵描边胶囊——透明底 + 红描边 + 语义红字 + 状态点，
+   灰底标题条上比实底胶囊轻一档；hover 浅红填充补足反馈 */
+html.jsl.jsl-page-portal .tag_top .text a {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid rgba(214, 64, 63, 0.35);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--jsl-up) !important;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+html.jsl.jsl-page-portal .tag_top .text a::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentcolor;
+  margin-right: 6px;
+}
+
+html.jsl.jsl-page-portal .tag_top .text a:hover {
+  background: rgba(214, 64, 63, 0.08);
+  border-color: rgba(214, 64, 63, 0.6);
+}
+
+/* 社区卡头的「必看」胶囊与「社区」标题间距 */
+html.jsl.jsl-page-portal .tag_top .text {
+  margin-left: 10px;
+}
+
+/* 左栏标题条（市场温度/投资日历）：与投资提示 title_box 同语言
+   （15px/24 + 11px 15px + 1px 底边，同为 47px；站方 16px/30px 定高条压平） */
+html.jsl.jsl-page-portal .first_column .left .title {
+  height: auto;
+  font: 600 15px/24px var(--jsl-font);
+  padding: 11px 15px;
+  border-bottom: 1px solid var(--jsl-border);
+  box-sizing: border-box;
+}
+
+/* 卡片头贴顶：站方 .tag_box 的 padding-top:10px 会让灰底条上方露出一条卡底线。
+   两个大卡（实时投资数据/社区）去边框走无边框卡片（底色+圆角+投影仍分层）——
+   深色下 1px 边界色在大面积卡上读作白边（用户反馈） */
+html.jsl.jsl-page-portal .tag_box {
+  padding-top: 0;
+  border-color: transparent;
+}
+
+/* 「赞助商:」区并入卡片语言：title_box 同款标题条 + 广告网格通栏（r12）。
+   （旧规则只把标题压成 text-3 灰字，无锚点；文案冒号由 portal.ts 去掉） */
+html.jsl.jsl-page-portal .footer_ad_box {
+  padding: 0;
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow);
+  overflow: hidden;
+}
+
+html.jsl.jsl-page-portal .footer_ad_box .title {
+  height: auto;
+  padding: 11px 15px;
+  font: 600 15px/24px var(--jsl-font);
+  color: var(--jsl-text);
+  background: var(--jsl-surface-2);
+  border-bottom: 1px solid var(--jsl-border);
+  box-sizing: border-box;
+}
+
+/* 广告位圆角化：顶部通栏横条与赞助商小图统一 6px 圆角 */
+html.jsl.jsl-page-portal .banner_ad img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--jsl-radius);
+}
+
+/* 面板垂直节奏：横条/首屏两栏/两个大卡/赞助商之间统一 20px。
+   站方各块完全紧贴（间隙 0），原先靠边框假装分隔，扁平化后会糊成一片 */
+html.jsl.jsl-page-portal .data_content > .banner_ad,
+html.jsl.jsl-page-portal .data_content > .first_column,
+html.jsl.jsl-page-portal .data_content > .tag_box,
+html.jsl.jsl-page-portal .data_content > .footer_ad_box {
+  margin-bottom: 20px;
+}
+
+html.jsl.jsl-page-portal .footer_ad_box .ad_item img {
+  display: block;
+  border-radius: 6px;
+}
+
+/* ---- 页脚整理（r11）：左缘与赞助商对齐、文案合行、二维码卡片化 ---- */
+
+/* 站方 .footer_bg 写死 height:240px（内容实高 ~170px，底部一大截死空白）；
+   .footer_left/.footer_right 的 margin-left:90px 缩进清零，
+   文字左基线 = 容器左缘 = 上方「赞助商」左缘；左右两栏垂直居中 */
+html.jsl.jsl-page-portal .footer_bg {
+  height: auto;
+  padding: 18px 0;
+}
+
+html.jsl.jsl-page-portal .footer_content {
+  padding: 0;
+}
+
+html.jsl.jsl-page-portal .footer_content .flex {
+  display: flex;
+  align-items: center;
+}
+
+html.jsl.jsl-page-portal .footer_left {
+  flex: 1;
+  margin-left: 0 !important;
+}
+
+html.jsl.jsl-page-portal .jsl-footer-meta {
+  margin: 0 0 7px;
+}
+
+html.jsl.jsl-page-portal .jsl-footer-apps {
+  margin: 0 0 7px;
+}
+
+/* 合行分隔点（版权·邮箱、备案行） */
+html.jsl.jsl-page-portal .jsl-footer-dot {
+  margin: 0 6px;
+  color: var(--jsl-border-2);
+}
+
+html.jsl.jsl-page-portal .jsl-footer-beian {
+  margin: 0 0 7px;
+}
+
+html.jsl.jsl-page-portal .jsl-footer-beian img {
+  margin-right: 4px;
+  vertical-align: -3px;
+}
+
+/* 二维码卡片化：标题在上、码在下，白码圆角（深色下白块边界柔化） */
+html.jsl.jsl-page-portal .footer_right {
+  display: flex;
+  gap: 28px;
+  margin-left: 0 !important;
+}
+
+html.jsl.jsl-page-portal .footer_right > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+html.jsl.jsl-page-portal .footer_right img {
+  display: block;
+  width: 96px;
+  height: 96px;
+  border-radius: 8px;
+}
+
+/* ---- 社区三板块（最新/热门/实盘）列表：对齐列表页行语言 ----
+   去站方 disc 圆点与定宽 425px 截断；行距统一 + 2px 实线分隔
+   （1px 细线缩放摩尔纹陷阱）；meta 提到与标题同一条左基线（站方缩进 15px）；
+   chip 圆角胶囊、间距由 flex gap 单源供给 */
+html.jsl.jsl-page-portal .question_list {
+  padding: 4px 0;
+}
+
+html.jsl.jsl-page-portal .question_list li {
+  list-style: none;
+  padding: 8px 0;
+}
+
+html.jsl.jsl-page-portal .question_list li:not(:last-child)::after {
+  content: '';
+  display: block;
+  height: 2px;
+  margin-top: 8px;
+  background: var(--jsl-border);
+}
+
+html.jsl.jsl-page-portal .question_list .title {
+  display: block;
+  width: auto;
+  font-weight: 500;
+}
+
+html.jsl.jsl-page-portal .question_list .text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 5px;
+  padding-left: 0;
+}
+
+html.jsl.jsl-page-portal .question_list .text a + a {
+  margin-left: 0;
+}
+
+html.jsl.jsl-page-portal .question_list .text a > span {
+  padding: 1px 8px;
+  border-radius: 4px;
+}
+
+/* 板块标题（最新/热门/实盘）：accent 竖条 + 主文字色 + 行尾细线延展。
+   原先一行 accent 蓝字与满屏蓝色 chip/链接混在一起没有锚点；
+   竖条给视线落点、主文字色与列表内容拉开层级、细线把板块头撑满列宽。
+   「热门/实盘」之间的站方整宽 .line 同步隐藏（标题细线已承担结构分隔） */
+html.jsl.jsl-page-portal .tag_column .category {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-page-portal .tag_column .category::before {
+  content: '';
+  flex-shrink: 0;
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--jsl-accent);
+}
+
+html.jsl.jsl-page-portal .tag_column .category::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--jsl-border);
+}
+
+html.jsl.jsl-page-portal .tag_column .category:first-child {
+  margin-top: 2px;
+}
+
+html.jsl.jsl-page-portal .tag_column .line {
+  display: none;
+}
+
+/* 页脚产品链接行（苹果APP/安卓APP/用户指引&常见问题）：
+   链接色随页脚令牌规则，「|」分隔与站方 separator 同款弱化 */
+html.jsl.jsl-page-portal .jsl-footer-apps a {
+  font-size: 12px;
+}
+
+/* 行内链接悬停不出下划线（与「用户协议」一致：仅变色反馈） */
+html.jsl.jsl-page-portal .jsl-footer-apps a,
+html.jsl.jsl-page-portal .jsl-footer-apps a:hover {
+  text-decoration: none;
+}
+
+html.jsl.jsl-page-portal .jsl-footer-apps a + a::before {
+  content: '|';
+  margin: 0 7px;
+  color: var(--jsl-border-2);
+}
+
+html.jsl.jsl-page-portal .footer_bg a:hover {
+  color: var(--jsl-accent) !important;
 }
 
 /* ============================================================
