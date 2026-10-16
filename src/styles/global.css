@@ -568,9 +568,10 @@ html.jsl.jsl-community .aw-top-menu-wrap .aw-search-box .input-append {
   /* 站方无全局 border-box：不加这条 padding+border 会把 240px 盒撑到 246px，
      外溢吃掉与「发起」按钮的间隙，高度也比按钮高 6px */
   box-sizing: border-box;
-  /* 与顶栏按钮簇（发起/主题切换/登录注册）统一 30px 高 */
+  /* 与顶栏按钮簇（发起/主题切换/登录注册）统一 30px 高；
+     底色对齐门户搜索胶囊（surface-2），深浅随令牌 */
   height: 30px;
-  background: var(--jsl-header-field);
+  background: var(--jsl-surface-2);
   border: 1px solid transparent;
   border-radius: 8px;
   padding: 2px;
@@ -688,7 +689,7 @@ html.jsl.jsl-community .aw-pulish .b-start-question:hover {
 
 /* 所有 .aw-wecenter（顶栏/导航/主容器/页脚）统一宽度，避免窄容器错位 */
 html.jsl.jsl-community .aw-wecenter {
-  width: 1200px !important;
+  width: 960px !important;
   max-width: 95vw !important;
 }
 

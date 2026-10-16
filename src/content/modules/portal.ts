@@ -21,6 +21,52 @@ export function enhancePortalHome(): void {
   moveAppLinksToFooter();
   polishCommunityTab();
   reorganizeFooter();
+  movePublishToHeader();
+  stripPopoverHeader();
+  reorderMenuItems();
+}
+
+/** 弹窗菜单排序：个人主页 / 个人设置 / 我的关注 / 我的收藏 / 我的购买 / 我的金币 /
+ *  黑名单 / 退出（两个站方 ul + 底部退出区合并为单列；与社区页用户下拉排序一致） */
+function reorderMenuItems(): void {
+  const menu = document.querySelector('.header_navbar_content .popover-menu');
+  const ul = menu?.querySelector('.menu_links ul');
+  if (!menu || !ul) return;
+  const order = ['个人主页', '个人设置', '我的关注', '我的收藏', '我的购买', '我的金币', '黑名单', '退出'];
+  const items = new Map<string, HTMLLIElement>();
+  for (const li of menu.querySelectorAll<HTMLLIElement>('.menu_links li, .bottom_links li')) {
+    const t = (li.textContent || '').trim();
+    if (t && !items.has(t)) items.set(t, li);
+  }
+  for (const t of order) {
+    const li = items.get(t);
+    if (li) ul.appendChild(li);
+  }
+  menu.querySelector('.bottom_links')?.remove();
+}
+
+/** 弹窗顶部的用户信息行与会员推广行移除——对齐列表/详情页用户下拉的纯链接列表 */
+function stripPopoverHeader(): void {
+  const menu = document.querySelector('.header_navbar_content .popover-menu');
+  if (!menu) return;
+  menu.querySelector('.user_info')?.remove();
+  menu.querySelector('.member_box')?.remove();
+}
+
+/** 「发起」入口：从弹窗菜单移到 header 搜索框右侧（与列表页「发起」按钮同位同款），
+ *  弹窗里的按钮项随之移除 */
+function movePublishToHeader(): void {
+  const search = document.querySelector('.header_navbar_content .search_box');
+  const menuLink = document.querySelector<HTMLAnchorElement>(
+    '.header_navbar_content .popover-menu a.btn[href="/publish/"]',
+  );
+  if (!search || !menuLink) return;
+  const btn = document.createElement('a');
+  btn.className = 'jsl-header-publish';
+  btn.href = '/publish/';
+  btn.textContent = '发起';
+  search.insertAdjacentElement('afterend', btn);
+  menuLink.closest('li')?.remove();
 }
 
 /** 「社区-知识库」tab 文案简化为「社区」（与顶栏导航同一约定）。
@@ -171,6 +217,8 @@ function gridifyInvestmentEvents(): void {
     grid.appendChild(item);
   }
   text.replaceWith(grid);
+  // 「全文>>」按钮：事件已两栏铺开，入口冗余（用户定稿移除）
+  document.querySelector('.first_column .right .content .more')?.remove();
 }
 
 /** 文章卡尾部链接行 → 页脚：剥 <font color> 壳，紧跟「用户协议」行插入 */

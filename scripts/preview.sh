@@ -234,6 +234,9 @@ sim = """
         });
         eventText.replaceWith(grid);
       }
+      // 「全文>>」按钮：事件已两栏铺开，入口冗余（与 portal.ts 同步移除）
+      var moreBtn = document.querySelector('.first_column .right .content .more');
+      if (moreBtn) moreBtn.remove();
     }
 
     var editLinks = document.querySelector('.first_column .right .edit_links');
@@ -318,8 +321,8 @@ sim = """
       ctx.save();
       ctx.scale(dpr, dpr);
       ctx.clearRect(0, 0, 100, 80);
-      // 盘面上抬（cy=63），文案基线 cy+15 落在色带端点之下，互不遮挡
-      var cx = 50, cy = 63, r = 38;
+      // 盘面上抬（cy=56），文案基线 cy+20——弧脚与文字间留足空隙
+      var cx = 50, cy = 56, r = 38;
       var segs = [[0, '#00CCFF'], [0.25, '#468847'], [0.5, '#F89406'], [0.75, '#B94A48']];
       segs.forEach(function (s, idx) {
         var end = idx < segs.length - 1 ? segs[idx + 1][0] : 1;
@@ -356,10 +359,71 @@ sim = """
       ctx.fillStyle = ink;
       ctx.font = '600 12px -apple-system, "PingFang SC", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(label + ' ' + value + '\u2103', cx, cy + 15);
+      ctx.fillText(label + ' ' + value + '\u2103', cx, cy + 20);
       ctx.restore();
     });
+    // 「发起」入口移到 header 搜索框右侧（与 portal.ts movePublishToHeader 同步），
+    // 弹窗菜单里的按钮项移除
+    var pMenu = document.querySelector('.header_navbar_content .popover-menu');
+    var searchBox = document.querySelector('.header_navbar_content .search_box');
+    var publishLink = pMenu ? pMenu.querySelector('a.btn[href="/publish/"]') : null;
+    if (searchBox && publishLink) {
+      var pub = document.createElement('a');
+      pub.className = 'jsl-header-publish';
+      pub.href = '/publish/';
+      pub.textContent = '发起';
+      searchBox.insertAdjacentElement('afterend', pub);
+      var pubLi = publishLink.closest('li');
+      if (pubLi) pubLi.remove();
+    }
+    // 弹窗顶部用户信息行/会员推广行移除（与 portal.ts stripPopoverHeader 同步）——
+    // 对齐列表/详情页用户下拉的纯链接列表
+    if (pMenu) {
+      var uiRow = pMenu.querySelector('.user_info');
+      if (uiRow) uiRow.remove();
+      var memberBox = pMenu.querySelector('.member_box');
+      if (memberBox) memberBox.remove();
+    }
+
+    // 弹窗菜单排序（与 portal.ts reorderMenuItems 同步）：单列合并 + 统一顺序
+    if (pMenu) {
+      var menuUl = pMenu.querySelector('.menu_links ul');
+      var order = ['个人主页', '个人设置', '我的关注', '我的收藏', '我的购买', '我的金币', '黑名单', '退出'];
+      if (menuUl) {
+        var byText = {};
+        pMenu.querySelectorAll('.menu_links li, .bottom_links li').forEach(function (li) {
+          var t = (li.textContent || '').trim();
+          if (t && !byText[t]) byText[t] = li;
+        });
+        order.forEach(function (t) {
+          if (byText[t]) menuUl.appendChild(byText[t]);
+        });
+        var bottomLinks = pMenu.querySelector('.bottom_links');
+        if (bottomLinks) bottomLinks.remove();
+      }
+    }
   })();
+
+  // reorderUserNavMenu：用户下拉文案与排序对齐门户用户弹窗（index.ts 同步）
+  var userMenuUl = document.querySelector('.aw-user-nav-dropdown .dropdown-menu ul');
+  if (userMenuUl) {
+    var uOrder = [['主页', '个人主页'], ['设置', '个人设置'], ['我的关注', '我的关注'], ['我的收藏', '我的收藏'], ['我的购买', '我的购买'], ['我的金币', '我的金币'], ['黑名单', '黑名单'], ['退出', '退出']];
+    var uItems = {};
+    userMenuUl.querySelectorAll('li').forEach(function (li) {
+      var t = (li.textContent || '').trim();
+      if (t && !uItems[t]) uItems[t] = li;
+    });
+    uOrder.forEach(function (pair) {
+      var li = uItems[pair[0]];
+      if (!li) return;
+      if (pair[1] !== pair[0]) {
+        var a = li.querySelector('a');
+        var tn = a && Array.prototype.slice.call(a.childNodes).find(function (n) { return n.nodeType === 3 && (n.textContent || '').trim(); });
+        if (tn) tn.textContent = pair[1];
+      }
+      userMenuUl.appendChild(li);
+    });
+  }
 
   // detail.ts：楼层号 + 回到顶部 + 长回复折叠（与真实扩展一致：仅详情页，滚动 600px 后出现）
   document.querySelectorAll('.aw-dynamic-topic > .aw-item').forEach(function (el, i) {

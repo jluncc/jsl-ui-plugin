@@ -61,16 +61,20 @@ pnpm format  # prettier
 ## 布局决策记录（用户手绘稿定稿，勿轻易改）
 
 - 顶栏：**通栏附着式**，深浅两主题同一布局（深色=深色条 #14181f，浅色=无底色）；去掉「首页」入口（logo 即首页）；「社区-知识库」文案简化为「社区」且不特殊着色（站方 `.on` 仅表当前位置）；顶栏所有间距统一由容器 `gap: 10px` 控制，勿给子项加 margin。
+- 三页 header/宽度统一（用户定稿）：门户/列表/详情 header 以门户为准同构（搜索 240×30 发起入口 右侧按钮簇，间隙 10px）；社区容器 `.aw-wecenter` 宽度 1200 → **960** 对齐门户；门户 header logo 深浅两版均用品牌蓝 #0d6290（图形 data URI + 文字色，深色下显示蓝色而非白色，对齐列表页 logo 图片观感）；社区搜索胶囊底色 surface-2 对齐门户。
 - 门户首页内容区（用户定稿，portal.ts + preview.sh sim 双实现）：
   - 「收费数据」面板整块移除；
   - A股温度/转债温度两只 echarts（canvas 自带「xx温度 NN℃」文案，站方 indicator.js）从文章标题条移入左栏顶部「市场温度」区，置于投资日历上方；投资日历折叠开关（▿）移除、日历常开；
   - 文章卡尾部链接行只留 苹果APP/安卓APP/用户指引&常见问题，剥 `<font>` 壳后入页脚，紧跟「用户协议」行，`|` 分隔；
-  - 投资提示正文按 `<br>` 拆「名称：描述」两栏网格（.jsl-event-grid），网格在剩余高度垂直居中、「全文>>」钉右下，标题条压到 15px/自适应高（站方 height:76px 是给浮动的 .indicator 留位的，搬走后放开了）；
+  - 投资提示正文按 `<br>` 拆「名称：描述」两栏网格（.jsl-event-grid），网格在剩余高度垂直居中，「全文>>」按钮移除（用户定稿），标题条压到 15px/自适应高（站方 height:76px 是给浮动的 .indicator 留位的，搬走后放开了）；
   - 社区区头右侧六个分类按钮（.tag_top .link）移除；「投资前必看」为幽灵描边胶囊（透明底+红描边+状态点+语义红字）；
   - 卡片头语言全页统一为投资提示 title_box 同款灰底条（47px = 15px/24 + 11px 15px + 1px 底边）：左栏两条（.first_column .left .title，站方 16px/30px 定高压平）+ 两处 .tag_top（数据宫格/社区卡，站方 height:45 条与子项 39px 定高全接管，「持仓」为条内次级链接）+ 右卡 title_box；`.tag_box` 站方 padding-top:10px 清零（否则灰底条上方露出一条卡底线）；社区卡头文案「社区-知识库」简化为「社区」（页面有两个 .tag_top，文案替换要遍历按文案命中，不能只取第一个）；
   - 页脚整理（reorganizeFooter）：7 行压 4 行——版权·客服邮箱 / 产品与法律 6 链接（复用 APP 行 `|` 分隔）/ 两条备案合行 / 声明；站方「使用 Edge/Chrome」推荐行删除；`.footer_left` 站方 margin-left:90px 清零（文字左基线与「赞助商」卡左缘对齐）；`.footer_content .flex` 垂直居中（左文字块与右二维码列中线对齐）；站方 `.footer_bg` 写死 height:240px 放开为 auto+18px 上下 padding（内容实高 ~165，否则底部一大截死空白）；右侧二维码 96px 白底圆角卡（标题在上、码在下、flex gap 28px）；
-  - 广告物料圆角化：顶部通栏横条（.banner_ad img）10px 圆角通栏；「赞助商」区并入卡片语言（.footer_ad_box = surface 卡 + title_box 同款标题条，文案冒号去掉），广告小图 6px 圆角（网格布局沿用站方 footer_ad_row，不动尺寸避免溢出裁切）；
-  - 三板块帖子列表（最新/热门/实盘 .question_list）对齐列表页语言：去站方 disc 圆点与 .title 定宽 425px 截断（改通栏单行省略、15px/500），行距统一 + `li:not(:last-child)::after` 2px 分隔，meta（chip/回复/浏览）flex gap 单源间距并与标题同一条左基线（站方缩进 15px 已清）；板块头 = accent 竖条 + 主文字色 + 行尾细线（站方「热门/实盘」间整宽 .line 隐藏）；
+  - 广告物料圆角化：顶部通栏横条（.banner_ad img）10px 圆角通栏；「赞助商」区并入卡片语言（.footer_ad_box = surface 卡 + title_box 同款标题条，文案冒号去掉），广告小图 6px 圆角；广告网格改卡内留隙布局（行 padding 15px + gap 8px，图宽收至 178px，站方 .ad_item 的 margin-right/padding-right 8px 必须清零否则第 5 列溢出）；「广告」角标贴图左下角（left/bottom 0 + 左下角与图同圆角，站方 width:26px 定宽要放开否则竖排）；
+  - 卡片边框全站一致：.tag_box 与首屏两卡同用 1px 边界色边框（深浅同令牌）；刺眼的白线其实是 .tag_content/.tag_column 的站方 #ccc 内框，已去；面板间 20px 垂直节奏（.data_content 五个直接子块 margin-bottom）；
+  - 「发起」入口在 header 搜索框右侧（.jsl-header-publish，与列表页 .b-start-question 同款实底 accent 30px），header 搜索胶囊外圆角统一 8px、宽度对齐 240px；门户/列表/详情三页 header 结构与按钮间隙一致；
+  - 用户菜单弹窗（.popover-menu）对齐列表/详情页用户下拉：**纯链接列表**——用户信息行/会员推广行整体移除（stripPopoverHeader），菜单排序统一为 个人主页/个人设置/我的关注/我的收藏/我的购买/我的金币/黑名单/退出（reorderMenuItems，两个站方 ul + 底部退出区合并为单列；社区页下拉在 index.ts reorderUserNavMenu 做同构排序 + 文案对齐：主页→个人主页、设置→个人设置，只改链接首个文本节点保留图标），项样式 = global.css 的 .dropdown-menu a 同款（min-height 30px + 4px 12px + radius sm + 13px text-2，悬停 surface-2）；弹窗定位改右缘对齐用户按钮（站方 JS 按旧宽度算的 left 失效，`left:auto/right:0 !important`；门户 `.user_icon.dropdown` 没有 Bootstrap 的 relative，必须补 `position:relative` 作定位锚点，否则 right:0 甩到别的包含块）；宽度钉死 148px（站方 .popover-menu/.menu_links ul 有 295/281px 定宽，需 !important + 更高特异性对抗）；`.menu_links` 站方是 flex 容器（两个 ul 成并排列）必须打平为 block 才能单列；`.popover-menu` 要补 surface 底色（外壳透明化后无底会透出页面）；通知弹窗（.notification_popover）外壳并入同款卡片语言（portal 头部 popover 用 `.popover:not(.user_menu_popover)` 通配）；
+  - 三板块帖子列表（最新/热门/实盘 .question_list）对齐列表页语言：去站方 disc 圆点与 .title 定宽 425px 截断（改通栏单行省略、15px/500），行距统一 + `li:not(:last-child)::after` 2px 分隔，meta（chip/回复/浏览）flex gap 单源间距并与标题同一条左基线（站方缩进 15px 已清）；板块头 = 编辑部式短下划线（15px/600 主文字色 + 文字下方 36px accent 短线，inline-flex 贴文不横穿整行）；双列内容左缘与「社区」标题条文字对齐（.tag_column .left padding 0 16px 0 15px / .right padding-left 15px——对齐链 = 卡缘 + 1px 边框 + 15px，社区/最新·热门·实盘/行标题五点同线；accent 竖条/通栏细线/居中/双列竖分隔线均按用户反馈回退，站方「热门/实盘」间整宽 .line 隐藏）；
   - 预览烘焙：温度计 canvas 按 indicator.js 的半环样式画仿真占位（四段色带/刻度/指针/文案，随主题换 ink 色；盘面 cy=63 上抬、文案基线 cy+15 落在色带端点之下），真实站点不受影响。
 - 列表卡片头**两行**：第一行 = 全部/分类/话题（`data-dim: cat|topic`），第二行 = 最新/热门/按发表时间（`sort`）；选中态：cat 实底蓝、sort 浅蓝薄底。
 - 列表行：回复数胶囊 `align-self: stretch` 与内容列上下对齐；标题/分类 chip/胶囊左缘同线（18px 基线）。

@@ -49,10 +49,44 @@ function polishHeaderLinks(): void {
   }
 }
 
+/** 用户下拉菜单：文案对齐门户用户弹窗（主页→个人主页、设置→个人设置），
+ *  排序一致：个人主页 / 个人设置 / 我的关注 / 我的收藏 / 我的购买 / 我的金币 /
+ *  黑名单 / 退出 */
+function reorderUserNavMenu(): void {
+  const menu = document.querySelector('.aw-user-nav-dropdown .dropdown-menu ul');
+  if (!menu) return;
+  const order: Array<[string, string]> = [
+    ['主页', '个人主页'],
+    ['设置', '个人设置'],
+    ['我的关注', '我的关注'],
+    ['我的收藏', '我的收藏'],
+    ['我的购买', '我的购买'],
+    ['我的金币', '我的金币'],
+    ['黑名单', '黑名单'],
+    ['退出', '退出'],
+  ];
+  const items = new Map<string, HTMLLIElement>();
+  for (const li of [...menu.querySelectorAll('li')]) {
+    const t = (li.textContent || '').trim();
+    if (t && !items.has(t)) items.set(t, li);
+  }
+  for (const [from, to] of order) {
+    const li = items.get(from);
+    if (!li) continue;
+    if (to !== from) {
+      const a = li.querySelector('a');
+      const tn = a && [...a.childNodes].find((n) => n.nodeType === 3 && n.textContent?.trim());
+      if (tn) tn.textContent = to;
+    }
+    menu.appendChild(li);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   applyPageFlags();
   polishHeaderLinks();
   polishPortalNav();
+  reorderUserNavMenu();
   injectThemeToggle();
 
   void loadSettings().then((settings) => {
