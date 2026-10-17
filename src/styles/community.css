@@ -3566,6 +3566,18 @@ html.jsl.jsl-page-auth .login_qr_icon {
   color: var(--jsl-text-2) !important;
 }
 
+/* 注册第三步「登录确认」：账号信息文字站方写死 #4d4d4d，深色下不可读 */
+html.jsl.jsl-page-auth .user_info .info,
+html.jsl.jsl-page-auth .user_info .headimg,
+html.jsl.jsl-page-auth .wechat_info .info {
+  color: var(--jsl-text) !important;
+}
+
+html.jsl.jsl-page-auth .user_info .headimg > img {
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
 /* 注册页的分步容器与手机验证码行 */
 html.jsl.jsl-page-auth .sms_btn .btn-jisilu {
   width: 120px !important;
