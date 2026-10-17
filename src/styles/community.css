@@ -64,8 +64,8 @@ html.jsl.jsl-community .jsl-card-head-row.jsl-card-head-sort li a:hover {
 
 /* 选中态按维度区分：分类实底（页面维度），排序/话题浅品牌底（筛选维度） */
 html.jsl.jsl-community .jsl-card-head li[data-dim='cat'].active a {
-  color: #ffffff !important;
-  background: var(--jsl-accent);
+  color: var(--jsl-accent-solid-ink) !important;
+  background: var(--jsl-accent-solid);
   font-weight: 500;
 }
 
@@ -277,15 +277,15 @@ html.jsl.jsl-community .aw-side-bar > div[style*='jsl_bg_member_info'] a[style*=
   width: auto !important;
   height: auto !important;
   border-radius: 6px !important;
-  background-color: var(--jsl-accent) !important;
-  color: #fff !important;
+  background-color: var(--jsl-accent-solid) !important;
+  color: var(--jsl-accent-solid-ink) !important;
   font-size: 12px !important;
   line-height: 1.6 !important;
   transition: background 0.12s;
 }
 
 html.jsl.jsl-community .aw-side-bar > div[style*='jsl_bg_member_info'] a[style*='3692e6']:hover {
-  background-color: var(--jsl-accent-hover) !important;
+  background-color: var(--jsl-accent-solid-hover) !important;
 }
 
 /* 热门话题卡：站方每条话题都是同一张灰色占位图（无信息量），隐藏后重排为纯文字行。
@@ -527,8 +527,8 @@ html.jsl.jsl-community .aw-questoin-content h4 .aw-topic-name {
 }
 
 html.jsl.jsl-community .aw-questoin-content h4 .aw-topic-name:hover {
-  background: var(--jsl-accent);
-  color: #fff;
+  background: var(--jsl-accent-solid);
+  color: var(--jsl-accent-solid-ink);
 }
 
 /* 站方给内层 span 单独上了浅蓝底（#D4F2FF），需清除让 <a> 层的 chip 样式生效 */
@@ -572,9 +572,9 @@ html.jsl.jsl-community .pagination ul > li > a:hover {
 
 html.jsl.jsl-community .pagination ul > li.active > a,
 html.jsl.jsl-community .pagination ul > li.active > span {
-  background: var(--jsl-accent) !important;
-  border-color: var(--jsl-accent) !important;
-  color: #fff;
+  background: var(--jsl-accent-solid) !important;
+  border-color: var(--jsl-accent-solid) !important;
+  color: var(--jsl-accent-solid-ink);
 }
 
 /* ============================================================
@@ -1039,8 +1039,8 @@ html.jsl.jsl-community .jsl-reply-expand-btn {
      实测仍不清晰，加深一档 */
   border: 1px solid transparent;
   border-radius: 18px;
-  background: var(--jsl-accent);
-  color: #fff;
+  background: var(--jsl-accent-solid);
+  color: var(--jsl-accent-solid-ink);
   font-size: 13px;
   cursor: pointer;
   transition:
@@ -1049,7 +1049,7 @@ html.jsl.jsl-community .jsl-reply-expand-btn {
 }
 
 html.jsl.jsl-community .jsl-reply-expand-btn:hover {
-  background: var(--jsl-accent-hover);
+  background: var(--jsl-accent-solid-hover);
 }
 
 /* 浅色主题：实底墨色 + 白字——与蓝色「发起」按钮错开、深浅适中不模糊；
@@ -1105,7 +1105,7 @@ html.jsl.jsl-community .aw-mod-replay-box .markItUpEditor {
 
 /* 「回复」提交按钮：品牌色圆角 */
 html.jsl.jsl-community .aw-mod-replay-box .btn-success {
-  background: var(--jsl-accent) !important;
+  background: var(--jsl-accent-solid) !important;
   border: none !important;
   border-radius: 6px !important;
   text-shadow: none !important;
@@ -1278,9 +1278,9 @@ html.jsl.jsl-community .aw-question-follow .btn:hover {
 }
 
 html.jsl.jsl-community .aw-question-follow .aw-active {
-  background: var(--jsl-accent) !important;
-  border-color: var(--jsl-accent) !important;
-  color: #fff !important;
+  background: var(--jsl-accent-solid) !important;
+  border-color: var(--jsl-accent-solid) !important;
+  color: var(--jsl-accent-solid-ink) !important;
 }
 
 /* 正文排版 */
@@ -1294,6 +1294,36 @@ html.jsl.jsl-community .markitup-box {
 /* 主帖正文两端对齐：中文行尾参差不齐观感差；末行/段尾保持左对齐（justify 默认行为） */
 html.jsl.jsl-community .aw-question-detail-txt {
   text-align: justify;
+}
+
+/* 正文标题：站方 markitup 皮肤写死深蓝 #17344a，深色下对 surface 仅 1.34:1
+   （几乎看不见）。标题统一主文字色，层级靠字号/字重区分 */
+html.jsl.jsl-community .markitup-box h1,
+html.jsl.jsl-community .markitup-box h2,
+html.jsl.jsl-community .markitup-box h3,
+html.jsl.jsl-community .markitup-box h4,
+html.jsl.jsl-community .markitup-box h5,
+html.jsl.jsl-community .markitup-box h6,
+html.jsl.jsl-community .aw-question-detail-txt h1,
+html.jsl.jsl-community .aw-question-detail-txt h2,
+html.jsl.jsl-community .aw-question-detail-txt h3,
+html.jsl.jsl-community .aw-question-detail-txt h4,
+html.jsl.jsl-community .aw-question-detail-txt h5,
+html.jsl.jsl-community .aw-question-detail-txt h6 {
+  color: var(--jsl-text) !important;
+}
+
+html.jsl.jsl-community .markitup-box h1 a,
+html.jsl.jsl-community .markitup-box h2 a,
+html.jsl.jsl-community .markitup-box h3 a,
+html.jsl.jsl-community .markitup-box h4 a {
+  color: inherit !important;
+}
+
+/* 站方「链接蓝」#2586cd：深色下 4.42:1（贴 AA 线且偏暗），并入项目 accent */
+html.jsl.jsl-community .aw-text-color-blue,
+html.jsl.jsl-community .aw-text-color-blue a {
+  color: var(--jsl-accent) !important;
 }
 
 html.jsl.jsl-community .markitup-box p {
@@ -1549,9 +1579,16 @@ html.jsl.jsl-community .aw-side-bar-mod-body {
 
 /* 发起人/问题状态卡：dt(头像) + dd(文字) 改 flex 对齐，
    站方 dd 浮动清除后 margin 只剩 10px，名字会压到 32px 头像上 */
+/* 发起人卡：头像上边缘 = 用户名文字上边缘（用户定稿）。
+   注意是"文字"上边缘，不是 dd 块上边缘——dd 首行是 20px 行盒里 12px 的字，
+   文字实际绘制在行盒内下沉 4.5px（half-leading + 字体度量），所以只做
+   flex 顶对齐会让头像顶到行盒顶、看起来比用户名高一截。
+   校准：头像下移 4.5px 后 img.top == .aw-user-name 文字 top（116.5，实测双主题）。
+   dt/a 清 line-height 并 block/flex 化，避免行盒基线再推移 32px 图片；
+   img 块级化让点击热区正好包住图片 */
 html.jsl.jsl-community .aw-side-bar-mod-body dl {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
 }
 
@@ -1561,7 +1598,21 @@ html.jsl.jsl-community .aw-side-bar-mod-body dl dd {
   margin: 0 !important;
 }
 
+html.jsl.jsl-community .aw-side-bar-mod-body dl dt {
+  display: flex;
+  flex: 0 0 auto;
+  line-height: 0;
+  /* dd 首行文字相对行盒下沉 4.5px（20px 行高 / 12px 字号） */
+  margin-top: 4.5px !important;
+}
+
+html.jsl.jsl-community .aw-side-bar-mod-body dl dt a {
+  display: block;
+  line-height: 0;
+}
+
 html.jsl.jsl-community .aw-side-bar-mod-body dl dt img {
+  display: block;
   border-radius: 6px;
 }
 
@@ -1571,8 +1622,8 @@ html.jsl.jsl-community .aw-side-bar-mod-body dl dt img {
 
 html.jsl.jsl-community .jsl-back-top {
   position: fixed;
-  /* 右缘对齐侧栏卡片右缘：容器右缘 - 20px 侧栏留白 */
-  right: max(18px, calc(50% - 580px));
+  /* 右缘对齐侧栏卡片右缘内缩 20px：容器右缘 = max(18, (100%-1200)/2)（.aw-wecenter margin-right 同式） */
+  right: max(18px, calc((100% - 1200px) / 2 + 20px));
   bottom: 36px;
   z-index: 90;
   width: 40px;
@@ -2180,12 +2231,45 @@ html.jsl.jsl-page-portal .header_navbar_content .search_box form.search {
   margin: 0;
 }
 
+/* 搜索胶囊与列表页 .input-append 同构：外框 surface-2 + 2px 内衬 + 8px 圆角，
+   输入框与按钮透明化，聚焦时只亮外框 */
 html.jsl.jsl-page-portal .header_navbar_content .search_box .input-group {
   display: flex;
   align-items: center;
+  box-sizing: border-box;
   width: 100% !important;
   flex: 1 1 auto;
   min-width: 0;
+  height: 30px;
+  padding: 2px;
+  background: var(--jsl-surface-2);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  transition: border-color 0.15s;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .search_box .input-group:focus-within {
+  border-color: var(--jsl-border-2);
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .search_box .form-control {
+  flex: 1 1 auto;
+  width: auto !important;
+  min-width: 0;
+  box-sizing: border-box;
+  height: 26px !important;
+  padding: 0 10px !important;
+  line-height: 26px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0;
+  color: var(--jsl-text);
+  font-size: 13px;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .search_box .form-control::placeholder {
+  color: var(--jsl-text-3);
 }
 
 html.jsl.jsl-page-portal .header_navbar_content .search_box .input-group-btn {
@@ -2193,18 +2277,40 @@ html.jsl.jsl-page-portal .header_navbar_content .search_box .input-group-btn {
   width: auto !important;
   flex: 0 0 auto;
   display: flex;
+  align-items: center;
 }
 
-html.jsl.jsl-page-portal .header_navbar_content .search_box .input-group .form-control {
-  flex: 1 1 auto;
-  width: auto !important;
-  min-width: 0;
+html.jsl.jsl-page-portal .header_navbar_content .search_box .input-group-btn .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 6px;
+  box-shadow: none !important;
+  color: var(--jsl-text-3);
 }
 
-html.jsl.jsl-page-portal .header_navbar_content .search_box .form-control {
-  background: var(--jsl-surface-2);
-  border-color: var(--jsl-border);
+html.jsl.jsl-page-portal .header_navbar_content .search_box .input-group-btn .btn:hover {
   color: var(--jsl-text);
+  background: var(--jsl-surface) !important;
+}
+
+/* 站方搜索按钮内容用 PUA 图标字体（扩展环境是乱码替换符，.jisilu-icons 已隐藏），
+   按钮里自绘放大镜；mask + currentColor 让图标跟随文字色/悬停态 */
+html.jsl.jsl-page-portal .header_navbar_content .search_box .input-group-btn .btn::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%3E%3Ccircle%20cx%3D%2211%22%20cy%3D%2211%22%20r%3D%227%22%2F%3E%3Cpath%20d%3D%22M20%2020l-3.5-3.5%22%2F%3E%3C%2Fsvg%3E")
+    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%3E%3Ccircle%20cx%3D%2211%22%20cy%3D%2211%22%20r%3D%227%22%2F%3E%3Cpath%20d%3D%22M20%2020l-3.5-3.5%22%2F%3E%3C%2Fsvg%3E")
+    center / contain no-repeat;
 }
 
 /* 「发起」入口：header 搜索框右侧，与列表页 .aw-pulish .b-start-question 同款
@@ -2217,8 +2323,8 @@ html.jsl.jsl-page-portal .header_navbar_content .jsl-header-publish {
   flex-shrink: 0;
   height: 30px;
   padding: 0 16px;
-  background: var(--jsl-accent);
-  color: #fff !important;
+  background: var(--jsl-accent-solid);
+  color: var(--jsl-accent-solid-ink) !important;
   border-radius: var(--jsl-radius-sm);
   font-size: 13px;
   font-weight: 500;
@@ -2227,7 +2333,7 @@ html.jsl.jsl-page-portal .header_navbar_content .jsl-header-publish {
 }
 
 html.jsl.jsl-page-portal .header_navbar_content .jsl-header-publish:hover {
-  background: var(--jsl-accent-hover);
+  background: var(--jsl-accent-solid-hover);
 }
 
 /* 门户导航内的主题切换按钮（与社区页同 class，尺寸贴合导航；
@@ -2317,6 +2423,68 @@ html.jsl.jsl-page-portal .tag_top .relative a {
 }
 
 /* ---- 投资日历 ---- */
+
+/* 休市提示：站方 28px 圆图标 + 12px 内衬把两行文字推到日期行右方 50px。
+   去掉图标与底色盒，按日历正文左基线排两行弱化说明（用户定稿：文字左对齐） */
+html.jsl.jsl-page-portal .rest-banner {
+  display: block;
+  margin: 0;
+  padding: 4px 0 6px;
+  background: transparent;
+}
+
+/* 日历正文（日期行/事件区）内衬 14 → 15px：与面板标题条文字同在 261
+   （卡缘 245 + 1px 边框 + 15px），三行左基线与标题完全同线 */
+html.jsl.jsl-page-portal #home-calendar .cal-header,
+html.jsl.jsl-page-portal #home-calendar .events-area {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+/* 投资事件多时（站方 JS 把 #events-area 内联高度设为 245px，少/无事件 72px）：
+   原站靠左卡 height:315 + overflow-y:auto 整卡滚动；我们放开左卡高度后，
+   卡片自身的 overflow:hidden（圆角裁剪）会把超出内容直接裁掉且无法滚动。
+   改为事件区自身滚动——日期行固定、列表内部滚动；无溢出时不出滚动条 */
+html.jsl.jsl-page-portal #events-area {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--jsl-border-2) transparent;
+}
+
+html.jsl.jsl-page-portal #events-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+html.jsl.jsl-page-portal #events-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html.jsl.jsl-page-portal #events-area::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: var(--jsl-border-2);
+}
+
+html.jsl.jsl-page-portal #events-area::-webkit-scrollbar-thumb:hover {
+  background: var(--jsl-text-3);
+}
+
+html.jsl.jsl-page-portal .rest-icon {
+  display: none;
+}
+
+html.jsl.jsl-page-portal .rest-text {
+  color: var(--jsl-text-2);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+html.jsl.jsl-page-portal .rest-sub {
+  margin-top: 2px;
+  color: var(--jsl-text-3);
+  font-size: 11px;
+  line-height: 16px;
+}
 
 html.jsl.jsl-page-portal .cal-date,
 html.jsl.jsl-page-portal .cal-weekday {
@@ -2664,6 +2832,12 @@ html.jsl.jsl-page-portal .tag_content .title a[style] {
   color: var(--jsl-accent) !important;
 }
 
+/* 宫格子链接里的内联红字（如「评分」）：深色下原始红仅 3.7:1，随导航语义统一主题蓝 */
+html.jsl.jsl-page-portal .tag_content a[style*='color:red'],
+html.jsl.jsl-page-portal .tag_content a[style*='color: red'] {
+  color: var(--jsl-accent) !important;
+}
+
 /* 投资提示正文：站方 #4d4d4d 深色下不可读（.content/.text 未被既有规则覆盖） */
 html.jsl.jsl-page-portal .first_column .right .content,
 html.jsl.jsl-page-portal .first_column .right .content .text {
@@ -2763,23 +2937,73 @@ html.jsl.jsl-page-portal .first_column .right .content .more {
   align-self: flex-end;
 }
 
-html.jsl.jsl-page-portal .first_column .right .content .jsl-event-grid {
+/* 本周热点：编辑部式编号列表，行数随站方内容变化（可能 1–8 行）——
+   不假定 4 行。三条约束同时成立，已实测 1/2/3/4/6/8 行 + 超长换行：
+   · flex:1 1 0 均分剩余高度（4 行 69px、6 行 46px，卡片高度不变）；
+   · max-height:74px 封顶，行少时不把单行拉成半张卡（1–3 行时整块居中）；
+   · min-height:min-content 兜底——长文本换行时 min 优先于 max-height，
+     行自动长高（实测 3 行文本撑到 83px），不压扁、不裁切；
+     行数多到装不下时卡片自然长高（8 行 → 406px，左卡同步 stretch）；
+   1px 细线分隔，首行是当期头条：编号 accent、文字主色加粗 */
+html.jsl.jsl-page-portal .first_column .right .content .jsl-event-list {
   flex: 1;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 20px;
-  align-content: center;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-self: stretch;
+  min-height: 0;
 }
 
-html.jsl.jsl-page-portal .jsl-event-item {
+html.jsl.jsl-page-portal .jsl-event-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1 1 0;
+  box-sizing: border-box;
+  /* min 大于 max-height 时按 CSS 规则 min 胜出——长文本不被封顶裁切 */
+  min-height: min-content;
+  max-height: 74px;
+  /* 上下内衬保证多行时文字不贴分隔线 */
+  padding: 10px 0;
+  border-bottom: 1px solid var(--jsl-border);
+}
+
+html.jsl.jsl-page-portal .jsl-event-row:last-child {
+  border-bottom: none;
+}
+
+html.jsl.jsl-page-portal .jsl-event-row .idx {
+  flex: 0 0 auto;
+  width: 18px;
+  font-family: var(--jsl-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--jsl-text-3);
+}
+
+html.jsl.jsl-page-portal .jsl-event-row .txt {
+  flex: 1 1 auto;
+  min-width: 0;
   color: var(--jsl-text-2);
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 21px;
+}
+
+/* 首条 = 当期头条：编号 accent、文字升一级（15px/600 主文字色） */
+html.jsl.jsl-page-portal .jsl-event-row:first-child .idx {
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-page-portal .jsl-event-row:first-child .txt {
+  color: var(--jsl-text);
+  font-size: 15px;
+  font-weight: 600;
   line-height: 22px;
 }
 
-html.jsl.jsl-page-portal .jsl-event-item .name {
+html.jsl.jsl-page-portal .jsl-event-row .name {
   color: var(--jsl-text);
   font-weight: 600;
 }
@@ -3053,41 +3277,47 @@ html.jsl.jsl-page-portal .question_list .text a > span {
   border-radius: 4px;
 }
 
-/* 板块标题（最新/热门/实盘）：编辑部式短下划线，左对齐——
-   15px/600 主文字色，文字下方压一段 36px accent 短线 */
+/* 板块标题（最新/热门/实盘）：编辑式分区标尺——
+   13px/600 小标题 + 0.04em 字距，右侧一条 1px 细线延伸到列右缘。
+   用「文字 + 细线」标记分区起点：结构清晰、与卡片 1px 边框同语言，
+   不再用 3px 粗色条（三条重复时抢视线，且与全局细线风格冲突）。
+   站方 .category 的 text-indent:20px 清零，文字与细线同起于内容左缘 */
 html.jsl.jsl-page-portal .tag_column .category {
-  position: relative;
-  display: inline-flex;
-  margin: 18px 0 10px;
-  padding-bottom: 6px;
-  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 28px 0 10px;
+  padding: 0;
+  text-indent: 0 !important;
+  font-size: 13px;
   font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0.04em;
   color: var(--jsl-text);
+  white-space: nowrap;
 }
 
 html.jsl.jsl-page-portal .tag_column .category::after {
   content: '';
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 36px;
-  height: 3px;
-  border-radius: 2px;
-  background: var(--jsl-accent);
+  flex: 1 1 auto;
+  height: 1px;
+  border-radius: 0;
+  background: var(--jsl-border);
 }
 
 html.jsl.jsl-page-portal .tag_column .category:first-child {
-  margin-top: 2px;
+  margin-top: 14px;
 }
 
 /* 双列内容左缘与「社区」标题条文字对齐（卡缘 + 1px 边框 + 15px 内边距）；
-   左列右缘 16px、右列左缘 15px 构成双列呼吸位（无分隔线） */
+   左列右缘 16px、右列左缘 15px 构成双列呼吸位（无分隔线）。
+   右列站方 padding-top:10px 会让「热门」比「最新」低 10px——清零，两列标题同高 */
 html.jsl.jsl-page-portal .tag_column .left {
   padding: 0 16px 0 15px;
 }
 
 html.jsl.jsl-page-portal .tag_column .right {
-  padding-left: 15px;
+  padding: 0 10px 0 15px;
 }
 
 /* 站方「热门/实盘」之间的整宽横线：标题自身已锚定分区，横线冗余 */

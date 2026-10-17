@@ -4,7 +4,8 @@
  * 2. 文章标题条里的 A股温度/转债温度两只 echarts 温度计，移入左栏顶部「市场温度」区
  *    （用户定稿：置于投资日历上方；canvas 自带「A股温度 xx℃」文案，站方 indicator.js）
  * 3. 投资日历折叠开关移除（常开）
- * 4. 文章卡尾部链接行只保留苹果APP/安卓APP/用户指引&常见问题，并入页脚法律链接行下方
+ * 4. 本周热点正文重排为竖排编号列表（原设计即竖排），标题条简化为区名「本周热点」
+ * 5. 文章卡尾部链接行只保留苹果APP/安卓APP/用户指引&常见问题，并入页脚法律链接行下方
  *
  * 与 scripts/preview.sh 的 sim 段是同一套 DOM 变换的 TS/JS 双实现，改这边必须同步那边。
  */
@@ -17,7 +18,7 @@ export function enhancePortalHome(): void {
   removeMemberDataPanel();
   moveTemperatureIndicators();
   unfoldCalendar();
-  gridifyInvestmentEvents();
+  layoutInvestmentEvents();
   moveAppLinksToFooter();
   polishCommunityTab();
   reorganizeFooter();
@@ -53,20 +54,23 @@ function stripPopoverHeader(): void {
   menu.querySelector('.member_box')?.remove();
 }
 
-/** 「发起」入口：从弹窗菜单移到 header 搜索框右侧（与列表页「发起」按钮同位同款），
- *  弹窗里的按钮项随之移除 */
+/** 「发起」入口：header 搜索框右侧（与列表页「发起」按钮同位同款）。
+ *  登录态从弹窗菜单搬运并删除菜单项；匿名态弹窗不存在，直接补按钮——
+ *  列表页匿名态本就有「发起」，三页 header 保持一致 */
 function movePublishToHeader(): void {
   const search = document.querySelector('.header_navbar_content .search_box');
+  if (!search) return;
   const menuLink = document.querySelector<HTMLAnchorElement>(
     '.header_navbar_content .popover-menu a.btn[href="/publish/"]',
   );
-  if (!search || !menuLink) return;
-  const btn = document.createElement('a');
-  btn.className = 'jsl-header-publish';
-  btn.href = '/publish/';
-  btn.textContent = '发起';
-  search.insertAdjacentElement('afterend', btn);
-  menuLink.closest('li')?.remove();
+  if (!search.parentElement?.querySelector('.jsl-header-publish')) {
+    const btn = document.createElement('a');
+    btn.className = 'jsl-header-publish';
+    btn.href = '/publish/';
+    btn.textContent = '发起';
+    search.insertAdjacentElement('afterend', btn);
+  }
+  menuLink?.closest('li')?.remove();
 }
 
 /** 「社区-知识库」tab 文案简化为「社区」（与顶栏导航同一约定）。
@@ -169,20 +173,22 @@ function unfoldCalendar(): void {
   document.getElementById('cal-btn-toggle')?.remove();
 }
 
-/** 投资提示正文：站方 <br> 分隔的事件行拆「名称：描述」，重排为两栏网格
- *  （横向铺满卡片、纵向在剩余高度居中，消除原文一行一个的死空白） */
-function gridifyInvestmentEvents(): void {
+/** 本周热点正文：站方 <br> 分隔的 4 条事件重排为竖排编号列表（原设计即竖排，
+ *  双栏网格留白零碎，用户否决）。行高均分卡片剩余高度、1px 细线分隔，
+ *  首条（当期头条）加重；标题条简化为区名「本周热点」——原标题就是首条事件，重复 */
+function layoutInvestmentEvents(): void {
   const text = document.querySelector<HTMLElement>('.first_column .right .content .text');
-  if (!text || text.querySelector('.jsl-event-grid')) return;
+  if (!text || text.querySelector('.jsl-event-list')) return;
 
-  // 按 <br> 切分成事件段（保留段内原有子节点，兼容站方日后塞链接）
+  // 按 <br> 切分事件段（保留段内子节点），清掉站方换行带来的首尾空白
   const segments: string[] = [];
   let buffer: Node[] = [];
   const flush = () => {
     if (buffer.length === 0) return;
     const wrap = document.createElement('div');
     for (const node of buffer) wrap.appendChild(node.cloneNode(true));
-    segments.push(wrap.innerHTML);
+    const html = wrap.innerHTML.replace(/^[\s\u00a0]+/, '').trim();
+    if (html) segments.push(html);
     buffer = [];
   };
   for (const node of [...text.childNodes]) {
@@ -195,14 +201,19 @@ function gridifyInvestmentEvents(): void {
   flush();
   if (segments.length === 0) return;
 
-  const grid = document.createElement('div');
-  grid.className = 'jsl-event-grid';
-  for (const segment of segments) {
-    const item = document.createElement('div');
-    item.className = 'jsl-event-item';
-    item.innerHTML = segment;
-    // 首段文本按首个「：」拆出事件名称（站方 <br> 后的换行空白一并清掉）
-    const first = item.firstChild;
+  const list = document.createElement('div');
+  list.className = 'jsl-event-list';
+  segments.forEach((segment, i) => {
+    const row = document.createElement('div');
+    row.className = 'jsl-event-row';
+    const index = document.createElement('span');
+    index.className = 'idx';
+    index.textContent = String(i + 1).padStart(2, '0');
+    const txt = document.createElement('span');
+    txt.className = 'txt';
+    txt.innerHTML = segment;
+    // 首段文本按首个「：」拆出事件名称（站方日后若改为「名称：描述」格式）
+    const first = txt.firstChild;
     if (first && first.nodeType === Node.TEXT_NODE) {
       const raw = (first.textContent ?? '').trim();
       const cut = raw.indexOf('：');
@@ -211,13 +222,19 @@ function gridifyInvestmentEvents(): void {
         name.className = 'name';
         name.textContent = raw.slice(0, cut);
         first.textContent = `：${raw.slice(cut + 1)}`;
-        item.insertBefore(name, first);
+        txt.insertBefore(name, first);
       }
     }
-    grid.appendChild(item);
-  }
-  text.replaceWith(grid);
-  // 「全文>>」按钮：事件已两栏铺开，入口冗余（用户定稿移除）
+    row.append(index, txt);
+    list.appendChild(row);
+  });
+  text.replaceWith(list);
+
+  const titleLink = document.querySelector<HTMLAnchorElement>(
+    '.first_column .right .title_box .title a',
+  );
+  if (titleLink) titleLink.textContent = '本周热点';
+  // 「全文>>」按钮：标题条仍可进入原帖，入口冗余（用户定稿移除）
   document.querySelector('.first_column .right .content .more')?.remove();
 }
 

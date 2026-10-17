@@ -25,6 +25,11 @@
   --jsl-accent: #2f6fed;
   --jsl-accent-hover: #2557c4;
   --jsl-accent-weak: rgba(47, 111, 237, 0.09);
+  /* 实底按钮/选中胶囊专用：白字落在这一层上（对白字 ≥4.5:1）。
+     文字/链接仍用 --jsl-accent（深色下更亮的蓝） */
+  --jsl-accent-solid: #2f6fed;
+  --jsl-accent-solid-hover: #2557c4;
+  --jsl-accent-solid-ink: #ffffff;
 
   /* 语义色：红涨绿跌（沿用站方语义，仅在深色下调整明度） */
   --jsl-up: #d6403f;
@@ -50,13 +55,21 @@ html[data-theme='dark'] {
   --jsl-surface-2: #222834;
   --jsl-text: #e3e8ef;
   --jsl-text-2: #a0aab9;
-  --jsl-text-3: #7d8798;
+  /* 三级文字：原 #7d8798 在 surface-2 上仅 4.07:1（低于 AA 4.5）；
+     提亮到 #8d97a8 后 surface-2 上 5.0:1、surface 上 5.9:1，
+     仍明显暗于 text-2，层级不变 */
+  --jsl-text-3: #8d97a8;
   --jsl-border: #2a3140;
   --jsl-border-2: #363f50;
 
   --jsl-accent: #5c8dff;
   --jsl-accent-hover: #7ba3ff;
   --jsl-accent-weak: rgba(92, 141, 255, 0.14);
+  /* 白字实底：深色下亮蓝 #5c8dff + 白字仅 3.13:1，实底改用深一档的蓝
+     （对白字 4.7:1）；悬停取更深值，保证任何状态都 ≥4.5 */
+  --jsl-accent-solid: #3b6ee0;
+  --jsl-accent-solid-hover: #3564d4;
+  --jsl-accent-solid-ink: #ffffff;
 
   --jsl-up: #f0655a;
   --jsl-down: #3ec78f;

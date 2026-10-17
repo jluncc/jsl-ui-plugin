@@ -194,16 +194,18 @@ sim = """
       if (/社区/.test(el.textContent || '')) el.textContent = '社区';
     });
 
-    // 投资提示正文：<br> 事件行拆「名称：描述」两栏网格（与 portal.ts gridifyInvestmentEvents 同步）
+    // 本周热点正文 → 竖排编号列表（与 portal.ts layoutInvestmentEvents 同步）：
+    // 4 条事件均分行高、细线分隔，标题条简化为区名「本周热点」
     var eventText = document.querySelector('.first_column .right .content .text');
-    if (eventText && !eventText.querySelector('.jsl-event-grid')) {
+    if (eventText && !eventText.querySelector('.jsl-event-list')) {
       var segments = [];
       var buffer = [];
       var flushBuf = function () {
         if (!buffer.length) return;
         var wrap = document.createElement('div');
         buffer.forEach(function (n) { wrap.appendChild(n.cloneNode(true)); });
-        segments.push(wrap.innerHTML);
+        var html = wrap.innerHTML.replace(/^[\\s\\u00a0]+/, '').trim();
+        if (html) segments.push(html);
         buffer = [];
       };
       Array.prototype.slice.call(eventText.childNodes).forEach(function (node) {
@@ -212,13 +214,18 @@ sim = """
       });
       flushBuf();
       if (segments.length) {
-        var grid = document.createElement('div');
-        grid.className = 'jsl-event-grid';
-        segments.forEach(function (seg) {
-          var item = document.createElement('div');
-          item.className = 'jsl-event-item';
-          item.innerHTML = seg;
-          var first = item.firstChild;
+        var list = document.createElement('div');
+        list.className = 'jsl-event-list';
+        segments.forEach(function (seg, i) {
+          var row = document.createElement('div');
+          row.className = 'jsl-event-row';
+          var idx = document.createElement('span');
+          idx.className = 'idx';
+          idx.textContent = String(i + 1).padStart(2, '0');
+          var txt = document.createElement('span');
+          txt.className = 'txt';
+          txt.innerHTML = seg;
+          var first = txt.firstChild;
           if (first && first.nodeType === 3) {
             var raw = (first.textContent || '').trim();
             var cut = raw.indexOf('\uFF1A');
@@ -227,14 +234,18 @@ sim = """
               name.className = 'name';
               name.textContent = raw.slice(0, cut);
               first.textContent = '\uFF1A' + raw.slice(cut + 1);
-              item.insertBefore(name, first);
+              txt.insertBefore(name, first);
             }
           }
-          grid.appendChild(item);
+          row.appendChild(idx);
+          row.appendChild(txt);
+          list.appendChild(row);
         });
-        eventText.replaceWith(grid);
+        eventText.replaceWith(list);
       }
-      // 「全文>>」按钮：事件已两栏铺开，入口冗余（与 portal.ts 同步移除）
+      var hotTitle = document.querySelector('.first_column .right .title_box .title a');
+      if (hotTitle) hotTitle.textContent = '本周热点';
+      // 「全文>>」按钮：标题条仍可进入原帖，入口冗余（与 portal.ts 同步移除）
       var moreBtn = document.querySelector('.first_column .right .content .more');
       if (moreBtn) moreBtn.remove();
     }
@@ -310,7 +321,17 @@ sim = """
     // 的半环仪表样式（四段色带/外向刻度/指针/温度文案）画仿真占位，真实站点不受影响
     document.querySelectorAll('.jsl-temp-panel .cells > a').forEach(function (a, i) {
       var canvas = a.querySelector('canvas');
-      if (!canvas) return;
+      if (!canvas) {
+        // curl 快照是服务端原始 HTML，canvas 由站方 indicator.js 运行时创建——缺则自建
+        //（2x 属性尺寸 + 100px CSS 宽，匹配左栏格子宽度），真实站点不受影响
+        canvas = document.createElement('canvas');
+        canvas.width = 200;
+        canvas.height = 160;
+        canvas.style.width = '100px';
+        canvas.style.height = '80px';
+        var host = a.firstElementChild || a;
+        host.appendChild(canvas);
+      }
       var ctx = canvas.getContext('2d');
       if (!ctx) return;
       var label = i === 0 ? 'A股温度' : '转债温度';
@@ -362,17 +383,32 @@ sim = """
       ctx.fillText(label + ' ' + value + '\u2103', cx, cy + 20);
       ctx.restore();
     });
+    // 门户搜索框：curl 快照是服务端 HTML，站方 JS 运行时才构建表单（与真实站点结构一致）；
+    // 预览里补烘焙一份，样式与列表页搜索胶囊同源
+    var portalSearchBox = document.querySelector('.header_navbar_content .search_box');
+    if (portalSearchBox && !portalSearchBox.querySelector('form')) {
+      portalSearchBox.innerHTML =
+        '<form action="/search/all/" id="global_search_form" method="post" class="search">' +
+        '<div class="input-group input-group-sm">' +
+        '<input id="search_type" name="t" type="hidden" value="">' +
+        '<input id="search_input" name="q" type="text" class="form-control" placeholder="搜索问题、话题或人" autocomplete="off">' +
+        '<span class="input-group-btn"><button class="btn btn-default" type="button">' +
+        '<span class="jisilu-icons">&#xe718;</span></button></span>' +
+        '</div></form>';
+    }
     // 「发起」入口移到 header 搜索框右侧（与 portal.ts movePublishToHeader 同步），
-    // 弹窗菜单里的按钮项移除
+    // 登录态弹窗菜单里的按钮项移除；匿名态弹窗不存在时也补按钮（三页 header 一致）
     var pMenu = document.querySelector('.header_navbar_content .popover-menu');
     var searchBox = document.querySelector('.header_navbar_content .search_box');
     var publishLink = pMenu ? pMenu.querySelector('a.btn[href="/publish/"]') : null;
-    if (searchBox && publishLink) {
+    if (searchBox && !(searchBox.parentElement && searchBox.parentElement.querySelector('.jsl-header-publish'))) {
       var pub = document.createElement('a');
       pub.className = 'jsl-header-publish';
       pub.href = '/publish/';
       pub.textContent = '发起';
       searchBox.insertAdjacentElement('afterend', pub);
+    }
+    if (publishLink) {
       var pubLi = publishLink.closest('li');
       if (pubLi) pubLi.remove();
     }

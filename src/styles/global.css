@@ -49,13 +49,16 @@ html.jsl.jsl-community .aw-top-menu-wrap {
   /* 通栏附着在顶部（浅色无底色/深色深色条），高度 52px */
   width: 100% !important;
   margin: 0 !important;
-  /* 左内边距实测校准：容器缘 +61（row 10 + 主栏 30 + 卡边框 1 + 卡内边距 20），
-     与帖子标题/正文文字左缘精确对齐；右侧即容器缘，与侧栏卡右缘对齐 */
+  /* 左右内边距是内容区对齐的基准：.aw-wecenter 的 margin 镜像这两条公式，
+     使主容器左缘=logo、右缘=注册按钮（+61 曾用于对齐卡内标题文字，
+     现在整体与内容容器盒对齐） */
   padding: 6px max(18px, calc((100% - 1200px) / 2)) 6px
     max(18px, calc((100% - 1200px) / 2 + 61px));
   /* 顶栏所有子项的统一间距；各自的零散 margin 全部清零 */
   gap: 10px;
-  background: var(--jsl-header-bg) !important;
+  /* 与门户 header 同款材质：surface 卡底 + 1px 底边（三页 header 视觉统一） */
+  background: var(--jsl-surface) !important;
+  border-bottom: 1px solid var(--jsl-border);
 }
 
 /* 窄屏放不下时才启用横向滚动。已知边界：滚动态下 overflow-y 被连带裁剪，
@@ -98,17 +101,22 @@ html.jsl.jsl-community .span6.aw-logo {
   margin: 0 !important;
 }
 
-/* 站方 logo 是不透明浅蓝底图片，放在深色条上突兀；改用文字标 */
+/* 站方 logo 是不透明浅蓝底图片，放在深色条上突兀；改用文字标。
+   字色对齐门户 header：浅色正文色、深色品牌蓝（两页 logo 观感一致） */
 html.jsl.jsl-community .span6.aw-logo > a:first-child {
   display: inline-flex;
   align-items: center;
   gap: 7px;
   margin-right: 12px;
-  color: var(--jsl-header-text) !important;
+  color: var(--jsl-text) !important;
   font-size: 17px;
   font-weight: 700;
   letter-spacing: 2px;
   text-decoration: none;
+}
+
+html[data-theme='dark'].jsl-community .span6.aw-logo > a:first-child {
+  color: #0d6290 !important;
 }
 
 html.jsl.jsl-community .span6.aw-logo > a:first-child img {
@@ -138,7 +146,8 @@ html.jsl.jsl-community .span6.aw-logo > a[href]:not(:first-child) {
   margin-left: 0 !important;
   padding: 6px 10px;
   border-radius: 6px;
-  color: var(--jsl-header-text-dim) !important;
+  /* 与门户导航同款：正文次级色 + surface-2 悬停底 */
+  color: var(--jsl-text-2) !important;
   font-size: 13px !important;
   font-family: var(--jsl-font) !important;
   transition:
@@ -147,8 +156,8 @@ html.jsl.jsl-community .span6.aw-logo > a[href]:not(:first-child) {
 }
 
 html.jsl.jsl-community .span6.aw-logo > a[href]:not(:first-child):hover {
-  color: var(--jsl-header-text) !important;
-  background: var(--jsl-header-field);
+  color: var(--jsl-text) !important;
+  background: var(--jsl-surface-2);
 }
 
 /* 当前页选中态：与相邻链接同构（站方以 .on 标记当前位置，不再特殊着色） */
@@ -181,10 +190,11 @@ html.jsl.jsl-community .jsl-theme-toggle {
   height: 30px;
   padding: 0;
   margin: 0 !important;
-  border: 1px solid var(--jsl-header-line);
+  /* 与门户同款描边：border-2 + 次级文字色 */
+  border: 1px solid var(--jsl-border-2);
   border-radius: 6px;
   background: transparent;
-  color: var(--jsl-header-text-dim);
+  color: var(--jsl-text-2);
   cursor: pointer;
   transition:
     color 0.12s,
@@ -193,9 +203,9 @@ html.jsl.jsl-community .jsl-theme-toggle {
 }
 
 html.jsl.jsl-community .jsl-theme-toggle:hover {
-  color: var(--jsl-header-text);
-  background: var(--jsl-header-field);
-  border-color: var(--jsl-header-text-dim);
+  color: var(--jsl-accent);
+  background: transparent;
+  border-color: var(--jsl-accent);
 }
 
 /* 扩展总开关关闭时隐藏注入的按钮 */
@@ -218,11 +228,13 @@ html.jsl.jsl-community .span6.aw-login-register a {
   align-items: center;
   box-sizing: border-box;
   height: 30px;
-  padding: 0 14px;
+  /* 与门户 .user_box .btn-group .btn 同内距 0 12 */
+  padding: 0 12px;
   margin: 0 !important;
-  border: 1px solid var(--jsl-header-line);
+  /* 与门户同款描边：border-2 + 正文色 */
+  border: 1px solid var(--jsl-border-2);
   border-radius: 6px;
-  color: var(--jsl-header-text) !important;
+  color: var(--jsl-text) !important;
   font-size: 13px;
   transition:
     color 0.12s,
@@ -231,9 +243,9 @@ html.jsl.jsl-community .span6.aw-login-register a {
 }
 
 html.jsl.jsl-community .span6.aw-login-register a:hover {
-  color: var(--jsl-header-text) !important;
-  background: var(--jsl-header-field);
-  border-color: var(--jsl-header-text-dim);
+  color: var(--jsl-accent) !important;
+  background: transparent;
+  border-color: var(--jsl-accent);
 }
 
 /* 登录态右侧区（通知/私信/用户名/头像） */
@@ -485,10 +497,10 @@ html.jsl.jsl-community .aw-top-nav > li > a {
 
 /* 选中态：与第一行统一，品牌色实底胶囊 */
 html.jsl.jsl-community .aw-top-nav > li > a.active {
-  color: #ffffff !important;
+  color: var(--jsl-accent-solid-ink) !important;
   font-weight: 500;
   border-bottom: none;
-  background: var(--jsl-accent) !important;
+  background: var(--jsl-accent-solid) !important;
 }
 
 /* 导航条上的老式精灵图图标（三角、方块底图标），统一隐藏让文字居中 */
@@ -670,7 +682,7 @@ html.jsl.jsl-community .aw-pulish .b-start-question {
   justify-content: center;
   height: 30px;
   padding: 0 16px;
-  background: var(--jsl-accent) !important;
+  background: var(--jsl-accent-solid) !important;
   background-image: none !important;
   color: #fff !important;
   border-radius: var(--jsl-radius-sm);
@@ -682,15 +694,19 @@ html.jsl.jsl-community .aw-pulish .b-start-question {
 }
 
 html.jsl.jsl-community .aw-pulish .b-start-question:hover {
-  background: var(--jsl-accent-hover) !important;
+  background: var(--jsl-accent-solid-hover) !important;
 }
 
 /* ---------- 主容器：去掉站方浅灰底、加宽利用宽屏 ---------- */
 
-/* 所有 .aw-wecenter（顶栏/导航/主容器/页脚）统一宽度，避免窄容器错位 */
+/* 所有 .aw-wecenter（主容器/页脚；顶栏内两处已 display:contents 不生成盒子）
+   与 header 内容盒同边对齐（左缘=logo、右缘=注册按钮）：
+   margin 镜像 .aw-top-menu-wrap 的不对称 padding，随视口流式伸缩 */
 html.jsl.jsl-community .aw-wecenter {
-  width: 960px !important;
-  max-width: 95vw !important;
+  width: auto !important;
+  max-width: none !important;
+  margin-left: max(18px, calc((100% - 1200px) / 2 + 61px)) !important;
+  margin-right: max(18px, calc((100% - 1200px) / 2)) !important;
 }
 
 /* 站方：.aw-container{background:#f7f7f7;border:1px solid #c9c9c9} */
@@ -721,6 +737,9 @@ html.jsl.jsl-community .row.aw-content-wrap {
      这里的 gap 曾与它们叠出 42px */
   gap: 0 !important;
   background: transparent !important;
+  /* 站方 BS2 栅格 gutter：row 10px + 主栏 30px 会把可见卡片推到容器内 40px，
+     视觉上与 header logo 图标错位——清零，让卡片左缘=容器左缘=logo 左缘 */
+  padding-left: 0 !important;
 }
 
 html.jsl.jsl-community .aw-content-wrap > .span9.aw-main-content {
@@ -728,6 +747,8 @@ html.jsl.jsl-community .aw-content-wrap > .span9.aw-main-content {
   width: auto !important;
   flex: 1;
   min-width: 0;
+  /* 同上：站方 .span9 的 30px 左 gutter 清零，卡片可见左缘与 row 左缘同线 */
+  padding-left: 0 !important;
 }
 
 html.jsl.jsl-community .aw-content-wrap > .span3.aw-side-bar {
@@ -790,8 +811,8 @@ html.jsl.jsl-community .row.category ul li a:hover {
 
 /* 当前分类：品牌色实底胶囊（同「广场」tab 选中态） */
 html.jsl.jsl-community .row.category ul li.active a {
-  color: #ffffff !important;
-  background: var(--jsl-accent);
+  color: var(--jsl-accent-solid-ink) !important;
+  background: var(--jsl-accent-solid);
 }
 
 /* BBS 阅读模式：推到行尾，弱化为辅助控件 */

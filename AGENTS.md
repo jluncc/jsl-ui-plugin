@@ -21,6 +21,7 @@ pnpm format  # prettier
 
 - **content script（document_start）**：`src/content/index.ts` 按 DOM 特征在 `<html>` 上挂 `jsl` / `jsl-community` / `jsl-page-list` / `jsl-page-detail` 标志类。全部 CSS 挂钩在这些类下——**总开关 = 移除一个 class**。
 - **样式三段式**：`src/styles/tokens.css`（深浅两套 CSS 变量，`html[data-theme]` 切换）→ `global.css`（顶栏/页脚/通用）→ `community.css`（列表/详情/侧栏）。顶栏颜色单独走 `--jsl-header-*` 令牌组。
+- **侧栏「发起人」卡（.aw-side-bar-mod-body dl）**：头像上边缘 = **用户名文字**上边缘（用户定稿，实测双主题 116.5=116.5）。实现：`dl` flex + `align-items:flex-start`、dt/dd 零 margin、`dt` 与 `dt a` flex/block + `line-height:0`、`img` block，再给 `dt` 加 `margin-top:4.5px`——dd 首行是 20px 行盒里 12px 的字，文字实际绘制在行盒内下沉约 4.5px，纯顶对齐会让头像比名字高一截。三个坑：① 不能用 `align-items:center`（dd 含多行简介 81px，头像会落到整块中线）；② 不要做中线对齐；③ **"上边缘齐平"指文字上边缘，不是 dd 块上边缘**。此类「头像+多行信息」卡一律按文字上边缘校准。
 - **DOM 增强**：`src/content/modules/list.ts`（合并导航、侧栏重排）、`detail.ts`（楼层号、回顶按钮）、`portal.ts`（门户首页内容区重排：温度计上移、收费数据移除、APP 链接入页脚）、`theme-toggle.ts`（顶栏主题切换按钮）。
 - **设置**：`src/shared/settings.ts`，chrome.storage.sync，含总开关与模块开关；options 页在 `static/options.html`。
 
@@ -61,12 +62,15 @@ pnpm format  # prettier
 ## 布局决策记录（用户手绘稿定稿，勿轻易改）
 
 - 顶栏：**通栏附着式**，深浅两主题同一布局（深色=深色条 #14181f，浅色=无底色）；去掉「首页」入口（logo 即首页）；「社区-知识库」文案简化为「社区」且不特殊着色（站方 `.on` 仅表当前位置）；顶栏所有间距统一由容器 `gap: 10px` 控制，勿给子项加 margin。
-- 三页 header/宽度统一（用户定稿）：门户/列表/详情 header 以门户为准同构（搜索 240×30 发起入口 右侧按钮簇，间隙 10px）；社区容器 `.aw-wecenter` 宽度 1200 → **960** 对齐门户；门户 header logo 深浅两版均用品牌蓝 #0d6290（图形 data URI + 文字色，深色下显示蓝色而非白色，对齐列表页 logo 图片观感）；社区搜索胶囊底色 surface-2 对齐门户。
+- 三页 header/宽度统一（用户定稿）：门户/列表/详情 header 以门户为准同构（搜索 240×30 发起入口 右侧按钮簇，间隙 10px）；**三页 header 材质统一**（2026-10 定稿）：社区 `.aw-top-menu-wrap` 从透明底改为与门户同款 `surface` 底 + 1px `--jsl-border` 底边（53px 总高），logo 浅色 `--jsl-text` / 深色品牌蓝 #0d6290，导航链接 `--jsl-text-2` + surface-2 悬停，主题切换/登录注册描边统一 `--jsl-border-2`、悬停 accent，登录注册内距对齐门户 `0 12px`；门户搜索框由站方 JS 运行时构建（curl 快照里是空 `.search_box`），社区侧用同款胶囊皮肤（外框 surface-2 + 2px 内衬 + 8px 圆角 + 透明 input），搜索按钮的 PUA 图标字体被隐藏后需自绘放大镜（mask + currentColor）；门户「发起」匿名态也注入（`movePublishToHeader` 不再依赖登录弹窗）；社区内容区**可见卡片边缘与 header 内容盒同边**（2026-10 定稿，取代旧的"960 对齐门户"）：`.aw-wecenter`（主容器+页脚）`margin-left: max(18px, (100%-1200)/2 + 61px)`、`margin-right: max(18px, (100%-1200)/2)`——镜像 `.aw-top-menu-wrap` 的不对称 padding；**主栏内还要清零站方 BS2 栅格 gutter**（`.row.aw-content-wrap` 的 `padding-left:10px` + `.aw-main-content` 的 `padding-left:30px`），否则可见卡片比容器内缩 40px、视觉上仍与 logo 错位；宽屏下实测 logo 左缘=卡片左缘=186、侧栏右缘=注册按钮右缘=1325，容器 1139px 随视口流式（门户仍 960 不变）；回顶按钮 right 同步为 `max(18px, (100%-1200)/2 + 20px)`；门户 header logo 深浅两版均用品牌蓝 #0d6290（图形 data URI + 文字色，深色下显示蓝色而非白色，对齐列表页 logo 图片观感）；社区搜索胶囊底色 surface-2 对齐门户。
 - 门户首页内容区（用户定稿，portal.ts + preview.sh sim 双实现）：
   - 「收费数据」面板整块移除；
   - A股温度/转债温度两只 echarts（canvas 自带「xx温度 NN℃」文案，站方 indicator.js）从文章标题条移入左栏顶部「市场温度」区，置于投资日历上方；投资日历折叠开关（▿）移除、日历常开；
   - 文章卡尾部链接行只留 苹果APP/安卓APP/用户指引&常见问题，剥 `<font>` 壳后入页脚，紧跟「用户协议」行，`|` 分隔；
-  - 投资提示正文按 `<br>` 拆「名称：描述」两栏网格（.jsl-event-grid），网格在剩余高度垂直居中，「全文>>」按钮移除（用户定稿），标题条压到 15px/自适应高（站方 height:76px 是给浮动的 .indicator 留位的，搬走后放开了）；
+  - 本周热点正文按 `<br>` 拆成竖排编号列表（.jsl-event-list / .jsl-event-row，2026-10 定稿，取代两栏网格 .jsl-event-grid）：**行数不固定**（站方每天可能 1–8 行），三条约束同时成立——`flex:1 1 0` 均分剩余高度、`max-height:74px` 封顶（行少时整块居中，不把单行拉成半张卡）、`min-height:min-content` 兜底（CSS 规则下 min 胜于 max-height，长文本换行自动撑到 83px 不裁切；行数多到装不下时卡片长高、左卡 stretch 同步）。已实测 1/2/3/4/6/8 行 + 超长换行全部无裁切；编号 01–04 等宽数字，首条为当期头条（accent 编号 + 15px/600 主文字色，其余 14px/400 text-2）；标题条文案简化为区名「本周热点」（原标题=首条事件，重复），「全文>>」按钮移除（标题条仍可进原帖），标题条压到 15px/自适应高（站方 height:76px 是给浮动的 .indicator 留位的，搬走后放开了）；
+  - 投资日历休市提示（.rest-banner）：站方 28px 圆图标 + 12px 内衬把文字推到日期行右侧 50px，现剥掉图标与底色盒，两行 12/11px 弱化文字左对齐内容缘（261）；日历日期行/事件区内衬 14→15px，与面板标题条文字同线；
+  - **投资日历事件区滚动（#events-area）**：站方 JS 按事件量给内联高度 72px（无事件/休市）或 **245px**（繁忙日），原站靠左卡 `height:315 + overflow-y:auto` 整卡滚动；我们放开左卡高度后，卡片自身 `overflow:hidden`（圆角裁剪）会把超出事件直接裁掉且无法滚动 → 给 `#events-area` 补 `overflow-y:auto` + `overscroll-behavior:contain` + 6px 细滚动条（`::-webkit-scrollbar` 令牌化），日期行保持固定、仅事件列表内滚；无溢出时滚动条不占位（实测 clientW=offsetW）。已实测 9/12/20 条事件：滚到底最后一条完整可见、卡片高度稳定不被撑爆；
+  - 社区板块标题（最新/热门/实盘）：**编辑式分区标尺**（2026-10 定稿，取代 15px+3px accent 短下划线）——13px/600 + 0.04em 字距，右侧 1px `--jsl-border` 细线延伸到列右缘（`::after` flex:1），与卡片 1px 边框同语言；站方 `.category` 有 `text-indent:20px`（盒子 50px 而文字仅 30px，下划线却从盒缘起）→ `text-indent:0 !important` 清零；首标题 margin-top 14px，其余 28px；右列站方 padding-top:10px 一并清零（「热门」曾比「最新」低 10px）；
   - 社区区头右侧六个分类按钮（.tag_top .link）移除；「投资前必看」为幽灵描边胶囊（透明底+红描边+状态点+语义红字）；
   - 卡片头语言全页统一为投资提示 title_box 同款灰底条（47px = 15px/24 + 11px 15px + 1px 底边）：左栏两条（.first_column .left .title，站方 16px/30px 定高压平）+ 两处 .tag_top（数据宫格/社区卡，站方 height:45 条与子项 39px 定高全接管，「持仓」为条内次级链接）+ 右卡 title_box；`.tag_box` 站方 padding-top:10px 清零（否则灰底条上方露出一条卡底线）；社区卡头文案「社区-知识库」简化为「社区」（页面有两个 .tag_top，文案替换要遍历按文案命中，不能只取第一个）；
   - 页脚整理（reorganizeFooter）：7 行压 4 行——版权·客服邮箱 / 产品与法律 6 链接（复用 APP 行 `|` 分隔）/ 两条备案合行 / 声明；站方「使用 Edge/Chrome」推荐行删除；`.footer_left` 站方 margin-left:90px 清零（文字左基线与「赞助商」卡左缘对齐）；`.footer_content .flex` 垂直居中（左文字块与右二维码列中线对齐）；站方 `.footer_bg` 写死 height:240px 放开为 auto+18px 上下 padding（内容实高 ~165，否则底部一大截死空白）；右侧二维码 96px 白底圆角卡（标题在上、码在下、flex gap 28px）；
@@ -83,6 +87,12 @@ pnpm format  # prettier
 - 回顶按钮：右缘对齐容器（`right: max(18px, calc(50% - 580px))`），滚动 600px 后淡入。
 - 页脚：单层 padding（14px 0 + margin-top 24px）。
 - 主题令牌驱动一切颜色；改主题只动 `tokens.css`。
+- **对比度基线（2026-10 定稿）**：深色主题全站正文/控件文字对底色 ≥4.5:1（AA）。三组专用令牌：
+  - `--jsl-accent` 只用于**文字/链接**（深色 #5c8dff，surface 5.52 / surface-2 4.72）；
+  - `--jsl-accent-solid` / `--jsl-accent-solid-hover` / `--jsl-accent-solid-ink` 专用于**白字实底**按钮与选中胶囊（深色 #3b6ee0，对白字 4.67；悬停 #3564d4 → 5.35）——直接用浅色 accent 当实底会只有 3.13:1；
+  - `--jsl-text-3` 深色 #8d97a8（surface-2 上 5.01，原 #7d8798 仅 4.07）。
+  - 站方写死色要逐条令牌化：正文标题深蓝 #17344a（.markitup-box h1–h6，深色下 1.34:1 几乎不可见）、链接蓝 .aw-text-color-blue #2586cd（4.42）、宫格内联红字「评分」（3.7）。
+  - **验证方法**：注入整页后 evaluate 遍历所有含直接文本节点的可见元素，按实际层叠底色算 WCAG 对比度，输出 <4.5 的清单（三页深色复扫为 0 项）。浅色主题的元信息灰（--jsl-text-3 #8b949e，2.69–3.08）是有意的弱化层级，未改。
 
 ## 用户偏好（验收过程中反复确认的）
 
