@@ -23,6 +23,10 @@ function applyPageFlags(): void {
   if (document.querySelector('.content_box')) root.classList.add('jsl-page-auth');
   // 投资日历页：FullCalendar 1.x 生成的月历（事件宽度是渲染时算好的内联值）
   if (document.getElementById('calendar')) root.classList.add('jsl-page-calendar');
+  // 实时数据页（Vue + Element UI 架构，与门户/社区都是两套不同外壳）
+  if (document.querySelector('.data-content.auto-content-width')) {
+    root.classList.add('jsl-page-data');
+  }
 }
 
 /** FullCalendar 按容器宽度在渲染时算好事件的内联 left/width；
@@ -56,12 +60,24 @@ function applySettings(settings: Settings): void {
   if (structuralChange) location.reload();
 }
 
-/** 门户导航简化：去掉「首页」入口、「社区-知识库」简化为「社区」（与社区页导航一致） */
+/** 门户导航简化：去掉「首页」入口、「社区-知识库」简化为「社区」（与社区页导航一致）。
+ *  数据页（Vue 架构）的菜单没有 id，按文案兜底处理 */
 function polishPortalNav(): void {
   if (!document.querySelector('.header_navbar_bg')) return;
   document.getElementById('top_nav_menu_home')?.remove();
   const forumLink = document.querySelector('#top_nav_menu_forum a');
   if (forumLink) forumLink.textContent = '社区';
+
+  for (const link of document.querySelectorAll<HTMLAnchorElement>(
+    '.header_navbar_content .menu ul li a',
+  )) {
+    const text = (link.textContent || '').trim();
+    if (text === '首页' && (link.getAttribute('href') || '') === '/') {
+      link.closest('li')?.remove();
+    } else if (text.startsWith('社区') && text !== '社区') {
+      link.textContent = '社区';
+    }
+  }
 }
 
 /** 站方顶栏文案装饰（「»首 页」）清理；「首页」入口去掉（logo 即首页）、「社区-知识库」简化为「社区」 */
@@ -121,6 +137,11 @@ document.addEventListener('DOMContentLoaded', () => {
   reorderUserNavMenu();
   injectThemeToggle();
   reflowCalendar();
+  // 数据页是 Vue SPA（header 由客户端渲染），DOMContentLoaded 时菜单可能还不存在
+  window.setTimeout(() => {
+    polishPortalNav();
+    polishHeaderLinks();
+  }, 800);
 
   void loadSettings().then((settings) => {
     applySettings(settings);

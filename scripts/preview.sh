@@ -38,6 +38,8 @@ if "content_box" in html:
     flags += " jsl-page-auth"
 if 'id="calendar"' in html:
     flags += " jsl-page-calendar"
+if "auto-content-width" in html:
+    flags += " jsl-page-data"
 
 sim = """
 <script>
@@ -56,6 +58,17 @@ sim = """
   if (portalHome) portalHome.remove();
   var portalForum = document.querySelector('#top_nav_menu_forum a');
   if (portalForum) portalForum.textContent = '社区';
+  // 数据页（Vue 架构）菜单没有 id，按文案兜底（与 index.ts 同步）
+  document.querySelectorAll('.header_navbar_content .menu ul li a').forEach(function (link) {
+    var text = (link.textContent || '').trim();
+    var href = link.getAttribute('href') || '';
+    if (text === '首页' && href === '/') {
+      var li = link.closest('li');
+      if (li) li.remove();
+    } else if (text.indexOf('社区') === 0 && text !== '社区') {
+      link.textContent = '社区';
+    }
+  });
 
   // injectThemeToggle：注入主题切换按钮；预览版点击直接翻转 data-theme
   // 社区页注入 WeCenter 顶栏末尾；门户首页注入搜索框之后（右侧控件簇起点）

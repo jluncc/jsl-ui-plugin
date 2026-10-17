@@ -40,6 +40,18 @@ pnpm format  # prettier
 - 原生控件：`tokens.css` 加了 `color-scheme: light/dark`，复选框/滚动条跟随主题（否则深色下复选框是白块）。
 - 站方 JS 有 `/login/` 路径守卫（`if (!href.includes('/login/')) location.replace('/login/')`），所以**登录页预览必须放在 `/tmp/jsl-preview/login/` 子目录**，直接放根目录会被强制跳转、测不到注入样式。
 
+## 实时数据页（.jsl-page-data）
+
+`/web/data/cb/` 是 **Vue + Element UI** SPA（`#app`），与门户（jQuery）、社区（WeCenter）都是不同外壳；导航菜单没有 id。
+
+- **架构识别**：`document.querySelector('.data-content.auto-content-width')` → `jsl-page-data`。
+- **宽度策略与门户相反**：表格 39 列、自然宽 ~1650px，页面本就宽于视口（1450 下横向滚动）。所以 header / 子导航 / 内容区统一改为**全宽**，而不是收 960；强行把横向滚动关进内容区会让固定表头与表体列宽错位（实测），保持整页横向滚动即可。
+- **站方的居中 hack**：header / 子导航用 JS 写 `transform: translateX((innerWidth-1200)/2)`，页面实际 1686 宽时该值（125px）会把整条 header 右移 → 必须 `transform: none !important`。同时内层 `.el-row` 带 `-15px` 负边距，需清零，否则再撑宽 30px。
+- **左基线**：`header_navbar_content` 自己不加 padding（否则 30px），左缘交给内层 `el-col` 自带的 15px——与数据区 `padding: 0 15px` 的表格起点（x=16）对齐。
+- **配色**：`#app` 白底、子导航深蓝 `#206798`、表头浅蓝 `#86c5e3`、行斑马 `rgba(245,245,245,.6)`、粘性列白线、涨跌纯红/绿——全部令牌化。深色下 `Beta` 徽标（亮蓝实底白字 3.13）与表头站方深蓝字（3.06）也已修。
+- **导航文案**：SPA 渲染晚于 DOMContentLoaded，`polishPortalNav()` 需延时 800ms 再跑一次才能命中「首页」移除 / 「社区-知识库」→「社区」。
+- **已知边界**：站方 `#app` 有 `min-width: max-content`，页面宽度由表格决定，超出视口时整页横向滚动（这是站点原生行为，未改）。
+
 ## 投资日历页（.jsl-page-calendar）
 
 `/data/calendar/` 是门户外壳 + **FullCalendar 1.x**（`#calendar`，站方内联 `width:950px` 右浮动）+ 左侧筛选表（`#event-category`，`width:150px` 左浮动，底层是一张 17 行 × 5 列的表）。

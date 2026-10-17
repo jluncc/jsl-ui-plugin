@@ -4914,3 +4914,454 @@ html[data-theme='dark'].jsl-page-calendar .fc-event {
 html[data-theme='dark'].jsl-page-calendar .fc-event:hover {
   background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)) !important;
 }
+
+/* ============================================================
+   实时数据页（.jsl-page-data）：Vue + Element UI 架构
+   —— 表格列宽合计 ~1650（39 列），页面天然宽于视口；
+      因此 header / 子导航 / 内容区统一改为全宽 + 15px 内衬对齐，
+      而不是像门户页那样收 960。
+   ============================================================ */
+
+/* 页面底色（站方 #app 写死白底） */
+html.jsl.jsl-page-data #app,
+html.jsl.jsl-page-data .layout-default {
+  background: var(--jsl-bg) !important;
+  color: var(--jsl-text);
+}
+
+/* header：从 960 居中改为全宽，与下方数据区同一条左基线（15px）。
+   站方用 JS 写 translateX((innerWidth-1200)/2) 做居中 hack——页面实际宽
+   1686（表格 39 列撑开）时这个值（125）会把 header 整体右移，必须清零 */
+html.jsl.jsl-page-data .header_navbar_content,
+html.jsl.jsl-page-data .header_subnavbar_content {
+  box-sizing: border-box;
+  width: 100% !important;
+  max-width: none !important;
+  /* 左基线交给内层 el-col 自带的 15px padding（表格起点 x=16），
+     这里再加 padding 会变成 30 —— 与数据区错开 14px */
+  padding: 0 !important;
+  transform: none !important;
+}
+
+/* 子导航的 el-row 带 -15px 负边距（Bootstrap 式栅格补偿），
+   在我们的 padding 容器里会撑出 30px */
+html.jsl.jsl-page-data .header_subnavbar_content .el-row--flex {
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* 主 header 的 el-row 同理（站方也带负边距） */
+html.jsl.jsl-page-data .header_navbar_content .el-row--flex {
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .el-row--flex {
+  align-items: center;
+  height: 52px;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .logo {
+  height: 52px;
+  align-items: center;
+}
+
+/* logo 文字标在数据页稍收（76px 盒放 26 图标 + 17px 字会溢出 3px） */
+html.jsl.jsl-page-data .header_navbar_content .logo a {
+  width: auto !important;
+  font-size: 16px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .menu ul li a {
+  white-space: nowrap;
+}
+
+/* 子导航（站方深蓝 #206798）：并入 header 材质，链接改芯片 */
+html.jsl.jsl-page-data .header_subnavbar_bg {
+  height: auto !important;
+  background: var(--jsl-surface) !important;
+  border-bottom: 1px solid var(--jsl-border);
+}
+
+html.jsl.jsl-page-data .header_subnavbar_content {
+  width: 100% !important;
+  max-width: none !important;
+  padding: 0 15px !important;
+}
+
+html.jsl.jsl-page-data .header_subnavbar_content .el-row--flex {
+  align-items: center;
+  min-height: 44px;
+}
+
+html.jsl.jsl-page-data .header_subnavbar_content .subnavbar_left {
+  display: flex;
+  align-items: center;
+  height: 44px;
+}
+
+html.jsl.jsl-page-data .header_subnavbar_content a {
+  display: inline-flex;
+  white-space: nowrap;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: var(--jsl-radius-sm);
+  color: var(--jsl-text-2) !important;
+  font-size: 13px;
+  text-decoration: none;
+  transition:
+    color 0.12s,
+    background-color 0.12s;
+}
+
+html.jsl.jsl-page-data .header_subnavbar_content a:hover {
+  color: var(--jsl-text) !important;
+  background: var(--jsl-surface-2) !important;
+}
+
+/* 当前数据类别：浅品牌底 + 品牌色（站方是白底蓝字） */
+html.jsl.jsl-page-data .header_subnavbar_content a.router-link-active {
+  background: var(--jsl-accent-weak) !important;
+  color: var(--jsl-accent) !important;
+  font-weight: 500;
+}
+
+/* 「Beta」角标：实底亮蓝 + 白字仅 3.13:1，实底改深一档（白字 4.67） */
+html.jsl.jsl-page-data .header_subnavbar_content .el-badge__content {
+  background: var(--jsl-accent-solid) !important;
+  color: var(--jsl-accent-solid-ink) !important;
+  border: none !important;
+}
+
+/* ---- 类别菜单（可转债/概念/强赎…） ---- */
+
+html.jsl.jsl-page-data .nav-box {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html.jsl.jsl-page-data .nav-box .el-menu {
+  background: transparent !important;
+  border-bottom: 1px solid var(--jsl-border) !important;
+}
+
+html.jsl.jsl-page-data .nav-box .el-menu-item {
+  height: 40px !important;
+  padding: 0 12px !important;
+  border-bottom: 2px solid transparent !important;
+  background: transparent !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 13px;
+  line-height: 40px !important;
+}
+
+html.jsl.jsl-page-data .nav-box .el-menu-item:hover {
+  color: var(--jsl-text) !important;
+  border-bottom-color: var(--jsl-border-2) !important;
+}
+
+html.jsl.jsl-page-data .nav-box .el-menu-item.is-active {
+  color: var(--jsl-accent) !important;
+  border-bottom-color: var(--jsl-accent) !important;
+  font-weight: 500;
+}
+
+/* 「去经典版」按钮 */
+html.jsl.jsl-page-data .nav-box .switch .el-button--primary {
+  height: 26px;
+  padding: 0 12px;
+  background: transparent !important;
+  border: 1px solid var(--jsl-border-2) !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 12px;
+  border-radius: var(--jsl-radius-sm);
+}
+
+html.jsl.jsl-page-data .nav-box .switch .el-button--primary:hover {
+  color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+}
+
+/* 右上角指数滚动数据 */
+html.jsl.jsl-page-data .rolling-index .index-data,
+html.jsl.jsl-page-data .rolling-index .avg-data {
+  color: var(--jsl-text-3);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 筛选区 ---- */
+
+html.jsl.jsl-page-data .el-form-item__label {
+  color: var(--jsl-text-3) !important;
+  font-size: 12px;
+}
+
+html.jsl.jsl-page-data .el-input__inner,
+html.jsl.jsl-page-data .el-textarea__inner {
+  background: var(--jsl-surface-2) !important;
+  border-color: transparent !important;
+  border-radius: var(--jsl-radius-sm) !important;
+  color: var(--jsl-text) !important;
+  font-size: 12px;
+}
+
+html.jsl.jsl-page-data .el-input__inner:focus,
+html.jsl.jsl-page-data .el-textarea__inner:focus {
+  background: var(--jsl-surface) !important;
+  border-color: var(--jsl-border-2) !important;
+}
+
+html.jsl.jsl-page-data .el-input__inner::placeholder {
+  color: var(--jsl-text-3) !important;
+}
+
+html.jsl.jsl-page-data .el-button--default {
+  background: transparent !important;
+  border-color: var(--jsl-border-2) !important;
+  color: var(--jsl-text) !important;
+  border-radius: var(--jsl-radius-sm) !important;
+}
+
+html.jsl.jsl-page-data .el-button--default:hover {
+  color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+}
+
+html.jsl.jsl-page-data .el-button--primary {
+  background: var(--jsl-accent-solid) !important;
+  border-color: var(--jsl-accent-solid) !important;
+  color: var(--jsl-accent-solid-ink) !important;
+  border-radius: var(--jsl-radius-sm) !important;
+}
+
+html.jsl.jsl-page-data .el-button--primary:hover {
+  background: var(--jsl-accent-solid-hover) !important;
+  border-color: var(--jsl-accent-solid-hover) !important;
+}
+
+html.jsl.jsl-page-data .el-checkbox__label,
+html.jsl.jsl-page-data .el-radio__label {
+  color: var(--jsl-text-2) !important;
+  font-size: 12px;
+}
+
+html.jsl.jsl-page-data .el-checkbox__inner,
+html.jsl.jsl-page-data .el-radio__inner {
+  background: var(--jsl-surface-2) !important;
+  border-color: var(--jsl-border-2) !important;
+}
+
+html.jsl.jsl-page-data .el-checkbox__input.is-checked .el-checkbox__inner,
+html.jsl.jsl-page-data .el-radio__input.is-checked .el-radio__inner {
+  background: var(--jsl-accent-solid) !important;
+  border-color: var(--jsl-accent-solid) !important;
+}
+
+html.jsl.jsl-page-data .el-link,
+html.jsl.jsl-page-data .el-link.el-link--primary {
+  color: var(--jsl-accent) !important;
+}
+
+html.jsl.jsl-page-data .el-select .el-input.is-focus .el-input__inner {
+  border-color: var(--jsl-border-2) !important;
+}
+
+/* ---- 表格工具条（粘顶） ---- */
+
+html.jsl.jsl-page-data .table-top.sticky-top {
+  background: var(--jsl-surface) !important;
+  border-bottom: 1px solid var(--jsl-border);
+}
+
+html.jsl.jsl-page-data .table-top .top-text,
+html.jsl.jsl-page-data .table-top a {
+  color: var(--jsl-text-2);
+  font-size: 12px;
+}
+
+html.jsl.jsl-page-data .table-top a:hover {
+  color: var(--jsl-accent);
+}
+
+/* ---- 数据表 ---- */
+
+/* 表头：站方浅蓝 #86c5e3 → 灰底条 */
+html.jsl.jsl-page-data .jsl-table-header-wrapper,
+html.jsl.jsl-page-data .jsl-table-header {
+  background: var(--jsl-surface-2) !important;
+}
+
+html.jsl.jsl-page-data .jsl-table thead th {
+  background: var(--jsl-surface-2) !important;
+  border-bottom: 1px solid var(--jsl-border) !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+html.jsl.jsl-page-data .jsl-table thead th:hover {
+  color: var(--jsl-text) !important;
+  background: var(--jsl-surface-hover) !important;
+}
+
+/* 表体：12.5px 等宽数字、次级色；斑马纹与粘性列同步着色 */
+html.jsl.jsl-page-data .jsl-table tbody td {
+  border-bottom: 1px solid var(--jsl-border) !important;
+  color: var(--jsl-text-2);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+html.jsl.jsl-page-data .jsl-table tbody td.sticky-data {
+  background: var(--jsl-surface) !important;
+}
+
+html.jsl.jsl-page-data .jsl-table tbody tr:nth-child(odd) {
+  background: var(--jsl-surface-2);
+}
+
+html.jsl.jsl-page-data .jsl-table tbody tr:nth-child(odd) td.sticky-data {
+  background: var(--jsl-surface-2) !important;
+}
+
+html.jsl.jsl-page-data .jsl-table tbody tr:hover,
+html.jsl.jsl-page-data .jsl-table tbody tr:hover td.sticky-data {
+  background: var(--jsl-surface-hover) !important;
+}
+
+/* 粘性列右缘分隔（站方是 1px 白线，深色下成亮线） */
+html.jsl.jsl-page-data .jsl-table .sticky-separate {
+  border-right: 1px solid var(--jsl-border) !important;
+  box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.25);
+}
+
+html.jsl.jsl-page-data .jsl-table tbody a {
+  color: var(--jsl-text);
+  text-decoration: none;
+}
+
+html.jsl.jsl-page-data .jsl-table tbody a:hover {
+  color: var(--jsl-accent);
+}
+
+/* 涨跌语义色（站方纯红/绿，深色下发暗）：映射到主题涨跌色 */
+html.jsl.jsl-page-data .color-risered {
+  color: var(--jsl-up) !important;
+}
+
+html.jsl.jsl-page-data .color-fallgreen {
+  color: var(--jsl-down) !important;
+}
+
+html.jsl.jsl-page-data .floating {
+  color: var(--jsl-accent) !important;
+}
+
+html.jsl.jsl-page-data .color-gray,
+html.jsl.jsl-page-data .color-darkgray {
+  color: var(--jsl-text-3) !important;
+}
+
+/* 自选星标等站方图标字体（PUA）：扩展环境是乱码，隐藏 */
+html.jsl.jsl-page-data .jsl-table tbody .jisilu-icons {
+  display: none !important;
+}
+
+/* 表尾说明文字 */
+html.jsl.jsl-page-data .margin-top-20 > .tip,
+html.jsl.jsl-page-data .tip {
+  color: var(--jsl-text-3);
+  font-size: 12px;
+}
+
+/* 分页 / 加载遮罩 */
+html.jsl.jsl-page-data .el-loading-mask {
+  background: color-mix(in srgb, var(--jsl-bg) 82%, transparent) !important;
+}
+
+html.jsl.jsl-page-data .el-pagination button,
+html.jsl.jsl-page-data .el-pagination .el-pager li {
+  background: transparent !important;
+  color: var(--jsl-text-2) !important;
+}
+
+html.jsl.jsl-page-data .el-pagination .el-pager li.active {
+  color: var(--jsl-accent) !important;
+}
+
+/* 气泡提示（站方白底） */
+html.jsl.jsl-page-data .el-popover.el-popper {
+  background: var(--jsl-surface) !important;
+  border: 1px solid var(--jsl-border) !important;
+  color: var(--jsl-text-2) !important;
+}
+
+html.jsl.jsl-page-data .el-popper[x-placement^='bottom'] .popper__arrow::after {
+  border-bottom-color: var(--jsl-surface) !important;
+}
+
+/* ---- 实时数据页：深色可读性收尾（站方写死的深蓝/深灰在深色底上不可读） ---- */
+
+/* 用户名（header 右侧）：站方 #333 在深色 header 上 1.37:1 */
+html[data-theme='dark'].jsl-page-data .header_navbar_content .user_icon .name,
+html[data-theme='dark'].jsl-page-data .header_navbar_content .user_icon span {
+  color: var(--jsl-text) !important;
+}
+
+/* 指数条 / 「更多」/ 行业涨跌：站方 #206798，深色下 3.06:1 */
+html[data-theme='dark'].jsl-page-data .rolling-index *,
+html[data-theme='dark'].jsl-page-data .form-fold,
+html[data-theme='dark'].jsl-page-data .rolling-index a {
+  color: var(--jsl-text-2) !important;
+}
+
+/* 「Beta」徽标：实底亮蓝 + 白字 3.13:1 → 实底深一档
+   （徽标不在 .header_subnavbar_content 内，按 .el-badge__content 全局匹配） */
+html.jsl-page-data .el-badge__content {
+  background: var(--jsl-accent-solid) !important;
+  color: var(--jsl-accent-solid-ink) !important;
+  border: none !important;
+}
+
+/* 表头里少量站方深蓝色文字（如「双低」），深色下 3.06:1 */
+html[data-theme='dark'].jsl-page-data .jsl-table thead th[style*='color'],
+html[data-theme='dark'].jsl-page-data .jsl-table thead th span[style*='color'] {
+  color: var(--jsl-text-2) !important;
+}
+
+/* 「自定义列表」：站方浅黄底 + 橙字 2.2:1，改为描边按钮 */
+html.jsl-page-data .right-tools .custom-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  background: transparent !important;
+  border: 1px solid var(--jsl-border-2);
+  border-radius: var(--jsl-radius-sm);
+  color: var(--jsl-text-2) !important;
+  font-size: 12px;
+}
+
+html.jsl-page-data .right-tools .custom-menu-btn:hover {
+  color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent);
+}
+
+/* 站方橙色/浅灰语义标的（仅看历史新低、强赎比例、浅灰名称）在深色下过亮或过暗 */
+html[data-theme='dark'].jsl-page-data .color-finance,
+html[data-theme='dark'].jsl-page-data .sup-redeem-ratio,
+html[data-theme='dark'].jsl-page-data .color-darkorange {
+  color: #e8a33d !important;
+}
+
+html[data-theme='dark'].jsl-page-data .color-light {
+  color: var(--jsl-text-3) !important;
+}
