@@ -93,6 +93,7 @@ pnpm format  # prettier
 - **通知/私信**：主卡 = `.aw-content-wrap > .aw-main-content > .aw-mod`（surface + 1px 边框 + 10px 圆角 + 投影）。卡片头 `.aw-mod-head` 站方是「h2 里塞右浮动按钮」，改 flex + `order` 重排（标题左、设置链接 + 主按钮右），47px 灰底条。列表行 **必须显式清掉站方动态注入的 `border-top:1px dotted`**，否则与本项目 `::after` 的 2px 实线重叠、透出虚线（本页踩过）。「更多...」从站方浅蓝条改居中描边按钮。
 - **私信行**：站方把 `.aw-user-img` **absolute 钉在行右上角**，改 CSS Grid 时必须 `position:static` 拉回流内，否则首列塌成 0、头像浮到文字右侧（本页踩过）。网格首列写死 `40px`。
 - **个人主页**：详情卡 + tab 卡两段。站方 `h1` 写死 `#17344a`（深色 1.34:1）、`.aw-user-flag` 用 dotted 底边、`.aw-text-color-666`（主页访问量）3.01:1，均已令牌化。tab 条复用「编辑式标尺」：底部 1px 边线 + 当前项 `inset 0 -2px` accent 下划线。概览小卡 `h3` 的 DOM 是「`<a>更多»</a>标题」——用 flex 会把「更多」排到标题前，改 **block + `float:right`**。
+- **个人主页 tab 区**：主 tab 改胶囊选中（accent-weak 底 + accent 字，与列表排序行同构）；站方 h3/h4 面板标题带 `margin-top:10px`，叠加 tab-content 内衬后空隙 26px——面板内首个 h3/h4 统一 `margin-top:0`，tab-content 内衬收到 8px。**「详细资料」成就 dl 有 60px 左右内衬**（站方），导致「个人成就/最后活跃」与标题错位——清零（连带 dl 自身 padding/margin）。**「关注的人」h4 对齐头像**：关注列表 li 自带 `margin-left:14px`（双列布局间距），标题同步缩进 14px。**面板内子标签 `.aw-tabs`**（关注的人/关注者/关注的话题）站方 `#f7f7f7` 白底横条，深色下刺眼——透明底 + 12px 胶囊。**「动态」列表**与通知列表同一套行语言（2px 实线分隔 + 居中描边加载按钮），清站方 li dotted。
 - **设置页**：三个坑——① `h2` 被站方 `position:absolute` 钉在 tab 条上（与首个 tab 重叠）→ `position:static` 拉回；② 小节标题 `h4` 自带 `background:#f7f7f7`（深色下成白条）→ 归零交给 `.aw-mod-head` 灰底条；③ 头像上传块 `position:absolute` 钉在表单右侧、与 `dl` 内容重叠 → 用 `:has()` 把表单改成两列网格（`minmax(0,1fr) 300px`），头像块变右列卡片。保存按钮所在 div 高度为 0（float 溢出）→ `:has(> .aw-user-setting-save)` 补成卡片页脚条。
 - **通用**：`dl` 网格只作用于表单直接子级（`> dl`），否则上传块内部的 `dl` 会被一起吃成两列。
 

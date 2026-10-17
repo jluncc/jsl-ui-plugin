@@ -4232,9 +4232,9 @@ html.jsl.jsl-community .aw-user-setting .nav-tabs > li {
 html.jsl.jsl-community .aw-user-center-tab .nav-tabs > li > a,
 html.jsl.jsl-community .aw-user-setting .nav-tabs > li > a {
   display: inline-block;
-  padding: 6px 12px;
+  padding: 5px 12px;
   border: none !important;
-  border-radius: var(--jsl-radius-sm) var(--jsl-radius-sm) 0 0;
+  border-radius: var(--jsl-radius-sm);
   background: transparent !important;
   color: var(--jsl-text-2) !important;
   font-size: 13px;
@@ -4251,15 +4251,40 @@ html.jsl.jsl-community .aw-user-setting .nav-tabs > li > a:hover {
   background: var(--jsl-surface-2) !important;
 }
 
+/* 选中态：浅品牌底胶囊（与列表页排序行同构） */
 html.jsl.jsl-community .aw-user-center-tab .nav-tabs > li.active > a,
 html.jsl.jsl-community .aw-user-setting .nav-tabs > li.active > a {
-  color: var(--jsl-text) !important;
-  font-weight: 600;
-  box-shadow: inset 0 -2px 0 0 var(--jsl-accent);
+  background: var(--jsl-accent-weak) !important;
+  color: var(--jsl-accent) !important;
+  font-weight: 500;
 }
 
 html.jsl.jsl-community .aw-user-center-tab .tab-content {
-  padding-top: 16px;
+  padding-top: 8px;
+}
+
+/* 各面板首标题与 tab 条的间距统一：站方 h3/h4 带 margin-top:10px，
+   叠加 tab-content 内衬后空隙过大 */
+html.jsl.jsl-community .aw-user-center-tab .tab-pane > h3,
+html.jsl.jsl-community .aw-user-center-tab .tab-pane > h4,
+html.jsl.jsl-community .aw-user-center-tab .tab-pane h3:first-child,
+html.jsl.jsl-community .aw-user-center-tab .tab-pane h4:first-child {
+  margin-top: 0 !important;
+}
+
+/* 「详细资料」下的成就/活跃 dl：站方 60px 左右内衬导致与标题错位 60px */
+html.jsl.jsl-community .aw-user-center-details {
+  padding: 0 !important;
+}
+
+html.jsl.jsl-community .aw-user-center-details dl {
+  margin: 0 0 10px;
+  padding: 0;
+}
+
+html.jsl.jsl-community .aw-user-center-details dt span {
+  color: var(--jsl-text-3);
+  font-size: 12px;
 }
 
 /* 概览双列小卡：标题条 + 2px 分隔的行 */
@@ -4336,6 +4361,27 @@ html.jsl.jsl-community .aw-user-center-follow-mini-mod img {
   height: 32px;
   border-radius: 6px;
   object-fit: cover;
+}
+
+/* 「关注的人 / 关注者」标题：站方 18px/700 过重，收敛到小节标题档；
+   左缘对齐头像列（li 自带 14px margin，标题同步缩进） */
+html.jsl.jsl-community .aw-user-center-follow-mod > h4 {
+  margin: 0 0 10px 14px;
+  padding: 0;
+  color: var(--jsl-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+html.jsl.jsl-community .aw-user-center-follow-mod .aw-item {
+  padding-left: 60px;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+html.jsl.jsl-community .aw-user-center-follow-mod .aw-user-img img {
+  border-radius: 8px;
 }
 
 /* 关注/粉丝头像行 */
@@ -5479,4 +5525,147 @@ html[data-theme='dark'].jsl-page-data .color-darkorange {
 
 html[data-theme='dark'].jsl-page-data .color-light {
   color: var(--jsl-text-3) !important;
+}
+
+/* ---- 用户中心各面板内的子标签（.aw-tabs，如「关注的人/关注者/关注的话题」）：
+   站方 #f7f7f7 白底横条在深色下刺眼，改为与主 tab 同款的透明胶囊 ---- */
+html.jsl.jsl-community .aw-user-center-tab .aw-tabs {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0 0 10px;
+}
+
+html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: none;
+  background: transparent;
+}
+
+html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul > li {
+  float: none;
+  margin: 0;
+  background: transparent;
+  border: none;
+}
+
+html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul > li > a,
+html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul > li.active > a {
+  display: inline-block;
+  padding: 4px 10px;
+  border: none !important;
+  border-radius: var(--jsl-radius-sm);
+  background: transparent !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 12px;
+  line-height: 18px;
+  cursor: pointer;
+}
+
+html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul > li > a:hover {
+  color: var(--jsl-text) !important;
+  background: var(--jsl-surface-2) !important;
+}
+
+html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul > li.active > a {
+  background: var(--jsl-accent-weak) !important;
+  color: var(--jsl-accent) !important;
+  font-weight: 500;
+}
+
+/* ---- 详细资料 dl 行：站方 1px dotted 分隔（缩放下摩尔纹成虚线）改细实线 ---- */
+html.jsl.jsl-community .aw-user-center-details dl,
+html.jsl.jsl-community .aw-user-center-details dt,
+html.jsl.jsl-community .aw-user-center-details dd {
+  border-bottom: 1px solid var(--jsl-border);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+html.jsl.jsl-community .aw-user-center-details dd {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+html.jsl.jsl-community .aw-user-center-details dt span {
+  color: var(--jsl-text-3);
+  font-size: 12px;
+}
+
+html.jsl.jsl-community .aw-user-center-details dd,
+html.jsl.jsl-community .aw-user-center-details .aw-user-center-follow-meta {
+  color: var(--jsl-text-2);
+  font-size: 13px;
+}
+
+/* ---- 用户中心「动态」列表：与通知列表同一套行语言（2px 实线分隔 + 居中描边加载按钮），
+   清掉站方 li 的 1px dotted（缩放下摩尔纹成虚线） ---- */
+html.jsl.jsl-community .aw-user-center-dynamic .aw-mod-body > ul {
+  margin: 0;
+  padding: 0 15px;
+  list-style: none;
+}
+
+html.jsl.jsl-community .aw-user-center-dynamic .aw-mod-body > ul > li {
+  position: relative;
+  border: none !important;
+  padding: 13px 0;
+  font-size: 13px;
+  line-height: 22px;
+}
+
+html.jsl.jsl-community .aw-user-center-dynamic .aw-mod-body > ul > li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--jsl-border);
+}
+
+html.jsl.jsl-community .aw-user-center-dynamic .aw-load-more-content {
+  display: block;
+  margin: 12px 15px 15px;
+  padding: 8px 0 !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: var(--jsl-radius-sm);
+  background: transparent !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 12px;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    color 0.12s,
+    border-color 0.12s;
+}
+
+html.jsl.jsl-community .aw-user-center-dynamic .aw-load-more-content:hover {
+  color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+}
+
+/* 「最新动态」小节标题（h3）：与其它面板标题同一档 */
+html.jsl.jsl-community .aw-user-center-dynamic .aw-mod-head h2,
+html.jsl.jsl-community .aw-user-center-dynamic .aw-mod-head h3 {
+  margin: 0;
+  color: var(--jsl-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+html.jsl.jsl-community .aw-user-center-dynamic .aw-mod-head {
+  padding: 0 15px;
+  border-bottom: 1px solid var(--jsl-border);
+}
+
+html.jsl.jsl-community .aw-user-center-dynamic .aw-load-more-content span {
+  color: inherit;
 }
