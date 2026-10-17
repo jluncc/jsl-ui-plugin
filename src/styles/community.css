@@ -3368,6 +3368,17 @@ html.jsl.jsl-community .aw-main-content h2#main_title {
    登录 / 注册页（.jsl-page-auth）：沿用门户外壳，登录卡与页脚按同一套语言重绘
    ============================================================ */
 
+/* 登录/注册页 header：不显示站内搜索与「发起」——页面语境是登录，不需要这两个入口 */
+html.jsl.jsl-page-auth .header_navbar_content .search_box,
+html.jsl.jsl-page-auth .header_navbar_content .jsl-header-publish {
+  display: none !important;
+}
+
+/* 搜索框隐藏后由主题切换按钮接管右侧对齐（原本搜索框的 margin-left:auto） */
+html.jsl.jsl-page-auth .header_navbar_content .jsl-theme-toggle {
+  margin-left: auto;
+}
+
 /* 上半区补足高度，让登录卡在视口内垂直居中（站方是 60px 顶部死内边距） */
 html.jsl.jsl-page-auth .data_content {
   padding: 0;
@@ -3613,13 +3624,22 @@ html.jsl.jsl-page-auth .footer_left {
   margin-left: 0 !important;
 }
 
+/* 文案与门户首页同一套排版：12px / 22px 行高、行间 7px 节奏 */
 html.jsl.jsl-page-auth .footer_left div,
 html.jsl.jsl-page-auth .footer_left span,
 html.jsl.jsl-page-auth .footer_left a,
 html.jsl.jsl-page-auth .footer_left .statement {
   color: var(--jsl-text-3) !important;
   font-size: 12px;
-  line-height: 20px;
+  line-height: 22px;
+}
+
+html.jsl.jsl-page-auth .footer_left > div {
+  margin: 0 0 7px;
+}
+
+html.jsl.jsl-page-auth .footer_left > div:last-child {
+  margin-bottom: 0;
 }
 
 html.jsl.jsl-page-auth .footer_left .separator {
@@ -3627,8 +3647,15 @@ html.jsl.jsl-page-auth .footer_left .separator {
   color: var(--jsl-border-2) !important;
 }
 
-html.jsl.jsl-page-auth .footer_left .statement {
-  margin-top: 2px;
+/* 法律链接行沿用门户的「|」分隔与悬停语言 */
+html.jsl.jsl-page-auth .jsl-footer-apps a {
+  font-size: 12px;
+}
+
+html.jsl.jsl-page-auth .jsl-footer-apps a + a::before {
+  content: '|';
+  margin: 0 8px;
+  color: var(--jsl-border-2);
 }
 
 /* 二维码卡：标题在上、码在下，96px 白底圆角 */

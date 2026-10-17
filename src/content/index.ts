@@ -2,7 +2,7 @@ import { applyEnabledEarly, loadSettings, watchSettings, type Settings } from '.
 import { applyThemeEarly, syncTheme } from './theme';
 import { enhanceListPage } from './modules/list';
 import { enhanceDetailPage } from './modules/detail';
-import { enhancePortalHome } from './modules/portal';
+import { enhancePortalHome, reorganizePortalFooter } from './modules/portal';
 import { injectThemeToggle } from './modules/theme-toggle';
 
 // document_start：同步定主题与总开关，避免异步设置回包前闪一下站点原样式
@@ -121,6 +121,9 @@ document.addEventListener('DOMContentLoaded', () => {
       // 以文章标题条的温度计容器为门户首页标志（搜索页等其他门户架构页不命中）
       if (document.querySelector('.first_column .right .title_box .indicator')) {
         enhancePortalHome();
+      } else if (document.querySelector('.content_box')) {
+        // 登录/注册页：内容区是独立登录卡，只复用页脚整理（与门户首页同一套文案结构）
+        reorganizePortalFooter();
       }
     }
 

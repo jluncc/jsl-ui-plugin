@@ -294,8 +294,10 @@ sim = """
       var fBeianGov = fRows.find(function (d) { return d.querySelector('a[href*="beian.gov.cn"]'); });
       var fBeianMiit = fFind(/京ICP证/);
       var appsRow = footerLeft.querySelector('.jsl-footer-apps');
+      // 登录/注册页没有文章卡（无 APP 链接行）：新建一个只放法律链接的同款行
+      if (!appsRow) { appsRow = document.createElement('div'); appsRow.className = 'jsl-footer-apps'; }
       var statement = footerLeft.querySelector('.statement');
-      if (fCopyright && fEmail && fLegal && appsRow) {
+      if (fCopyright && fEmail && fLegal) {
         var dotEl = function () { var s = document.createElement('span'); s.className = 'jsl-footer-dot'; s.textContent = '·'; return s; };
         var metaRow = document.createElement('div');
         metaRow.className = 'jsl-footer-meta';

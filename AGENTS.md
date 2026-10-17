@@ -35,7 +35,8 @@ pnpm format  # prettier
 - 登录卡：`surface` 底 + 1px 边框 + 10px 圆角 + `--jsl-shadow`，与门户/详情卡片同语言；`register_button` 是同款独立卡。
 - 标题：站方 16px + 3px 蓝底线 → 15px/600 主文字色，蓝底线收成 2px 短标（下移 -11px 压在 1px 分隔线上）。
 - 输入框：38px 高、surface-2 胶囊、8px 圆角、1px 透明边框，聚焦时 `--jsl-border-2`；按钮 `--jsl-accent-solid` + 白字、宽 260px。
-- 页脚：与门户首页同一套（左文字块 + 右二维码 96px 白底圆角卡），`height:auto` + `padding:18px 0`；**body 必须 `display:flex !important`**（站方 body 带内联 `display:inline-block`，不加 important 页脚不会贴底），页脚 `margin-top:auto` 保证短页面贴底。
+- header：**登录/注册页隐藏站内搜索与「发起」**（页面语境不需要这两个入口，`display:none`），搜索框隐藏后由主题切换按钮 `margin-left:auto` 接管右侧对齐。
+- 页脚：与门户首页**同一套结构与排版**（左文字块 + 右二维码 96px 白底圆角卡，12px/22px 行高、行间 7px、法律链接 `|` 分隔），`height:auto` + `padding:18px 0`；文案整理复用 `reorganizePortalFooter()`——它已支持「无 APP 链接行」的页面（登录页新建只放法律链接的同行）；**body 必须 `display:flex !important`**（站方 body 带内联 `display:inline-block`，不加 important 页脚不会贴底），页脚 `margin-top:auto` 保证短页面贴底。
 - 原生控件：`tokens.css` 加了 `color-scheme: light/dark`，复选框/滚动条跟随主题（否则深色下复选框是白块）。
 - 站方 JS 有 `/login/` 路径守卫（`if (!href.includes('/login/')) location.replace('/login/')`），所以**登录页预览必须放在 `/tmp/jsl-preview/login/` 子目录**，直接放根目录会被强制跳转、测不到注入样式。
 

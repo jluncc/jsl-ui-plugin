@@ -21,7 +21,7 @@ export function enhancePortalHome(): void {
   layoutInvestmentEvents();
   moveAppLinksToFooter();
   polishCommunityTab();
-  reorganizeFooter();
+  reorganizePortalFooter();
   movePublishToHeader();
   stripPopoverHeader();
   reorderMenuItems();
@@ -87,9 +87,10 @@ function polishCommunityTab(): void {
 const FOOTER_DOT_CLASS = 'jsl-footer-dot';
 
 /** 页脚文案整理：站点原 7 行压缩为 4 行——
- *  版权+客服邮箱 / 产品与法律链接（复用 APP 行，`|` 分隔）/ 备案合行 / 声明；
- *  「使用 Edge/Chrome 浏览本站最佳」推荐行删除；缩进对齐交给 CSS */
-function reorganizeFooter(): void {
+ *  版权+客服邮箱 / 产品与法律链接（有 APP 行时并入，否则只放法律链接）/ 备案合行 / 声明；
+ *  「使用 Edge/Chrome 浏览本站最佳」推荐行删除；缩进对齐交给 CSS。
+ *  登录/注册页没有文章卡（无 APP 行），单独调用本函数也能得到同一套结构。 */
+export function reorganizePortalFooter(): void {
   const left = document.querySelector<HTMLElement>('.footer_bg .footer_left');
   if (!left || left.querySelector('.jsl-footer-meta')) return;
 
@@ -104,9 +105,15 @@ function reorganizeFooter(): void {
   const legal = rows.find((d) => /用户协议/.test(plain(d)));
   const beianGov = rows.find((d) => d.querySelector('a[href*="beian.gov.cn"]'));
   const beianMiit = rows.find((d) => /京ICP证/.test(plain(d)));
-  const apps = left.querySelector<HTMLElement>('.jsl-footer-apps');
   const statement = left.querySelector<HTMLElement>('.statement');
-  if (!copyright || !email || !legal || !apps) return;
+  if (!copyright || !email || !legal) return;
+
+  // APP 链接行只在门户首页存在（由文章卡尾部链接拼出）；登录页等直接用法律链接行
+  let links = left.querySelector<HTMLElement>('.jsl-footer-apps');
+  if (!links) {
+    links = document.createElement('div');
+    links.className = 'jsl-footer-apps';
+  }
 
   const dot = () => {
     const s = document.createElement('span');
@@ -122,8 +129,8 @@ function reorganizeFooter(): void {
   meta.appendChild(dot());
   meta.appendChild(document.createTextNode(plain(email)));
 
-  // 行2：APP 行并入法律链接（用户协议/隐私政策/问题反馈），`|` 分隔共 6 项
-  for (const a of [...legal.querySelectorAll('a')]) apps.appendChild(a);
+  // 行2：法律链接并入产品链接行（门户首页共 6 项，`|` 分隔；登录页仅 3 项）
+  for (const a of [...legal.querySelectorAll('a')]) links.appendChild(a);
 
   // 行3：两条备案合一行（保链 保徽章图）
   const beian = document.createElement('div');
@@ -138,7 +145,7 @@ function reorganizeFooter(): void {
 
   statement?.remove();
   for (const child of [...left.children]) child.remove();
-  left.append(meta, apps, beian);
+  left.append(meta, links, beian);
   if (statement) left.appendChild(statement);
 }
 
