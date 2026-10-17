@@ -3,6 +3,8 @@
    ============================================================ */
 
 :root {
+  /* 原生控件（复选框/滚动条/输入框）跟随主题，而不是固定浅色 */
+  color-scheme: light;
   --jsl-font:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB',
     'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
@@ -54,6 +56,7 @@
 }
 
 html[data-theme='dark'] {
+  color-scheme: dark;
   --jsl-bg: #101318;
   --jsl-surface: #171b22;
   --jsl-surface-hover: #1d222b;

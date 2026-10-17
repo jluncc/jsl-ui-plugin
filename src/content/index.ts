@@ -19,6 +19,8 @@ function applyPageFlags(): void {
   if (document.querySelector('.wrapper_content') || document.querySelector('.header_navbar_bg')) {
     root.classList.add('jsl-page-portal');
   }
+  // 登录/注册/找回密码页：同一套门户外壳，但内容区是独立登录卡
+  if (document.querySelector('.content_box')) root.classList.add('jsl-page-auth');
 }
 
 /** 总开关与主题即时生效；模块开关（列表/详情）涉及单向 DOM 变换，

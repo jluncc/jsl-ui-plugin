@@ -2319,6 +2319,13 @@ html.jsl.jsl-page-portal .tag_box {
   overflow: hidden;
 }
 
+/* 社区双列内层：站方给右列写死 #f5f5f5（深色下整列成白块），
+   底色统一交给外层 .tag_box，内层透明 */
+html.jsl.jsl-page-portal .tag_column > div.left,
+html.jsl.jsl-page-portal .tag_column > div.right {
+  background: transparent !important;
+}
+
 /* 面板标题条：灰底压圆角内，字重 600 */
 html.jsl.jsl-page-portal .first_column .left .title,
 html.jsl.jsl-page-portal .first_column .right .title_box {
@@ -3355,4 +3362,288 @@ html.jsl.jsl-community .aw-topic-content .aw-mod-head h2 {
 html.jsl.jsl-community .aw-main-content .aw-mod-head h2,
 html.jsl.jsl-community .aw-main-content h2#main_title {
   color: var(--jsl-text);
+}
+
+/* ============================================================
+   登录 / 注册页（.jsl-page-auth）：沿用门户外壳，登录卡与页脚按同一套语言重绘
+   ============================================================ */
+
+/* 上半区补足高度，让登录卡在视口内垂直居中（站方是 60px 顶部死内边距） */
+html.jsl.jsl-page-auth .data_content {
+  padding: 0;
+  width: 960px !important;
+}
+
+html.jsl.jsl-page-auth .content_box {
+  padding: 56px 0 64px;
+}
+
+/* 页面比视口短时页脚贴底（否则 footer 下方露出一截背景色） */
+/* 站方 body 带内联 display:inline-block（门户旧布局残留），必须 !important 覆盖 */
+html.jsl.jsl-page-auth body {
+  display: flex !important;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+html.jsl.jsl-page-auth .footer_bg {
+  margin-top: auto;
+}
+
+/* 登录卡：surface + 1px 边框 + 10px 圆角 + 同款投影（与门户/详情卡片一致） */
+html.jsl.jsl-page-auth .content_dialog {
+  background: var(--jsl-surface) !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: var(--jsl-radius) !important;
+  box-shadow: var(--jsl-shadow) !important;
+  padding: 28px 32px !important;
+  min-height: 0 !important;
+}
+
+/* 底部「没有账号？立即免费注册」是同款独立卡 */
+html.jsl.jsl-page-auth .register_button {
+  background: var(--jsl-surface) !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: var(--jsl-radius) !important;
+  box-shadow: var(--jsl-shadow) !important;
+  color: var(--jsl-text-2) !important;
+}
+
+html.jsl.jsl-page-auth .register_button a {
+  color: var(--jsl-accent) !important;
+  text-decoration: none;
+}
+
+html.jsl.jsl-page-auth .register_button a:hover {
+  text-decoration: underline;
+}
+
+/* 标题：站方 16px + 3px 蓝底线，改成门户卡片的标题条语言——
+   15px/600 主文字色 + 底部 1px 边界线，蓝底线收成 2px 短标 */
+html.jsl.jsl-page-auth .dialog_title {
+  height: auto !important;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--jsl-border) !important;
+}
+
+html.jsl.jsl-page-auth .dialog_title span {
+  display: inline-block;
+  padding-bottom: 8px;
+  margin-bottom: -11px;
+  border-bottom: 2px solid var(--jsl-accent) !important;
+  color: var(--jsl-text) !important;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+/* 输入框：surface-2 胶囊，聚焦时亮 1px 边界（与搜索框同源） */
+html.jsl.jsl-page-auth .content_dialog input.form-control {
+  height: 38px !important;
+  box-sizing: border-box;
+  padding: 0 12px !important;
+  background: var(--jsl-surface-2) !important;
+  border: 1px solid transparent !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  color: var(--jsl-text) !important;
+  font-size: 13px;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+}
+
+html.jsl.jsl-page-auth .content_dialog input.form-control::placeholder {
+  color: var(--jsl-text-3) !important;
+}
+
+html.jsl.jsl-page-auth .content_dialog input.form-control:focus {
+  background: var(--jsl-surface) !important;
+  border-color: var(--jsl-border-2) !important;
+  outline: none;
+}
+
+/* 记住我 / 协议勾选：文案二级色，复选框随强调色 */
+html.jsl.jsl-page-auth .remember_me,
+html.jsl.jsl-page-auth .user_agree {
+  color: var(--jsl-text-2) !important;
+  font-size: 12px !important;
+}
+
+html.jsl.jsl-page-auth .user_agree a {
+  color: var(--jsl-accent) !important;
+  text-decoration: none;
+}
+
+html.jsl.jsl-page-auth .user_agree a:hover {
+  text-decoration: underline;
+}
+
+html.jsl.jsl-page-auth .content_dialog input[type='checkbox'] {
+  accent-color: var(--jsl-accent);
+  vertical-align: -2px;
+  margin-right: 4px;
+}
+
+html.jsl.jsl-page-auth .forget_password a {
+  color: var(--jsl-accent) !important;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+/* 主按钮（登录/注册/下一步/微信）：实底 accent-solid + 白字，30→38px 与输入框齐 */
+html.jsl.jsl-page-auth .content_dialog .btn-jisilu,
+html.jsl.jsl-page-auth .content_dialog a.btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100% !important;
+  max-width: 260px;
+  height: 38px;
+  padding: 0 16px;
+  background: var(--jsl-accent-solid) !important;
+  background-image: none !important;
+  border: none !important;
+  border-radius: var(--jsl-radius-sm) !important;
+  box-shadow: none !important;
+  color: var(--jsl-accent-solid-ink) !important;
+  font-size: 13px;
+  font-weight: 500;
+  text-shadow: none !important;
+  text-decoration: none;
+  transition: background-color 0.12s;
+}
+
+html.jsl.jsl-page-auth .content_dialog .btn-jisilu:hover,
+html.jsl.jsl-page-auth .content_dialog a.btn:hover {
+  background: var(--jsl-accent-solid-hover) !important;
+}
+
+/* 「第三方登录」分隔线：文字压在线上，底色改卡面色 */
+html.jsl.jsl-page-auth .login_other {
+  border-bottom-color: var(--jsl-border) !important;
+}
+
+html.jsl.jsl-page-auth .login_other span {
+  background: var(--jsl-surface) !important;
+  color: var(--jsl-text-3) !important;
+}
+
+/* 微信按钮里的站方图标字体在扩展环境是乱码，隐藏 */
+html.jsl.jsl-page-auth .btn-jisilu .jisilu-icons {
+  display: none !important;
+}
+
+/* 错误提示：浅黄底在深色下刺眼，改弱红底 + 语义红 */
+html.jsl.jsl-page-auth .error_text {
+  background: var(--jsl-accent-weak) !important;
+  color: var(--jsl-up) !important;
+}
+
+/* 扫码登录区 */
+html.jsl.jsl-page-auth .login_qr_text,
+html.jsl.jsl-page-auth .login_qr_text p {
+  color: var(--jsl-text-2) !important;
+}
+
+html.jsl.jsl-page-auth .login_qr img {
+  border-radius: 8px;
+}
+
+/* 右下角「切换扫码/密码」按钮：站方 64px 方形贴角，弱化成小图标按钮 */
+html.jsl.jsl-page-auth .login_switch_box {
+  width: 40px;
+  height: 40px;
+  opacity: 0.55;
+}
+
+html.jsl.jsl-page-auth .login_pw_icon,
+html.jsl.jsl-page-auth .login_qr_icon {
+  top: 8px !important;
+  right: 8px !important;
+  font-size: 22px !important;
+  color: var(--jsl-text-2) !important;
+}
+
+/* 注册页的分步容器与手机验证码行 */
+html.jsl.jsl-page-auth .sms_btn .btn-jisilu {
+  width: 120px !important;
+  max-width: 120px;
+  font-size: 12px;
+}
+
+html.jsl.jsl-page-auth .pwd_intensity {
+  background: var(--jsl-surface-2) !important;
+  border-color: var(--jsl-border) !important;
+  color: var(--jsl-text-3) !important;
+}
+
+/* ---- 登录页页脚：与门户首页同一套（左文字块 + 右二维码，四行文案） ---- */
+html.jsl.jsl-page-auth .footer_bg {
+  height: auto !important;
+  padding: 18px 0 !important;
+  background: var(--jsl-surface) !important;
+  border-top: 1px solid var(--jsl-border) !important;
+}
+
+html.jsl.jsl-page-auth .footer_content {
+  padding: 0 !important;
+}
+
+html.jsl.jsl-page-auth .footer_content .flex {
+  display: flex;
+  align-items: center;
+}
+
+html.jsl.jsl-page-auth .footer_left {
+  flex: 1;
+  margin-left: 0 !important;
+}
+
+html.jsl.jsl-page-auth .footer_left div,
+html.jsl.jsl-page-auth .footer_left span,
+html.jsl.jsl-page-auth .footer_left a,
+html.jsl.jsl-page-auth .footer_left .statement {
+  color: var(--jsl-text-3) !important;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+html.jsl.jsl-page-auth .footer_left .separator {
+  margin: 0 6px;
+  color: var(--jsl-border-2) !important;
+}
+
+html.jsl.jsl-page-auth .footer_left .statement {
+  margin-top: 2px;
+}
+
+/* 二维码卡：标题在上、码在下，96px 白底圆角 */
+html.jsl.jsl-page-auth .footer_right {
+  display: flex;
+  gap: 28px;
+  margin-left: 0 !important;
+}
+
+html.jsl.jsl-page-auth .footer_right > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--jsl-text-3);
+  font-size: 12px;
+}
+
+html.jsl.jsl-page-auth .footer_right img {
+  display: block;
+  width: 96px;
+  height: 96px;
+  border-radius: 8px;
+  background: #fff;
+}
+
+/* 页脚里的「使用 Edge/Chrome 浏览本站最佳」推荐行：图标字体乱码，整行隐藏（与门户一致） */
+html.jsl.jsl-page-auth .footer_left > div:has(.jisilu-icons) {
+  display: none !important;
 }

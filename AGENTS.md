@@ -28,6 +28,17 @@ pnpm format  # prettier
 - **设置变更策略**：主题即时生效；总开关/模块开关涉及单向 DOM 变换，无法低成本撤销 → `location.reload()`（避免"关掉扩展但卡片头还在"的半应用状态）。
 - **事件委托**：列表整行点击、详情回复里的图片 load/error 复检都走容器级委托，不逐元素挂 handler。
 
+## 登录 / 注册页（.jsl-page-auth）
+
+站点 `account/login`（含注册/找回密码）属于门户外壳：有 `header_navbar_bg` / `wrapper_content` / `footer_bg`，所以 `jsl-page-portal` 的 header 与页脚基础规则自动命中；但内容区是独立的 `.content_box` 登录卡，需要单独的 `jsl-page-auth` 标志（`applyPageFlags` 检测 `.content_box`，preview.sh 同步）。
+
+- 登录卡：`surface` 底 + 1px 边框 + 10px 圆角 + `--jsl-shadow`，与门户/详情卡片同语言；`register_button` 是同款独立卡。
+- 标题：站方 16px + 3px 蓝底线 → 15px/600 主文字色，蓝底线收成 2px 短标（下移 -11px 压在 1px 分隔线上）。
+- 输入框：38px 高、surface-2 胶囊、8px 圆角、1px 透明边框，聚焦时 `--jsl-border-2`；按钮 `--jsl-accent-solid` + 白字、宽 260px。
+- 页脚：与门户首页同一套（左文字块 + 右二维码 96px 白底圆角卡），`height:auto` + `padding:18px 0`；**body 必须 `display:flex !important`**（站方 body 带内联 `display:inline-block`，不加 important 页脚不会贴底），页脚 `margin-top:auto` 保证短页面贴底。
+- 原生控件：`tokens.css` 加了 `color-scheme: light/dark`，复选框/滚动条跟随主题（否则深色下复选框是白块）。
+- 站方 JS 有 `/login/` 路径守卫（`if (!href.includes('/login/')) location.replace('/login/')`），所以**登录页预览必须放在 `/tmp/jsl-preview/login/` 子目录**，直接放根目录会被强制跳转、测不到注入样式。
+
 ## 定期非功能性体检
 
 ```bash

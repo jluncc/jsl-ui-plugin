@@ -34,6 +34,8 @@ if "aw-question-detail-box" in html:
     flags += " jsl-page-detail"
 if "wrapper_content" in html or "header_navbar_bg" in html:
     flags += " jsl-page-portal"
+if "content_box" in html:
+    flags += " jsl-page-auth"
 
 sim = """
 <script>
