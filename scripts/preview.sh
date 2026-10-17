@@ -36,6 +36,8 @@ if "wrapper_content" in html or "header_navbar_bg" in html:
     flags += " jsl-page-portal"
 if "content_box" in html:
     flags += " jsl-page-auth"
+if 'id="calendar"' in html:
+    flags += " jsl-page-calendar"
 
 sim = """
 <script>
@@ -80,6 +82,16 @@ sim = """
     syncBtn();
     if (injectAfter) injectTarget.insertAdjacentElement('afterend', b);
     else injectTarget.appendChild(b);
+  }
+
+  // 投资日历：FullCalendar 按容器宽度算事件内联 left/width，
+  // CSS 收窄容器后需要 resize 让它重算（与 index.ts reflowCalendar 同步）
+  if (document.getElementById('calendar')) {
+    var fireResize = function () { window.dispatchEvent(new Event('resize')); };
+    fireResize();
+    window.addEventListener('load', fireResize, { once: true });
+    setTimeout(fireResize, 600);
+    setTimeout(fireResize, 1500);
   }
 
   // list.ts：卡片顶部两行导航——第一行分类+话题，第二行排序

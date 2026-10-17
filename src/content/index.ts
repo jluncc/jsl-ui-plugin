@@ -21,6 +21,20 @@ function applyPageFlags(): void {
   }
   // 登录/注册/找回密码页：同一套门户外壳，但内容区是独立登录卡
   if (document.querySelector('.content_box')) root.classList.add('jsl-page-auth');
+  // 投资日历页：FullCalendar 1.x 生成的月历（事件宽度是渲染时算好的内联值）
+  if (document.getElementById('calendar')) root.classList.add('jsl-page-calendar');
+}
+
+/** FullCalendar 按容器宽度在渲染时算好事件的内联 left/width；
+ *  CSS 把容器从 1170 收到 960 后必须触发一次 resize 让它重算，
+ *  否则事件块会溢出单元格。幂等，重复触发无副作用。 */
+function reflowCalendar(): void {
+  if (!document.getElementById('calendar')) return;
+  const fire = () => window.dispatchEvent(new Event('resize'));
+  fire();
+  window.addEventListener('load', fire, { once: true });
+  window.setTimeout(fire, 600);
+  window.setTimeout(fire, 1500);
 }
 
 /** 总开关与主题即时生效；模块开关（列表/详情）涉及单向 DOM 变换，
@@ -106,6 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
   polishPortalNav();
   reorderUserNavMenu();
   injectThemeToggle();
+  reflowCalendar();
 
   void loadSettings().then((settings) => {
     applySettings(settings);

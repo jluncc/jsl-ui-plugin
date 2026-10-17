@@ -40,6 +40,17 @@ pnpm format  # prettier
 - 原生控件：`tokens.css` 加了 `color-scheme: light/dark`，复选框/滚动条跟随主题（否则深色下复选框是白块）。
 - 站方 JS 有 `/login/` 路径守卫（`if (!href.includes('/login/')) location.replace('/login/')`），所以**登录页预览必须放在 `/tmp/jsl-preview/login/` 子目录**，直接放根目录会被强制跳转、测不到注入样式。
 
+## 投资日历页（.jsl-page-calendar）
+
+`/data/calendar/` 是门户外壳 + **FullCalendar 1.x**（`#calendar`，站方内联 `width:950px` 右浮动）+ 左侧筛选表（`#event-category`，`width:150px` 左浮动，底层是一张 17 行 × 5 列的表）。
+
+- **布局**：站方内容区 1170 宽、与 header 960 错位。改为 `data_content` flex 纵向 + 960 宽居中；左侧竖栏打平成顶部**横向筛选条**（表格 `display:contents` + 每个 `tr` 变一枚芯片，占位列 `td[width]` 隐藏、`td[bgcolor]` 变 10px 圆点），日历占满 960。
+- **FullCalendar 的坑**：事件块的 `left/width` 是渲染时按容器宽度算好的**内联值**，只改 CSS 不重算会溢出单元格。必须 `window.dispatchEvent(new Event('resize'))` 触发重算（`reflowCalendar()`：立即 + load + 600ms + 1500ms 各一次，幂等）。实测从 183px 正确变为 169px。
+- **配色**：站方硬编码 `#eee` 筛选底、`#999` 边框、`#4d4d4d` 文字、`#ddd` 网格线、今天 `#b4e6ff`+红字+蓝色外发光、fc 按钮浅色渐变——全部令牌化。
+- **事件块**：底色来自站方内联 `background-color`（十几种高饱和色，是日历类型的语义），**不要逐个改色**。深色下改用 `background-image: linear-gradient(rgba(0,0,0,.55),…)` 叠遮罩 + 白字：任意底色都被压到 L≤0.19，白字对比 ≥4.7（最亮白底 4.74、最暗紫底 11.5），色相仍保留。
+- **验证注意**：对比度扫描只读 `backgroundColor`，看不到 `background-image` 遮罩，会误报事件块不达标——这种情况用 PIL 采样渲染像素仲裁（实测黄底被压到 `(113,102,49)`，白字 5.76:1）。
+- 站方筛选表最后一行的「确定」按钮用 `tr:has(td[colspan])` 单独还原成右侧对齐的普通按钮。
+
 ## 用户中心四页（通知 / 私信 / 个人主页 / 设置）
 
 均为 WeCenter 架构（`.aw-wecenter` → `jsl-community` 自动命中），但内部结构与列表/详情不同，样式集中在 `community.css` 末尾的「用户中心」段。

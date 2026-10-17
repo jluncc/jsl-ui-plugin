@@ -4623,3 +4623,294 @@ html.jsl.jsl-community .aw-user-setting hr {
   border-top: 1px solid var(--jsl-border);
   margin: 18px 0;
 }
+
+/* ============================================================
+   投资日历页（.jsl-page-calendar）：FullCalendar 1.x + 左侧筛选表
+   —— 筛选竖栏改顶部横向筛选条，日历占满 960 宽并与 header 同边；
+      全量令牌化站方硬编码色（#eee/#999/#4d4d4d/#ddd/高亮蓝）
+   ============================================================ */
+
+/* 内容区：与 header 内容盒同宽同边（站方是 1170 居中，与 header 960 错位） */
+html.jsl.jsl-page-calendar .data_content {
+  box-sizing: border-box;
+  width: 960px !important;
+  max-width: 100%;
+  margin: 0 auto !important;
+  padding: 16px 0 40px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---- 筛选条 ---- */
+
+html.jsl.jsl-page-calendar #event-category {
+  float: none !important;
+  box-sizing: border-box;
+  width: 100% !important;
+  padding: 12px 14px !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: var(--jsl-radius);
+  background: var(--jsl-surface) !important;
+  color: var(--jsl-text);
+  text-align: left;
+  box-shadow: var(--jsl-shadow);
+}
+
+html.jsl.jsl-page-calendar #event-category h4 {
+  margin: 0 0 10px !important;
+  padding: 0 !important;
+  color: var(--jsl-text-3) !important;
+  font-size: 12px !important;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+/* 站方是 17 行 × 5 列的表格（标签/占位/复选框/占位/色块）；
+   打平成 flex 芯片：占位列隐藏，每个 tr 变成一枚筛选芯片 */
+html.jsl.jsl-page-calendar #event-category table {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  width: 100% !important;
+}
+
+html.jsl.jsl-page-calendar #event-category tbody {
+  display: contents !important;
+}
+
+html.jsl.jsl-page-calendar #event-category tr {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 !important;
+  padding: 4px 10px;
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius-sm);
+  background: var(--jsl-surface-2);
+}
+
+/* 占位列（站方用来撑间距）在芯片布局里多余 */
+html.jsl.jsl-page-calendar #event-category td[width] {
+  display: none !important;
+}
+
+html.jsl.jsl-page-calendar #event-category td {
+  padding: 0 !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+/* 色块（td[bgcolor]）：10px 圆点，颜色保留站方语义 */
+html.jsl.jsl-page-calendar #event-category td[bgcolor] {
+  display: inline-block !important;
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50%;
+}
+
+html.jsl.jsl-page-calendar #event-category input[type='checkbox'] {
+  margin: 0 !important;
+  accent-color: var(--jsl-accent);
+  cursor: pointer;
+}
+
+/* 「确定」行：不参与芯片样式，按钮独立右侧 */
+html.jsl.jsl-page-calendar #event-category tr:has(td[colspan]) {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 4px !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+html.jsl.jsl-page-calendar #event-category td[colspan] {
+  padding: 0 !important;
+  text-align: right !important;
+}
+
+html.jsl.jsl-page-calendar #event-category button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 64px;
+  height: 28px;
+  padding: 0 14px;
+  border: 1px solid var(--jsl-border-2) !important;
+  border-radius: var(--jsl-radius-sm);
+  background: transparent !important;
+  color: var(--jsl-text) !important;
+  font-size: 12px;
+  cursor: pointer;
+  transition:
+    color 0.12s,
+    border-color 0.12s;
+}
+
+html.jsl.jsl-page-calendar #event-category button:hover {
+  color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+}
+
+/* ---- 日历卡片 ---- */
+
+html.jsl.jsl-page-calendar #calendar {
+  float: none !important;
+  width: 100% !important;
+  box-sizing: border-box;
+  padding: 12px 14px 14px;
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow);
+}
+
+/* 表头行：左「月/周/日」、中月份、右翻页，统一 28px 高 */
+html.jsl.jsl-page-calendar .fc-header {
+  margin-bottom: 4px;
+}
+
+html.jsl.jsl-page-calendar .fc-header td {
+  vertical-align: middle;
+}
+
+html.jsl.jsl-page-calendar .fc-header .fc-button {
+  /* 站方 fc-state-default 是浅色渐变按钮，深色下成亮块 */
+  box-sizing: border-box;
+  height: 28px !important;
+  margin: 0 !important;
+  padding: 0 10px !important;
+  border: 1px solid var(--jsl-border-2) !important;
+  border-radius: var(--jsl-radius-sm) !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 12px !important;
+  line-height: 26px !important;
+  text-shadow: none !important;
+}
+
+html.jsl.jsl-page-calendar .fc-header .fc-button + .fc-button {
+  margin-left: 6px !important;
+}
+
+html.jsl.jsl-page-calendar .fc-header .fc-state-active {
+  background: var(--jsl-accent-weak) !important;
+  border-color: var(--jsl-accent) !important;
+  color: var(--jsl-accent) !important;
+}
+
+html.jsl.jsl-page-calendar .fc-header .fc-button:hover {
+  color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+}
+
+html.jsl.jsl-page-calendar .fc-button-prev,
+html.jsl.jsl-page-calendar .fc-button-next {
+  width: 28px;
+  padding: 0 !important;
+}
+
+html.jsl.jsl-page-calendar .fc-header-title {
+  height: auto;
+  line-height: 28px;
+  text-align: center;
+}
+
+html.jsl.jsl-page-calendar .fc-header-title h2 {
+  margin: 0;
+  color: var(--jsl-text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+/* ---- 网格 ---- */
+
+html.jsl.jsl-page-calendar .fc-widget-header,
+html.jsl.jsl-page-calendar .fc-widget-content {
+  border-color: var(--jsl-border) !important;
+}
+
+/* 星期表头：灰底条 + 三级色小字 */
+html.jsl.jsl-page-calendar .fc-grid th.fc-day-header {
+  padding: 7px 0;
+  background: var(--jsl-surface-2);
+  color: var(--jsl-text-3);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+html.jsl.jsl-page-calendar .fc-grid .fc-day-number {
+  padding: 4px 8px 2px;
+  color: var(--jsl-text-3);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  line-height: 16px;
+}
+
+/* 非本月日期：弱化（站方 opacity .3 在深色下几乎消失，抬到 .45） */
+html.jsl.jsl-page-calendar .fc-grid .fc-other-month .fc-day-number {
+  opacity: 0.45;
+  filter: none;
+}
+
+/* 今天：站方 #b4e6ff 底 + 红字 + 蓝色外发光（深色下刺眼），改品牌色淡底 */
+html.jsl.jsl-page-calendar .fc-state-highlight {
+  background: var(--jsl-accent-weak) !important;
+  border: 1px solid var(--jsl-accent) !important;
+  box-shadow: none !important;
+}
+
+html.jsl.jsl-page-calendar .fc-state-highlight .fc-day-number {
+  color: var(--jsl-accent) !important;
+  font-weight: 600;
+}
+
+/* ---- 事件块 ---- */
+
+/* 事件底色来自站方内联 style（按日历类型着色，保留语义），
+   只统一圆角/字号/内边距，并把文字固定为深色（亮底配浅字不可读） */
+html.jsl.jsl-page-calendar .fc-event {
+  box-sizing: border-box;
+  border: none !important;
+  border-radius: 4px;
+  padding: 1px 6px;
+  color: #1c2128 !important;
+  font-size: 11px;
+  line-height: 17px;
+  text-decoration: none;
+  transition: filter 0.12s;
+}
+
+html.jsl.jsl-page-calendar .fc-event:hover {
+  filter: brightness(0.94);
+}
+
+html.jsl.jsl-page-calendar .fc-event-title {
+  padding: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 深色主题：事件底色来自站方内联 background-color（十几种高饱和色），
+   逐个改色既脆弱又会丢掉语义。改为叠一层 55% 暗色遮罩 + 白字：
+   任意底色都被压到 L≤0.19，白字对比度全部 ≥4.7（实测最亮的白色底 4.74，
+   最暗的紫底 11.5）。遮罩用 background-image，不覆盖站方的 background-color，
+   色相仍然保留。 */
+html[data-theme='dark'].jsl-page-calendar .fc-event {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)) !important;
+  color: #fff !important;
+}
+
+html[data-theme='dark'].jsl-page-calendar .fc-event:hover {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)) !important;
+}
