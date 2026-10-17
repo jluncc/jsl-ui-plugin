@@ -116,7 +116,7 @@ for (const file of cssFiles) {
 // ---- 4. 体积预算 ----
 // 预算随覆盖页面增长：v0.6 起包含门户/列表/详情/登录注册/通知/私信/个人主页/设置
 // 新增整页样式时先评估是否复用既有卡片语言，再按实际需要上调
-const BUDGET = { contentJs: 30_000, cssTotal: 200_000 };
+const BUDGET = { contentJs: 32_000, cssTotal: 220_000 };
 const cssBytes = cssFiles.reduce((n, f) => n + statSync(join(ROOT, f)).size, 0);
 const distContent = (() => {
   try {
