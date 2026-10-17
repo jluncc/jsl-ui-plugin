@@ -621,6 +621,51 @@ html.jsl.jsl-community .aw-question-detail-meta .i-share {
   --jsl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13'/%3E%3C/svg%3E");
 }
 
+/* 正文里的表格：站方编辑器输出内联 border 1px #ccc，深色下成亮线；
+   只令牌化边框与文字色，不动用户设置的底色/语义色 */
+html.jsl.jsl-community .markitup-box table {
+  border-collapse: collapse;
+  max-width: 100%;
+}
+
+html.jsl.jsl-community .markitup-box td,
+html.jsl.jsl-community .markitup-box th {
+  border-color: var(--jsl-border) !important;
+  padding: 4px 8px;
+}
+
+/* 深色主题：用户从站方编辑器插入的浅色底单元格（黄底/浅蓝底等）配浅色字完全不可读
+   （实测 1.05:1）。凡带内联背景色的单元格一律改用深色文字——底色是用户语义，保留 */
+html[data-theme='dark'].jsl-community .markitup-box [style*='background-color'],
+html[data-theme='dark'].jsl-community .markitup-box [style*='background:'] {
+  color: #1c2128 !important;
+}
+
+/* 正文里的行内语义色（站方编辑器输出 color:red / color:green）：
+   纯红纯绿在深色底上分别只有 4.32 / 3.36，换主题涨跌色 */
+html[data-theme='dark'].jsl-community .markitup-box [style*='color:red'],
+html[data-theme='dark'].jsl-community .markitup-box [style*='color: red'] {
+  color: var(--jsl-up) !important;
+}
+
+html[data-theme='dark'].jsl-community .markitup-box [style*='color:green'],
+html[data-theme='dark'].jsl-community .markitup-box [style*='color: green'] {
+  color: var(--jsl-down) !important;
+}
+
+/* 「关注问题」勾选行：站方 #666 在深色卡上 3.01:1 */
+html.jsl.jsl-community .aw-mod-replay-box label {
+  color: var(--jsl-text-2) !important;
+}
+
+/* 投票条数字：站方给内层 em 挂浅蓝底（#e9f5ff）配蓝字，深色下刺眼且对比不足 */
+html.jsl.jsl-community .aw-vote-bar-count,
+html.jsl.jsl-community .aw-question-vote-bar em,
+html.jsl.jsl-community .aw-question-vote-bar .aw-vote-bar-count {
+  background: transparent !important;
+  color: var(--jsl-text-2) !important;
+}
+
 /* 「新人」站方 PNG 徽章 → 主题 accent 小 chip（挂在用户名链接后） */
 html.jsl.jsl-community .aw-dynamic-topic-content a > img[src*='new_user'] {
   display: none !important;
@@ -1154,7 +1199,8 @@ html.jsl.jsl-community #jsl_donate_popover {
   height: 36px !important;
   padding: 0 24px !important;
   border-radius: 6px !important;
-  background: #f48817 !important;
+  /* 站方亮橙 #f48817 配白字仅 2.51:1（深色主题下同样不达标），压暗到 4.61:1 */
+  background: #b35f0b !important;
   color: #fff !important;
   font-size: 14px !important;
   font-weight: 500 !important;
@@ -1163,7 +1209,7 @@ html.jsl.jsl-community #jsl_donate_popover {
 }
 
 html.jsl.jsl-community #jsl_donate_popover:hover {
-  background: #e0760f !important;
+  background: #a35509 !important;
 }
 
 /* 赏按钮容器：水平居中 + 上下留白（与正文/元信息行拉开距离）。
