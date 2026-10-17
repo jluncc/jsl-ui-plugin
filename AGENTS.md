@@ -40,6 +40,29 @@ pnpm format  # prettier
 - 原生控件：`tokens.css` 加了 `color-scheme: light/dark`，复选框/滚动条跟随主题（否则深色下复选框是白块）。
 - 站方 JS 有 `/login/` 路径守卫（`if (!href.includes('/login/')) location.replace('/login/')`），所以**登录页预览必须放在 `/tmp/jsl-preview/login/` 子目录**，直接放根目录会被强制跳转、测不到注入样式。
 
+## 全站 header / footer 一致性（硬约定）
+
+**所有页面 header 与 footer 必须同构同尺寸**（用户明确要求）。基准：门户首页。
+
+| 项目 | 基准值 |
+|---|---|
+| header 内容 | 960px 居中（1450 视口下 x=245，右缘 1205） |
+| header 高 | 52px（含 1px 底边共 53） |
+| 控件簇 | 搜索 240×30 → 发起 30px → 主题切换 30px → 通知/私信 → 用户区，gap 10px |
+| logo | 26px 图标 + 17px 文字，左缘 = header 内容盒左缘 |
+| footer 外层 | 全宽、165px 高、`padding: 18px 0` |
+| footer 内容 | 960px 居中（与 header 同边），高 128px |
+| footer 左 | 四行：版权·邮箱 / 法律链接（`|` 分隔）/ 备案合行 / 声明，12px/22px 行高 |
+| footer 右 | 两张 96px 白底圆角二维码卡，gap 28px，右缘 = 内容盒右缘 |
+| 登录/注册页例外 | header 隐藏搜索与发起（页面语境不需要），主题按钮接管右对齐 |
+
+**各页面的实际外壳差异**（必须分别适配，不能只写一套）：
+- 门户/日历/登录（jQuery）：`.header_navbar_content` + `.footer_content > .flex`。
+- 社区（WeCenter）：`.aw-top-menu-wrap`（通栏 flex，padding 镜像内容区）+ `.aw-wecenter`；页脚 `.aw-footer`。
+- 数据页（Vue/Element UI）：`.header_navbar_content > .el-row > .el-col` 栅格 + `.footer_content > .el-row > .footer_left.el-col-8 / .footer_right.el-col-10.offset-4`。**必须把 el-col 百分比栅格打平成 flex**（el-col-8 只有 320px，文案被挤成两行、页脚蹿到 256px），并把站方的 `translateX` 居中 hack 清零。
+
+**回归检查脚本**（每改 header/footer 必跑）：对每页量 `header_navbar_content`（或 `.aw-top-menu-wrap`）、`.footer_content`、`.footer_left`、`.footer_right`、`.footer_right img` 的 rect，确认 header/footer 内容盒 x=245 且 w=960、footer 外高 165、二维码 96×96。
+
 ## 实时数据页（.jsl-page-data）
 
 `/web/data/cb/` 是 **Vue + Element UI** SPA（`#app`），与门户（jQuery）、社区（WeCenter）都是不同外壳；导航菜单没有 id。

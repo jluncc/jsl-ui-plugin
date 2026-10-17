@@ -73,7 +73,7 @@ sim = """
   // injectThemeToggle：注入主题切换按钮；预览版点击直接翻转 data-theme
   // 社区页注入 WeCenter 顶栏末尾；门户首页注入搜索框之后（右侧控件簇起点）
   var communityWrap = document.querySelector('.aw-top-menu-wrap');
-  var portalSearchBox = document.querySelector('.header_navbar_content .search_box');
+  var portalSearchBox = document.querySelector('.header_navbar_content .search_box, .header_navbar_content .search');
   var injectTarget = communityWrap || portalSearchBox;
   var injectAfter = !communityWrap && portalSearchBox;
   if (injectTarget && !injectTarget.querySelector('.jsl-theme-toggle')) {
@@ -428,7 +428,7 @@ sim = """
     // 「发起」入口移到 header 搜索框右侧（与 portal.ts movePublishToHeader 同步），
     // 登录态弹窗菜单里的按钮项移除；匿名态弹窗不存在时也补按钮（三页 header 一致）
     var pMenu = document.querySelector('.header_navbar_content .popover-menu');
-    var searchBox = document.querySelector('.header_navbar_content .search_box');
+    var searchBox = document.querySelector('.header_navbar_content .search_box, .header_navbar_content .search');
     var publishLink = pMenu ? pMenu.querySelector('a.btn[href="/publish/"]') : null;
     if (searchBox && !(searchBox.parentElement && searchBox.parentElement.querySelector('.jsl-header-publish'))) {
       var pub = document.createElement('a');

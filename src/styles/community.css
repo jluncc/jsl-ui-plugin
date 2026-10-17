@@ -3189,7 +3189,13 @@ html.jsl.jsl-page-portal .footer_bg {
   padding: 18px 0;
 }
 
+/* 页脚内容与 header 同宽同边：门户/日历都是 960 居中（站方 .footer_content
+   是 1200，日历页实测 x=125 vs header x=245，差 120px） */
 html.jsl.jsl-page-portal .footer_content {
+  box-sizing: border-box;
+  width: 960px !important;
+  max-width: 960px !important;
+  margin: 0 auto !important;
   padding: 0;
 }
 
@@ -4929,22 +4935,60 @@ html.jsl.jsl-page-data .layout-default {
   color: var(--jsl-text);
 }
 
-/* header：从 960 居中改为全宽，与下方数据区同一条左基线（15px）。
-   站方用 JS 写 translateX((innerWidth-1200)/2) 做居中 hack——页面实际宽
-   1686（表格 39 列撑开）时这个值（125）会把 header 整体右移，必须清零 */
-html.jsl.jsl-page-data .header_navbar_content,
-html.jsl.jsl-page-data .header_subnavbar_content {
+/* header：与门户/社区/日历页同一规格——内容 960 居中（x=245）。
+   站方用 JS 写 translateX((innerWidth-1200)/2) 做居中 hack，页面实际
+   1686 宽时该值（125）会把 header 右移，必须清零。
+   页面横向滚动时 header/footer 用 sticky left:0 钉在视口，避免跟着内容滚走 */
+html.jsl.jsl-page-data .header_navbar_bg,
+html.jsl.jsl-page-data .footer_bg,
+html.jsl.jsl-page-data .header_subnavbar_bg {
+  position: sticky !important;
+  left: 0;
+  width: 100vw !important;
+  max-width: 100vw !important;
   box-sizing: border-box;
-  width: 100% !important;
-  max-width: none !important;
-  /* 左基线交给内层 el-col 自带的 15px padding（表格起点 x=16），
-     这里再加 padding 会变成 30 —— 与数据区错开 14px */
+}
+
+html.jsl.jsl-page-data .header_navbar_content,
+html.jsl.jsl-page-data .header_subnavbar_content,
+html.jsl.jsl-page-data .footer_content {
+  box-sizing: border-box;
+  width: 960px !important;
+  max-width: 960px !important;
+  margin: 0 auto !important;
   padding: 0 !important;
   transform: none !important;
 }
 
-/* 子导航的 el-row 带 -15px 负边距（Bootstrap 式栅格补偿），
-   在我们的 padding 容器里会撑出 30px */
+/* Element UI 栅格（el-col-3/10/5/6 是百分比宽度）在 960 里放不下门户的
+   控件簇（搜索 240 + 发起 58 + 主题 30 + 用户 222）。改成 flex 单行，
+   间距统一 10px（与其它页 header 同源），搜索框靠右推 */
+html.jsl.jsl-page-data .header_navbar_content > .el-row {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  width: 100% !important;
+  height: 52px;
+  margin: 0 !important;
+}
+
+html.jsl.jsl-page-data .header_navbar_content > .el-row > .el-col {
+  float: none !important;
+  width: auto !important;
+  padding: 0 !important;
+  flex: 0 0 auto;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .search {
+  margin-left: auto !important;
+}
+
+/* 搜索框 240（站方 el-input 是 185） */
+html.jsl.jsl-page-data .header_navbar_content .search .el-input {
+  width: 240px !important;
+}
+
+/* 子导航：同样是 960 容器，内部 el-row 的 -15px 负边距清零 */
 html.jsl.jsl-page-data .header_subnavbar_content .el-row--flex {
   width: 100% !important;
   margin-left: 0 !important;
@@ -5280,6 +5324,71 @@ html.jsl.jsl-page-data .margin-top-20 > .tip,
 html.jsl.jsl-page-data .tip {
   color: var(--jsl-text-3);
   font-size: 12px;
+}
+
+/* ---- 数据页 footer：左文字块 + 右二维码卡（与门户同款） ---- */
+
+/* 数据页 footer 的栅格是 .footer_content > .el-row > .footer_left.el-col-8
+   + .footer_right.el-col-10.el-col-offset-4；el-col-8 只有 320px，
+   文案被挤成两行、页脚比门户高一截。改成 flex 单行：左列吃满剩余、右列 220 */
+html.jsl.jsl-page-data .footer_content > .el-row {
+  display: flex !important;
+  align-items: center;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+html.jsl.jsl-page-data .footer_left.el-col {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  float: none !important;
+}
+
+/* 站方给二维码写过 100px，压回门户的 96 */
+html.jsl.jsl-page-data .footer_right img {
+  width: 96px !important;
+  height: 96px !important;
+}
+
+/* 右侧站方是 el-col-10 + offset-4（百分比宽度、float、内部 row 是纵向 flex），
+   与门户的横排二维码卡完全不同。改成门户同款：两张 96px 竖排卡 + 28px 间距，
+   整体 220px 贴右缘（960 容器内 x=985..1205） */
+html.jsl.jsl-page-data .footer_right {
+  display: block !important;
+  width: 220px !important;
+  max-width: 220px !important;
+  margin: 0 0 0 auto !important;
+  float: none !important;
+  flex: 0 0 auto !important;
+}
+
+html.jsl.jsl-page-data .footer_right > .el-row {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 28px;
+  width: 220px !important;
+  margin: 0 !important;
+}
+
+html.jsl.jsl-page-data .footer_right > .el-row > div {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center;
+  gap: 8px;
+  width: 96px !important;
+  flex: 0 0 auto !important;
+  color: var(--jsl-text-3);
+  font-size: 12px;
+}
+
+html.jsl.jsl-page-data .footer_right img {
+  display: block;
+  width: 96px;
+  height: 96px;
+  border-radius: 8px;
+  background: #fff;
 }
 
 /* 分页 / 加载遮罩 */

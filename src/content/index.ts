@@ -2,7 +2,7 @@ import { applyEnabledEarly, loadSettings, watchSettings, type Settings } from '.
 import { applyThemeEarly, syncTheme } from './theme';
 import { enhanceListPage } from './modules/list';
 import { enhanceDetailPage } from './modules/detail';
-import { enhancePortalHome, reorganizePortalFooter } from './modules/portal';
+import { enhancePortalHome, movePublishToHeader, reorganizePortalFooter } from './modules/portal';
 import { injectThemeToggle } from './modules/theme-toggle';
 
 // document_start：同步定主题与总开关，避免异步设置回包前闪一下站点原样式
@@ -137,11 +137,16 @@ document.addEventListener('DOMContentLoaded', () => {
   reorderUserNavMenu();
   injectThemeToggle();
   reflowCalendar();
-  // 数据页是 Vue SPA（header 由客户端渲染），DOMContentLoaded 时菜单可能还不存在
+  // 数据页是 Vue SPA（header 由客户端渲染），DOMContentLoaded 时菜单/搜索/页脚可能还不存在
   window.setTimeout(() => {
     polishPortalNav();
     polishHeaderLinks();
-  }, 800);
+    if (document.querySelector('.data-content.auto-content-width')) {
+      injectThemeToggle();
+      movePublishToHeader();
+      reorganizePortalFooter();
+    }
+  }, 1200);
 
   void loadSettings().then((settings) => {
     applySettings(settings);
@@ -159,6 +164,10 @@ document.addEventListener('DOMContentLoaded', () => {
         enhancePortalHome();
       } else if (document.querySelector('.content_box')) {
         // 登录/注册页：内容区是独立登录卡，只复用页脚整理（与门户首页同一套文案结构）
+        reorganizePortalFooter();
+      } else if (document.querySelector('.data-content.auto-content-width')) {
+        // 实时数据页（Vue）：header 补「发起」，页脚与门户同一套
+        movePublishToHeader();
         reorganizePortalFooter();
       }
     }

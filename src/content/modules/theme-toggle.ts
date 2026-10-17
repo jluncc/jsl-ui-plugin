@@ -17,10 +17,11 @@ const MOON_SVG = `
 export function injectThemeToggle(): void {
   if (document.querySelector('.jsl-theme-toggle')) return;
 
-  // 先定注入点：不匹配的页面（如文章页/数据页）不必创建按钮与 MutationObserver
+  // 先定注入点：不匹配的页面不必创建按钮与 MutationObserver
   const communityWrap = document.querySelector<HTMLElement>('.aw-top-menu-wrap');
+  // 门户/日历等 jQuery 架构用 .search_box，数据页（Vue）用 .search
   const portalSearch = document.querySelector<HTMLElement>(
-    '.header_navbar_content .search_box',
+    '.header_navbar_content .search_box, .header_navbar_content .search',
   );
   if (!communityWrap && !portalSearch) return;
 

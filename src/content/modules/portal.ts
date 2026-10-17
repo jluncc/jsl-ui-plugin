@@ -57,8 +57,10 @@ function stripPopoverHeader(): void {
 /** 「发起」入口：header 搜索框右侧（与列表页「发起」按钮同位同款）。
  *  登录态从弹窗菜单搬运并删除菜单项；匿名态弹窗不存在，直接补按钮——
  *  列表页匿名态本就有「发起」，三页 header 保持一致 */
-function movePublishToHeader(): void {
-  const search = document.querySelector('.header_navbar_content .search_box');
+export function movePublishToHeader(): void {
+  const search = document.querySelector(
+    '.header_navbar_content .search_box, .header_navbar_content .search',
+  );
   if (!search) return;
   const menuLink = document.querySelector<HTMLAnchorElement>(
     '.header_navbar_content .popover-menu a.btn[href="/publish/"]',
