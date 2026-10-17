@@ -4072,6 +4072,12 @@ html.jsl.jsl-community .aw-my-inbox .aw-mod-body > .aw-item a:hover {
 
 /* ---- 侧栏导航卡（最新动态/我的草稿/我的收藏…） ---- */
 
+/* 导航卡没有标题条，站方却给 .aw-side-bar-mod 留了 padding-top:20px——
+   第一项上方一大截空白。清零，首项与卡顶的距离交给 body 的 6px 内衬 */
+html.jsl.jsl-community .aw-side-bar-mod-nav {
+  padding: 0 !important;
+}
+
 html.jsl.jsl-community .aw-side-bar-mod-nav > .aw-mod-body {
   padding: 6px;
 }
