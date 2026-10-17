@@ -2572,9 +2572,26 @@ html.jsl.jsl-page-portal .question_list li span {
 
 /* ---- 页脚 ---- */
 
+/* 门户外壳贴底（用户硬约定：footer 恒在页面最底部）：
+   站方 body 内联 display:inline-block，内容比视口短时页脚会悬在半空——
+   首页/日历/登录的页脚都直接挂在 body 下，改成 flex 列 + 内容区吃剩余高度。
+   （登录页同时命中 jsl-page-auth，那边的同款规则与此一致，不冲突） */
+html.jsl.jsl-page-portal body:has(> .footer_bg) {
+  display: flex !important;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+html.jsl.jsl-page-portal body:has(> .footer_bg) > .wrapper_content,
+html.jsl.jsl-page-portal body:has(> .footer_bg) > #wrap {
+  flex: 1 0 auto;
+}
+
 html.jsl.jsl-page-portal .footer_bg {
   background: var(--jsl-surface);
   border-top: 1px solid var(--jsl-border);
+  /* 贴底布局下页脚不参与拉伸 */
+  flex: 0 0 auto;
 }
 
 html.jsl.jsl-page-portal .footer_bg,
@@ -4114,6 +4131,12 @@ html.jsl.jsl-community .aw-side-bar-mod-nav .aw-mod-body > ul > li > a:hover {
 
 /* ---- 个人主页 ---- */
 
+/* 外壳：站方 20px 四向内衬让卡片比 header 基准线内缩 20px——
+   左右清零，卡片左缘 = header logo 左缘、右缘 = 用户名按钮右缘（上下仍留 20px 节奏） */
+html.jsl.jsl-community .aw-user-center {
+  padding: 20px 0;
+}
+
 html.jsl.jsl-community .aw-user-detail-box {
   margin-bottom: 16px;
   padding: 20px;
@@ -4220,7 +4243,23 @@ html.jsl.jsl-community .aw-user-setting .nav-tabs {
   gap: 4px;
   margin: 0;
   padding: 8px 0 0;
-  border-bottom: 1px solid var(--jsl-border);
+}
+
+/* 用户定稿：主 tab 行下去掉横线（设置页 nav-tabs 内是「用户设置」标题条，保留下边线）；
+   胶囊左右各 12px 内衬——整行左移 12px，让首个胶囊的文字（而非底色边缘）与下方正文
+   左缘共线；底色随之外扩到卡片内衬里（GitHub UnderlineNav 同款负边距做法） */
+html.jsl.jsl-community .aw-user-center-tab .nav-tabs {
+  margin-left: -12px;
+  border-bottom: none;
+}
+
+/* Bootstrap clearfix 伪元素在 flex 容器里变成 0 宽子项，各吃掉一头 4px gap，
+   首个胶囊整体右移 4px——与顶栏 .row 同款陷阱，摘除 */
+html.jsl.jsl-community .aw-user-center-tab .nav-tabs::before,
+html.jsl.jsl-community .aw-user-center-tab .nav-tabs::after,
+html.jsl.jsl-community .aw-user-setting .nav-tabs::before,
+html.jsl.jsl-community .aw-user-setting .nav-tabs::after {
+  display: none;
 }
 
 html.jsl.jsl-community .aw-user-center-tab .nav-tabs > li,
@@ -4232,6 +4271,7 @@ html.jsl.jsl-community .aw-user-setting .nav-tabs > li {
 html.jsl.jsl-community .aw-user-center-tab .nav-tabs > li > a,
 html.jsl.jsl-community .aw-user-setting .nav-tabs > li > a {
   display: inline-block;
+  margin: 0;
   padding: 5px 12px;
   border: none !important;
   border-radius: var(--jsl-radius-sm);
@@ -4261,20 +4301,50 @@ html.jsl.jsl-community .aw-user-setting .nav-tabs > li.active > a {
 
 html.jsl.jsl-community .aw-user-center-tab .tab-content {
   padding-top: 8px;
+  /* 站方给 .tab-content 挂了 overflow:auto 作滚动容器——子标签胶囊为对齐正文
+     负边距外扩 10px（x=104 < 内容盒 x=114），左缘会被裁掉；面板内容本就不内滚 */
+  overflow: visible;
 }
 
-/* 各面板首标题与 tab 条的间距统一：站方 h3/h4 带 margin-top:10px，
-   叠加 tab-content 内衬后空隙过大 */
+/* 各面板首标题与 tab 条的间距统一：站方 h3/h4 带 margin-top:10px + padding-top:25px，
+   叠加 tab-content 内衬后标题上方空隙接近 40px——上下内衬全清，只留 tab-content 的 8px */
 html.jsl.jsl-community .aw-user-center-tab .tab-pane > h3,
 html.jsl.jsl-community .aw-user-center-tab .tab-pane > h4,
 html.jsl.jsl-community .aw-user-center-tab .tab-pane h3:first-child,
 html.jsl.jsl-community .aw-user-center-tab .tab-pane h4:first-child {
   margin-top: 0 !important;
+  padding-top: 0 !important;
 }
 
-/* 「详细资料」下的成就/活跃 dl：站方 60px 左右内衬导致与标题错位 60px */
+/* 「详细资料」下的成就/活跃 dl：站方 60px 左右内衬导致与标题错位，归零；
+   站方 dt 左浮动 + dd 左缩进 + 统计行自带 10px 上边距，标签与数值错行——
+   整条 dl 改单行 flex，标签与数值同轴垂直居中；与标题底边线留 10px 呼吸 */
 html.jsl.jsl-community .aw-user-center-details {
+  margin-top: 10px;
   padding: 0 !important;
+}
+
+html.jsl.jsl-community .aw-user-center-details dl {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 10px;
+  padding: 0;
+}
+
+html.jsl.jsl-community .aw-user-center-details dt {
+  flex: 0 0 auto;
+  float: none;
+  margin: 0;
+  padding: 0;
+}
+
+html.jsl.jsl-community .aw-user-center-details dd {
+  margin: 0;
+}
+
+html.jsl.jsl-community .aw-user-center-details .aw-user-center-follow-meta {
+  margin: 0;
 }
 
 html.jsl.jsl-community .aw-user-center-details dl {
@@ -4364,14 +4434,23 @@ html.jsl.jsl-community .aw-user-center-follow-mini-mod img {
 }
 
 /* 「关注的人 / 关注者」标题：站方 18px/700 过重，收敛到小节标题档；
-   左缘对齐头像列（li 自带 14px margin，标题同步缩进） */
+   用户定稿：与面板内子标签、主 tab 的「详细资料」文字同左缘（x=114） */
 html.jsl.jsl-community .aw-user-center-follow-mod > h4 {
-  margin: 0 0 10px 14px;
+  margin: 0 0 10px;
   padding: 0;
   color: var(--jsl-text);
   font-size: 13px;
   font-weight: 600;
   line-height: 20px;
+}
+
+/* 「关注的人」列表：站方每个 li 左右各 14px 外边距（双列间距用），
+   导致首列头像比标题右移 14px、两列间实为 28px——左 margin 归零，
+   头像左缘与「关注的人」标题文字同缘 x=94，右 margin 保留作列间距 */
+html.jsl.jsl-community .aw-user-center-follow-mod > ul > li {
+  position: relative;
+  margin-left: 0 !important;
+  border-bottom: none !important;
 }
 
 html.jsl.jsl-community .aw-user-center-follow-mod .aw-item {
@@ -4382,6 +4461,16 @@ html.jsl.jsl-community .aw-user-center-follow-mod .aw-item {
 
 html.jsl.jsl-community .aw-user-center-follow-mod .aw-user-img img {
   border-radius: 8px;
+}
+
+html.jsl.jsl-community .aw-user-center-follow-mod > ul > li::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 14px;
+  bottom: 0;
+  height: 2px;
+  background: var(--jsl-border);
 }
 
 /* 关注/粉丝头像行 */
@@ -4987,6 +5076,18 @@ html.jsl.jsl-page-data .layout-default {
   color: var(--jsl-text);
 }
 
+/* 贴底（用户硬约定）：数据页页脚挂在 .layout-default 内，不是 body 直系——
+   让布局容器撑满视口、内容区吃剩余高度，短内容时页脚也贴底 */
+html.jsl.jsl-page-data #app > .layout-default {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+html.jsl.jsl-page-data #app > .layout-default > .nav-data {
+  flex: 1 0 auto;
+}
+
 /* header：与门户/社区/日历页同一规格——内容 960 居中（x=245）。
    站方用 JS 写 translateX((innerWidth-1200)/2) 做居中 hack，页面实际
    1686 宽时该值（125）会把 header 右移，必须清零。
@@ -5533,7 +5634,10 @@ html.jsl.jsl-community .aw-user-center-tab .aw-tabs {
   background: transparent;
   border: none;
   padding: 0;
-  margin: 0 0 10px;
+  /* 胶囊左右各 10px 内衬——整行左移 10px，让子标签文字与主 tab 文字同左缘（x=114） */
+  margin: 0 0 10px -10px;
+  /* 站方 .aw-tabs 定高 30px：26px 胶囊盒高 38px，底边溢出压到下方标题 */
+  height: auto;
 }
 
 html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul {
@@ -5550,6 +5654,7 @@ html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul {
 html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul > li {
   float: none;
   margin: 0;
+  height: auto;
   background: transparent;
   border: none;
 }
@@ -5557,6 +5662,8 @@ html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul > li {
 html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul > li > a,
 html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul > li.active > a {
   display: inline-block;
+  /* 站方 a 定高 30px（content-box），把 26px 胶囊撑到 38px */
+  height: auto;
   padding: 4px 10px;
   border: none !important;
   border-radius: var(--jsl-radius-sm);
@@ -5578,24 +5685,12 @@ html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul > li.active > a {
   font-weight: 500;
 }
 
-/* ---- 详细资料 dl 行：站方 1px dotted 分隔（缩放下摩尔纹成虚线）改细实线 ---- */
+/* ---- 详细资料 dl：用户定稿整段去线（站方 dt/dl 自带分隔线，原 1px dotted），
+   只留两组 dl 之间 10px 呼吸（dl 间距与 dt span 样式在上方用户中心主段落） ---- */
 html.jsl.jsl-community .aw-user-center-details dl,
 html.jsl.jsl-community .aw-user-center-details dt,
 html.jsl.jsl-community .aw-user-center-details dd {
-  border-bottom: 1px solid var(--jsl-border);
-  padding-bottom: 10px;
-  margin-bottom: 10px;
-}
-
-html.jsl.jsl-community .aw-user-center-details dd {
   border-bottom: none;
-  padding-bottom: 0;
-  margin-bottom: 0;
-}
-
-html.jsl.jsl-community .aw-user-center-details dt span {
-  color: var(--jsl-text-3);
-  font-size: 12px;
 }
 
 html.jsl.jsl-community .aw-user-center-details dd,
@@ -5608,7 +5703,8 @@ html.jsl.jsl-community .aw-user-center-details .aw-user-center-follow-meta {
    清掉站方 li 的 1px dotted（缩放下摩尔纹成虚线） ---- */
 html.jsl.jsl-community .aw-user-center-dynamic .aw-mod-body > ul {
   margin: 0;
-  padding: 0 15px;
+  /* 用户定稿：动态行文字与「最新动态」标题同左缘 x=114，清站方 15px 左内衬 */
+  padding: 0;
   list-style: none;
 }
 
@@ -5630,9 +5726,12 @@ html.jsl.jsl-community .aw-user-center-dynamic .aw-mod-body > ul > li:not(:last-
   background: var(--jsl-border);
 }
 
-html.jsl.jsl-community .aw-user-center-dynamic .aw-load-more-content {
+/* 「更多...」按钮：动态 / 关注三面板共用同一套描边胶囊
+   （站方浅蓝实底在深色下成亮带）；左右与上方行文字同缘，只留上下节奏 */
+html.jsl.jsl-community .aw-user-center-dynamic .aw-load-more-content,
+html.jsl.jsl-community .aw-user-center-follow-mod .aw-load-more-content {
   display: block;
-  margin: 12px 15px 15px;
+  margin: 12px 0 15px;
   padding: 8px 0 !important;
   border: 1px solid var(--jsl-border) !important;
   border-radius: var(--jsl-radius-sm);
@@ -5646,7 +5745,8 @@ html.jsl.jsl-community .aw-user-center-dynamic .aw-load-more-content {
     border-color 0.12s;
 }
 
-html.jsl.jsl-community .aw-user-center-dynamic .aw-load-more-content:hover {
+html.jsl.jsl-community .aw-user-center-dynamic .aw-load-more-content:hover,
+html.jsl.jsl-community .aw-user-center-follow-mod .aw-load-more-content:hover {
   color: var(--jsl-accent) !important;
   border-color: var(--jsl-accent) !important;
 }

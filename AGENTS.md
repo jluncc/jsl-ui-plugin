@@ -92,8 +92,10 @@ pnpm format  # prettier
 
 - **通知/私信**：主卡 = `.aw-content-wrap > .aw-main-content > .aw-mod`（surface + 1px 边框 + 10px 圆角 + 投影）。卡片头 `.aw-mod-head` 站方是「h2 里塞右浮动按钮」，改 flex + `order` 重排（标题左、设置链接 + 主按钮右），47px 灰底条。列表行 **必须显式清掉站方动态注入的 `border-top:1px dotted`**，否则与本项目 `::after` 的 2px 实线重叠、透出虚线（本页踩过）。「更多...」从站方浅蓝条改居中描边按钮。
 - **私信行**：站方把 `.aw-user-img` **absolute 钉在行右上角**，改 CSS Grid 时必须 `position:static` 拉回流内，否则首列塌成 0、头像浮到文字右侧（本页踩过）。网格首列写死 `40px`。
-- **个人主页**：详情卡 + tab 卡两段。站方 `h1` 写死 `#17344a`（深色 1.34:1）、`.aw-user-flag` 用 dotted 底边、`.aw-text-color-666`（主页访问量）3.01:1，均已令牌化。tab 条复用「编辑式标尺」：底部 1px 边线 + 当前项 `inset 0 -2px` accent 下划线。概览小卡 `h3` 的 DOM 是「`<a>更多»</a>标题」——用 flex 会把「更多」排到标题前，改 **block + `float:right`**。
-- **个人主页 tab 区**：主 tab 改胶囊选中（accent-weak 底 + accent 字，与列表排序行同构）；站方 h3/h4 面板标题带 `margin-top:10px`，叠加 tab-content 内衬后空隙 26px——面板内首个 h3/h4 统一 `margin-top:0`，tab-content 内衬收到 8px。**「详细资料」成就 dl 有 60px 左右内衬**（站方），导致「个人成就/最后活跃」与标题错位——清零（连带 dl 自身 padding/margin）。**「关注的人」h4 对齐头像**：关注列表 li 自带 `margin-left:14px`（双列布局间距），标题同步缩进 14px。**面板内子标签 `.aw-tabs`**（关注的人/关注者/关注的话题）站方 `#f7f7f7` 白底横条，深色下刺眼——透明底 + 12px 胶囊。**「动态」列表**与通知列表同一套行语言（2px 实线分隔 + 居中描边加载按钮），清站方 li dotted。
+- **个人主页**：详情卡 + tab 卡两段。站方 `h1` 写死 `#17344a`（深色 1.34:1）、`.aw-user-flag` 用 dotted 底边、`.aw-text-color-666`（主页访问量）3.01:1，均已令牌化。主 tab 行为纯胶囊、无下边线（见下条）。概览小卡 `h3` 的 DOM 是「`<a>更多»</a>标题」——用 flex 会把「更多」排到标题前，改 **block + `float:right`**。
+- **个人主页 tab 区**：主 tab 改胶囊选中（accent-weak 底 + accent 字，与列表排序行同构），**胶囊行下去掉横线**（用户定稿；设置页 nav-tabs 内是「用户设置」标题条，保留底边线作分割）。**「左对齐」指文字左缘、不是底色边缘**（用户澄清）：胶囊自带 `padding:5px 12px`，文字比内容区右移 12px——`.nav-tabs` 整行 `margin-left:-12px`（GitHub UnderlineNav 负边距做法），使首个胶囊**文字** x=114 与下方 h3/正文同缘（底色外扩进卡片内衬）。**面板标题上方空隙**：站方 h3/h4 是 `margin-top:10px + padding-top:25px` 双份内衬（「详细资料/最新动态/主题/回复」全中招），tab-content 再 8px——全部清到只剩 8px（实测 nav 底到标题文字 10.5px 视觉净空）；面板首 h3/h4 同时清 margin-top/padding-top。**首个胶囊位置**：`.nav-tabs` 打成 flex+gap 后，站方 Bootstrap clearfix 伪元素变成 0 宽 flex 子项、各吃掉一头 4px gap（与顶栏 `.row` 同款陷阱），且站方 `a` 残留 `margin-right:2px`——伪元素 `display:none` + a margin 归零。**「详细资料」成就 dl 有 60px 左右内衬**（站方），导致「个人成就/最后活跃」与标题错位——清零；**站方 dt 左浮动 + dd 左缩进 10px + 统计行自带 10px 上边距**，会把「个人成就:」标签和「威望/赞同/感谢」拆成上下两行——整条 `dl` 改 `display:flex; align-items:center; gap:10px` 单行同轴（label 与数值垂直居中），并清 dt float/dd margin/统计行 margin；**dl 与标题底边线之间补 `margin-top:10px`**（否则紧贴横线，用户反馈）。**「个人成就/最后活跃」下不带任何分隔线**（用户定稿整段去线，站方 dt/dl 的 dotted 一并清；两组 dl 间只留 10px 呼吸）。页面里剩下的那条线是「详细资料」面板标题 h3 的分段底边线，保留。**「关注的人」h4 与子标签文字同左缘**（用户定稿，不再是缩进对齐头像）：关注面板 `.aw-tabs` 子胶囊左右各 10px 内衬 → 容器 `margin-left:-10px`，使子标签文字、h4 与主 tab「详细资料」文字三点同缘（实测 x=94）；**负边距外扩会撞上站方 `.tab-content` 的 `overflow:auto`**（滚动容器从内容盒 x=114 起裁，胶囊左缘 x=104 被切平、圆角消失）——`.tab-content` 改 `overflow:visible`（面板本就不内滚）。**关注列表头像与 h4 同左缘**：站方每个 `li.span5` 左右各 `margin:14px`（双列间距用），首列头像因此比标题右移 14px——`> ul > li { margin-left: 0 !important }`（右 margin 保留作列间距），实测 avatar x=94 = h4 文字 x=94、第二列 x=528；行分隔按项目约定由 1px dotted 改 2px 实线（`li::after`，right 留 14px 避开列间隙）；关注面板的「更多...」按钮站方是浅蓝实底 + 1px 实线边（深色下成亮带），并入动态列表同款透明描边胶囊。**面板内子标签 `.aw-tabs`**（关注的人/关注者/关注的话题）站方 `#f7f7f7` 白底横条，深色下刺眼——透明底 + 12px 胶囊；**站方 `.aw-tabs` 与其内 `a` 均定高 30px（content-box）**，26px 胶囊被撑到 38px、底边溢出压到下方标题——容器与 a 均 `height:auto` 放开（实测容器/胶囊 26px 同底、距 h4 净空 10px）。**「动态」列表**与通知列表同一套行语言（2px 实线分隔 + 居中描边加载按钮），清站方 li dotted；**站方 `#contents_user_actions` 有 15px 左内衬**，行首文字比「最新动态」标题右移——清零后动态行首与标题同缘。**「更多...」按钮左右缘与动态行文字同宽**（用户定稿）：站方给按钮 15px 左右外边距会让它比列表窄一圈——水平 margin 归零，实测按钮 x=94..1185 = 行文字 x=94..1185。
+- **全站 footer 恒贴底（用户硬约定，三种外壳都已覆盖）**：① 社区页（列表/详情/通知/私信/设置/个人主页）——`.jsl-community body` 改 `display:flex; flex-direction:column; min-height:100vh`，`.aw-container-wrap` 加 `flex:1 0 auto`；② 门户外壳（首页/日历/登录）——站方 body 带内联 `display:inline-block`，用 `body:has(> .footer_bg)` 覆盖为 flex 列，`.wrapper_content` / `#wrap` 吃剩余高度；③ 数据页——页脚在 `#app > .layout-default` 内，给该容器 flex 列 + `min-height:100vh`，`.nav-data` 吃剩余高度。实测短内容时页脚底边 = 视口底、间隙 0；长内容时页脚跟在内容末尾不遮挡。
+- **个人主页外壳**：站方 `.aw-user-center` 自带 20px 四向内衬，会让详情卡/tab 卡比 header 基准线内缩 20px——左右清零（`padding: 20px 0`），卡片左缘 x=73 = header logo 左缘、右缘 x=1206 = 用户名按钮右缘（实测同值）。**全站 sticky footer**（用户定稿）：`.jsl-community body` 改 `display:flex; flex-direction:column; min-height:100vh`，`.aw-container-wrap` 加 `flex:1 0 auto`——内容短的页面（个人主页/设置/私信）页脚贴视口底，内容长的页面（列表）页脚仍跟在内容末尾、不遮挡。注意站方 body 可能带内联 `display:inline-block`，登录页已在 `jsl-page-auth` 单独用 `!important` 覆盖，这里社区页无需。
 - **设置页**：三个坑——① `h2` 被站方 `position:absolute` 钉在 tab 条上（与首个 tab 重叠）→ `position:static` 拉回；② 小节标题 `h4` 自带 `background:#f7f7f7`（深色下成白条）→ 归零交给 `.aw-mod-head` 灰底条；③ 头像上传块 `position:absolute` 钉在表单右侧、与 `dl` 内容重叠 → 用 `:has()` 把表单改成两列网格（`minmax(0,1fr) 300px`），头像块变右列卡片。保存按钮所在 div 高度为 0（float 溢出）→ `:has(> .aw-user-setting-save)` 补成卡片页脚条。
 - **通用**：`dl` 网格只作用于表单直接子级（`> dl`），否则上传块内部的 `dl` 会被一起吃成两列。
 
@@ -109,9 +111,9 @@ pnpm lint         # eslint + tsc
 1. **危险 API**：`eval` / `new Function` / `document.write` / `window.open` 缺 noopener
 2. **XSS 面**：`innerHTML` 赋值（当前仅用于内置 SVG 常量，可信）；新增处必须确认内容来源
 3. **CSS 冗余**：`transition: all`（改显式属性）；**声明完全相同**的重复选择器（同一选择器分多条写基础+状态补丁是正常分层，不报）
-4. **体积预算**：`content.js ≤ 30KB`、三段 CSS 合计 ≤ 160KB（超了先查是不是又内联了大段 data URI）
+4. **体积预算**：`content.js ≤ 32KB`、三段 CSS 合计 ≤ 225KB（随覆盖页面从 10 增至 12 页上调；超了先查是不是又内联了大段 data URI）
 
-审查基线（2026-10 首轮）：CSS 142.8KB / content.js 22.7KB；已知可接受项 = 2 处 `innerHTML`（detail.ts 回顶图标、theme-toggle.ts 主题图标，均为内置 SVG 字符串常量）。
+审查基线（2026-10 首轮）：CSS 142.8KB / content.js 22.7KB；当前 ~215KB / 24.4KB（十页 + 用户中心精修后）；已知可接受项 = 2 处 `innerHTML`（detail.ts 回顶图标、theme-toggle.ts 主题图标，均为内置 SVG 字符串常量）。
 
 ## 预览与验收工作流（不装扩展即可验证样式）
 
@@ -140,7 +142,7 @@ pnpm lint         # eslint + tsc
    - 搜索下拉 `.aw-search-dropdown-box`：定位基准是 form 层，站方 `left: -164px / width: 362px`；需把 `.navbar-search` 设 `position: relative; width: 100%` 再 `left/right/top/width` 对齐。
    - 给链接类元素设 `display: inline-flex` 会顶掉 `[hidden]` 的 UA 样式（曾让已隐藏的「首页」复活），需配 `a[hidden] { display: none !important }` 兜底。
    - `.aw-footer` 自带 30px 上下 padding，与扩展层的 padding 叠加会让页脚虚胖。
-   - 顶栏把站方 `.row` 打成 `display: contents` 后，它的 clearfix 伪元素（`::before/::after`，`display: table`）会被提升成 0 宽 flex 子项，各自吃掉两侧 10px gap——logo 前凭空多 10px 偏移、窄屏白占滚动空间；必须 `display: none` 摘除（global.css 顶栏区有现成规则）。
+   - 顶栏把站方 `.row` 打成 `display: contents` 后，它的 clearfix 伪元素（`::before/::after`，`display: table`）会被提升成 0 宽 flex 子项，各自吃掉两侧 10px gap——logo 前凭空多 10px 偏移、窄屏白占滚动空间；必须 `display: none` 摘除（global.css 顶栏区有现成规则）。**任何被接管成 flex+gap 的站方 Bootstrap 容器同款**：个人主页 `.nav-tabs`（flex+gap 4px）首个胶囊被 `::before` 吃掉 4px gap 右移、首项与下方标题错位——同样摘除伪元素。
    - 站方输入控件无全局 `border-box`：`width: 100%` + padding/border 会外溢（搜索框曾撑到 246×36，吃掉与「发起」按钮的间隙），自绘胶囊一律补 `box-sizing: border-box` + 定高。
    - 门户架构页（首页/搜索）的搜索结果与联想弹窗由站方 AJAX 异步渲染，本地预览无后端会被清空——preview.sh 里做了克隆还原兜底（真实站点不受影响）。
    - 站方对部分文案做字符混淆（自定义字体渲染 PUA 字形），扩展环境下是乱码替换符（U+FFFD）——按已知文案还原（如侧栏「特色数据、功能特权」，list.ts）。

@@ -22,6 +22,14 @@ html.jsl.jsl-community body {
   font-family: var(--jsl-font);
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
+  /* 页面比视口短时页脚贴底（用户定稿）：内容区吃掉剩余高度，footer 始终在底部 */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+html.jsl.jsl-community .aw-container-wrap {
+  flex: 1 0 auto;
 }
 
 /* 旧浏览器升级提示，一并安静 */
