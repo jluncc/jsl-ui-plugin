@@ -3764,3 +3764,862 @@ html.jsl.jsl-page-auth .footer_right img {
 html.jsl.jsl-page-auth .footer_left > div:has(.jisilu-icons) {
   display: none !important;
 }
+
+/* ============================================================
+   用户中心：通知 / 私信 / 个人主页 / 设置
+   复用列表・详情的卡片语言：surface + 1px 边框 + 10px 圆角，
+   卡片头 = surface-2 灰底条（47px：11px 15px + 15px/24），
+   列表行 2px 分隔线（1px 在缩放显示下会摩尔纹成虚线）
+   ============================================================ */
+
+/* ---- 通知 / 私信：主卡 + 卡片头 ---- */
+
+html.jsl.jsl-community .aw-content-wrap > .aw-main-content > .aw-mod {
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow);
+  overflow: hidden;
+}
+
+/* 站方卡片头：h2 里塞了右浮动按钮，改为 flex（匿名文本项排最前，
+   两个 .pull-right 按 order 排到右端，用 margin-left:auto 合并推右） */
+html.jsl.jsl-community .aw-my-notifications > .aw-mod-head,
+html.jsl.jsl-community .aw-my-inbox > .aw-mod-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 47px;
+  padding: 0 15px;
+  background: var(--jsl-surface-2);
+  border-bottom: 1px solid var(--jsl-border);
+}
+
+html.jsl.jsl-community .aw-my-notifications > .aw-mod-head > h2,
+html.jsl.jsl-community .aw-my-inbox > .aw-mod-head > h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 24px;
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-community .aw-my-notifications > .aw-mod-head > h2 > .pull-right,
+html.jsl.jsl-community .aw-my-inbox > .aw-mod-head > h2 > .pull-right {
+  float: none !important;
+  margin: 0 !important;
+}
+
+/* 「通知设置/私信设置」：贴右的弱化文字链接（在「全部已读」左侧） */
+html.jsl.jsl-community .aw-my-notifications > .aw-mod-head > h2 > span.pull-right,
+html.jsl.jsl-community .aw-my-inbox > .aw-mod-head > h2 > span.pull-right {
+  order: 1;
+  margin-left: auto !important;
+}
+
+html.jsl.jsl-community .aw-my-notifications > .aw-mod-head > h2 > a.pull-right,
+html.jsl.jsl-community .aw-my-inbox > .aw-mod-head > h2 > a.pull-right {
+  order: 2;
+}
+
+html.jsl.jsl-community .aw-my-notifications > .aw-mod-head > h2 > span a,
+html.jsl.jsl-community .aw-my-inbox > .aw-mod-head > h2 > span a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: var(--jsl-radius-sm);
+  color: var(--jsl-text-2) !important;
+  font-size: 12px;
+  font-weight: 400;
+  text-decoration: none;
+  transition:
+    color 0.12s,
+    background-color 0.12s;
+}
+
+html.jsl.jsl-community .aw-my-notifications > .aw-mod-head > h2 > span a:hover,
+html.jsl.jsl-community .aw-my-inbox > .aw-mod-head > h2 > span a:hover {
+  color: var(--jsl-accent) !important;
+  background: var(--jsl-surface);
+}
+
+/* 卡片头按钮（全部已读 / 新私信）：28px 描边胶囊，主操作实底 */
+html.jsl.jsl-community .aw-my-notifications > .aw-mod-head .btn,
+html.jsl.jsl-community .aw-my-inbox > .aw-mod-head .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--jsl-border-2) !important;
+  border-radius: var(--jsl-radius-sm);
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--jsl-text) !important;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  text-shadow: none !important;
+  transition:
+    color 0.12s,
+    border-color 0.12s,
+    background-color 0.12s;
+}
+
+html.jsl.jsl-community .aw-my-notifications > .aw-mod-head .btn:hover,
+html.jsl.jsl-community .aw-my-inbox > .aw-mod-head .btn:hover {
+  color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+}
+
+/* 「新私信」是主操作：实底 accent */
+html.jsl.jsl-community .aw-my-inbox > .aw-mod-head .btn-success {
+  background: var(--jsl-accent-solid) !important;
+  border-color: var(--jsl-accent-solid) !important;
+  color: var(--jsl-accent-solid-ink) !important;
+}
+
+html.jsl.jsl-community .aw-my-inbox > .aw-mod-head .btn-success:hover {
+  background: var(--jsl-accent-solid-hover) !important;
+  border-color: var(--jsl-accent-solid-hover) !important;
+  color: var(--jsl-accent-solid-ink) !important;
+}
+
+/* 卡片头里的站方精灵图标（齿轮）：深色下几乎不可见，隐藏只留文字 */
+html.jsl.jsl-community .aw-my-notifications > .aw-mod-head .aw-icon,
+html.jsl.jsl-community .aw-my-inbox > .aw-mod-head .aw-icon {
+  display: none !important;
+}
+
+/* ---- 通知列表 ---- */
+
+html.jsl.jsl-community .aw-my-notifications .aw-mod-body > ul {
+  margin: 0;
+  padding: 0 15px;
+  list-style: none;
+}
+
+html.jsl.jsl-community .aw-my-notifications .aw-mod-body > ul > li {
+  position: relative;
+  padding: 13px 0;
+  font-size: 13px;
+  line-height: 22px;
+  color: var(--jsl-text-2);
+  /* 站方每个 li 带 border-top:1px dotted（动态注入），与 ::after 的 2px 实线
+     重叠后会透出细虚线；分隔线统一由 ::after 承担 */
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+html.jsl.jsl-community .aw-my-notifications .aw-mod-body > ul > li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--jsl-border);
+}
+
+html.jsl.jsl-community .aw-my-notifications .aw-mod-body > ul > li > p {
+  margin: 0;
+}
+
+/* 时间戳：等宽数字、三级色；与正文同一行 */
+html.jsl.jsl-community .aw-my-notifications .aw-mod-body > ul > li > p > span:first-child {
+  margin-right: 8px;
+  color: var(--jsl-text-3);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+html.jsl.jsl-community .aw-my-notifications .aw-mod-body > ul > li a {
+  color: var(--jsl-text);
+  text-decoration: none;
+}
+
+html.jsl.jsl-community .aw-my-notifications .aw-mod-body > ul > li a:hover {
+  color: var(--jsl-accent);
+}
+
+/* 「更多...」：从站方浅蓝条改为居中描边按钮 */
+html.jsl.jsl-community .aw-my-notifications > .aw-load-more-content,
+html.jsl.jsl-community .aw-my-inbox > .aw-load-more-content {
+  display: block;
+  margin: 12px 15px 15px;
+  padding: 8px 0 !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: var(--jsl-radius-sm);
+  background: transparent !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 12px;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    color 0.12s,
+    border-color 0.12s;
+}
+
+html.jsl.jsl-community .aw-my-notifications > .aw-load-more-content:hover,
+html.jsl.jsl-community .aw-my-inbox > .aw-load-more-content:hover {
+  color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+}
+
+/* ---- 私信列表：头像左、内容右（三行网格） ---- */
+
+html.jsl.jsl-community .aw-my-inbox .aw-mod-body {
+  padding: 0 15px;
+}
+
+html.jsl.jsl-community .aw-my-inbox .aw-mod-body > .aw-item {
+  /* 同上：站方 1px dotted 会叠在 ::after 实线上 */
+  border-top: none !important;
+  border-bottom: none !important;
+  display: grid;
+  /* 首列显式 40px：站方把头像绝对定位到行右上角，脱离网格流会让 auto 列塌成 0 */
+  grid-template-columns: 40px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: start;
+  position: relative;
+  padding: 15px 0;
+  font-size: 13px;
+  line-height: 22px;
+}
+
+html.jsl.jsl-community .aw-my-inbox .aw-mod-body > .aw-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--jsl-border);
+}
+
+html.jsl.jsl-community .aw-my-inbox .aw-mod-body > .aw-item > .aw-user-img {
+  /* 站方给私信头像 absolute 钉在行右上角（position:absolute; right:0），
+     必须拉回网格流，否则首列无内容、头像浮在文字右侧 */
+  position: static !important;
+  float: none !important;
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin: 0 !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+html.jsl.jsl-community .aw-my-inbox .aw-mod-body > .aw-item > .aw-user-img img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+html.jsl.jsl-community .aw-my-inbox .aw-mod-body > .aw-item > p {
+  grid-column: 2;
+  margin: 0;
+  color: var(--jsl-text-2);
+}
+
+html.jsl.jsl-community .aw-my-inbox .aw-mod-body > .aw-item > p:nth-of-type(1) {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+html.jsl.jsl-community .aw-my-inbox .aw-mod-body > .aw-item > p:nth-of-type(2) {
+  margin-top: 2px;
+  line-height: 22px;
+}
+
+html.jsl.jsl-community .aw-my-inbox .aw-mod-body > .aw-item > p:nth-of-type(3) {
+  margin-top: 6px;
+  color: var(--jsl-text-3);
+  font-size: 12px;
+}
+
+html.jsl.jsl-community .aw-my-inbox .aw-mod-body > .aw-item > p:nth-of-type(3) .pull-right {
+  float: none !important;
+  display: inline-flex;
+  gap: 12px;
+}
+
+html.jsl.jsl-community .aw-my-inbox .aw-mod-body > .aw-item a {
+  color: var(--jsl-text);
+  text-decoration: none;
+}
+
+html.jsl.jsl-community .aw-my-inbox .aw-mod-body > .aw-item a:hover {
+  color: var(--jsl-accent);
+}
+
+/* ---- 侧栏导航卡（最新动态/我的草稿/我的收藏…） ---- */
+
+html.jsl.jsl-community .aw-side-bar-mod-nav > .aw-mod-body {
+  padding: 6px;
+}
+
+html.jsl.jsl-community .aw-side-bar-mod-nav .aw-mod-body > ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+html.jsl.jsl-community .aw-side-bar-mod-nav .aw-mod-body > ul > li {
+  margin: 0;
+}
+
+html.jsl.jsl-community .aw-side-bar-mod-nav .aw-mod-body > ul > li > a {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 34px;
+  padding: 4px 10px;
+  border-radius: var(--jsl-radius-sm);
+  color: var(--jsl-text-2) !important;
+  font-size: 13px;
+  text-decoration: none;
+  transition:
+    color 0.12s,
+    background-color 0.12s;
+}
+
+html.jsl.jsl-community .aw-side-bar-mod-nav .aw-mod-body > ul > li > a:hover {
+  color: var(--jsl-text) !important;
+  background: var(--jsl-surface-2);
+}
+
+/* ---- 个人主页 ---- */
+
+html.jsl.jsl-community .aw-user-detail-box {
+  margin-bottom: 16px;
+  padding: 20px;
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow);
+}
+
+html.jsl.jsl-community .aw-user-detail-box > .aw-mod-body > img {
+  width: 84px !important;
+  height: 84px !important;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+/* 站方 h1 写死 #17344a（深色下 1.34:1），换主文字色并放大到页面标题尺度 */
+html.jsl.jsl-community .aw-user-detail-box h1 {
+  color: var(--jsl-text) !important;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+html.jsl.jsl-community .aw-user-detail-box h1 img[src*='new_user'] {
+  display: none !important;
+}
+
+html.jsl.jsl-community .aw-user-flag {
+  margin: 6px 0 0;
+  padding: 6px 0 12px;
+  border-bottom: 1px solid var(--jsl-border);
+  color: var(--jsl-text-3);
+  font-size: 12px;
+}
+
+/* 「编辑」按钮：与卡片头按钮同款 */
+html.jsl.jsl-community .aw-user-detail-box .aw-user-follow-box .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 28px;
+  padding: 0 14px;
+  border: 1px solid var(--jsl-border-2) !important;
+  border-radius: var(--jsl-radius-sm);
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--jsl-text) !important;
+  font-size: 12px;
+  text-shadow: none !important;
+}
+
+html.jsl.jsl-community .aw-user-detail-box .aw-user-follow-box .btn:hover {
+  color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+}
+
+/* 威望/赞同/感谢统计行：flex 均分，隐藏站方自定义图标字体的乱码字形 */
+html.jsl.jsl-community .aw-user-center-follow-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  margin: 10px 0 0;
+  color: var(--jsl-text-3);
+  font-size: 12px;
+}
+
+html.jsl.jsl-community .aw-user-center-follow-meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+html.jsl.jsl-community .aw-user-center-follow-meta span[style*='jisilu-iconfont'] {
+  display: none !important;
+}
+
+html.jsl.jsl-community .aw-user-center-follow-meta em {
+  font-style: normal;
+  color: var(--jsl-text-2);
+}
+
+html.jsl.jsl-community .aw-user-center-follow-meta .aw-text-color-green,
+html.jsl.jsl-community .aw-user-center-follow-meta .aw-text-color-oragne {
+  color: var(--jsl-text-2) !important;
+}
+
+/* 用户中心 tab 条：底部 1px 边线 + 当前项 2px accent 下划线（与板块标题同一套编辑式标尺） */
+html.jsl.jsl-community .aw-user-center-tab {
+  padding: 0 20px 20px;
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow);
+}
+
+html.jsl.jsl-community .aw-user-center-tab .nav-tabs,
+html.jsl.jsl-community .aw-user-setting .nav-tabs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 8px 0 0;
+  border-bottom: 1px solid var(--jsl-border);
+}
+
+html.jsl.jsl-community .aw-user-center-tab .nav-tabs > li,
+html.jsl.jsl-community .aw-user-setting .nav-tabs > li {
+  float: none;
+  margin: 0;
+}
+
+html.jsl.jsl-community .aw-user-center-tab .nav-tabs > li > a,
+html.jsl.jsl-community .aw-user-setting .nav-tabs > li > a {
+  display: inline-block;
+  padding: 6px 12px;
+  border: none !important;
+  border-radius: var(--jsl-radius-sm) var(--jsl-radius-sm) 0 0;
+  background: transparent !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 13px;
+  line-height: 22px;
+  text-decoration: none;
+  transition:
+    color 0.12s,
+    background-color 0.12s;
+}
+
+html.jsl.jsl-community .aw-user-center-tab .nav-tabs > li > a:hover,
+html.jsl.jsl-community .aw-user-setting .nav-tabs > li > a:hover {
+  color: var(--jsl-text) !important;
+  background: var(--jsl-surface-2) !important;
+}
+
+html.jsl.jsl-community .aw-user-center-tab .nav-tabs > li.active > a,
+html.jsl.jsl-community .aw-user-setting .nav-tabs > li.active > a {
+  color: var(--jsl-text) !important;
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 0 var(--jsl-accent);
+}
+
+html.jsl.jsl-community .aw-user-center-tab .tab-content {
+  padding-top: 16px;
+}
+
+/* 概览双列小卡：标题条 + 2px 分隔的行 */
+html.jsl.jsl-community .aw-user-center-mini-mod {
+  margin-bottom: 16px;
+}
+
+/* 小卡标题：站方 DOM 是「<a>更多 »</a>回复」——flex 会把 a 排到文字前，
+   改用块级 + 右浮动，标题文字自然居左、更多靠右 */
+html.jsl.jsl-community .aw-user-center-mini-mod h3 {
+  display: block;
+  margin: 0 0 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--jsl-border);
+  color: var(--jsl-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+  overflow: hidden;
+}
+
+html.jsl.jsl-community .aw-user-center-mini-mod h3 > .aw-more-content {
+  float: right;
+  color: var(--jsl-accent) !important;
+  font-size: 12px;
+  font-weight: 400;
+  text-decoration: none;
+}
+
+html.jsl.jsl-community .aw-user-center-mini-mod .aw-mod-body {
+  padding: 0;
+}
+
+/* 站方 #666 辅助文字（主页访问量等）：深色下仅 3.01:1 */
+html.jsl.jsl-community .aw-user-detail-box .aw-text-color-666,
+html.jsl.jsl-community .aw-user-detail-box .aw-text-color-666 a {
+  color: var(--jsl-text-3) !important;
+}
+
+/* 「关注」大标题：站方 h3 写死 20px/#17344a + #ccc 底边（深色下不可读且过重），
+   收敛到与小卡标题同一档 */
+html.jsl.jsl-community .tab-pane.active h3 {
+  color: var(--jsl-text) !important;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--jsl-border);
+}
+
+/* 「关注 16 人 / 关注者 0 人」：站方 16px 粗体，压到与正文同档 */
+html.jsl.jsl-community .aw-user-center-follow-mini-mod {
+  margin-top: 10px;
+  color: var(--jsl-text-2);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+html.jsl.jsl-community .aw-user-center-follow-mini-mod h4,
+html.jsl.jsl-community .aw-user-center-follow-mini-mod .aw-mod-head {
+  margin: 0 0 8px;
+  color: var(--jsl-text-2) !important;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+html.jsl.jsl-community .aw-user-center-follow-mini-mod .pull-left {
+  float: none !important;
+}
+
+html.jsl.jsl-community .aw-user-center-follow-mini-mod img {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+/* 关注/粉丝头像行 */
+html.jsl.jsl-community .aw-user-center-follow-meta img,
+html.jsl.jsl-community .aw-user-center-mini-mod img {
+  border-radius: 6px;
+}
+
+/* ---- 设置页 ---- */
+
+html.jsl.jsl-community .aw-user-setting {
+  padding: 0;
+  background: transparent;
+}
+
+/* 「用户设置」标题：站方 h2 在 tab 条内、写死 #17344a，改为主文字色并推到左端 */
+html.jsl.jsl-community .aw-user-setting .nav-tabs > h2 {
+  order: -1;
+  /* 站方把 h2 absolute 钉在 tab 条上（与第一个 tab 重叠），拉回 flex 流 */
+  position: static !important;
+  margin: 0 auto 0 0 !important;
+  padding: 0 0 8px !important;
+  color: var(--jsl-text) !important;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 28px;
+  white-space: nowrap;
+}
+
+html.jsl.jsl-community .aw-user-setting .tab-content {
+  padding-top: 16px;
+}
+
+html.jsl.jsl-community .aw-user-setting .aw-mod {
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow);
+  overflow: hidden;
+}
+
+/* 设置页小节标题条（会员信息 / 基本信息）：站方透明 40px，改为灰底条 */
+html.jsl.jsl-community .aw-user-setting .aw-mod-head {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 20px;
+  background: var(--jsl-surface-2);
+  border-bottom: 1px solid var(--jsl-border);
+  color: var(--jsl-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+html.jsl.jsl-community .aw-user-setting .aw-mod-head h3,
+html.jsl.jsl-community .aw-user-setting .aw-mod-head h4 {
+  margin: 0;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 24px;
+  color: var(--jsl-text) !important;
+}
+
+/* 表单区：点线分隔改实线，内衬收到 20px */
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-layout {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--jsl-border);
+  color: var(--jsl-text-2);
+  font-size: 13px;
+}
+
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-layout:last-child {
+  border-bottom: none;
+}
+
+/* dl 行：标签定宽左列、内容右列（原有 dd 自由排会随内容跳动） */
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-layout > dl {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px 0;
+  margin: 0 0 14px;
+}
+
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-layout > dl:last-of-type {
+  margin-bottom: 0;
+}
+
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-layout > dl > dt {
+  color: var(--jsl-text-3);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 30px;
+  text-align: right;
+}
+
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-layout > dl > dd {
+  margin: 0;
+  color: var(--jsl-text);
+  font-size: 13px;
+  line-height: 30px;
+}
+
+/* ---- 头像上传块：站方 absolute 钉在表单右侧并与 dl 内容重叠，
+   改为表单内的独立右列卡片（两列网格） ---- */
+html.jsl.jsl-community
+  .aw-user-setting
+  .aw-user-setting-layout:has(.aw-user-setting-upload-img-box) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  column-gap: 28px;
+  align-items: start;
+}
+
+html.jsl.jsl-community
+  .aw-user-setting
+  .aw-user-setting-layout:has(.aw-user-setting-upload-img-box) > dl {
+  grid-column: 1;
+}
+
+html.jsl.jsl-community .aw-user-setting-upload-img-box {
+  position: static !important;
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 14px !important;
+  background: var(--jsl-surface-2);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius-sm);
+}
+
+/* 头像块内部：头像在上、说明在下（站方 dt/dd 双浮动） */
+html.jsl.jsl-community .aw-user-setting-upload-img-box > dl {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 0 !important;
+}
+
+html.jsl.jsl-community .aw-user-setting-upload-img-box > dl > dt,
+html.jsl.jsl-community .aw-user-setting-upload-img-box > dl > dd {
+  float: none !important;
+  margin: 0 !important;
+  width: auto !important;
+  text-align: center;
+}
+
+html.jsl.jsl-community .aw-user-setting-upload-img-box img#avatar_src {
+  display: block;
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+html.jsl.jsl-community .aw-user-setting-upload-img-box h5 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-community .aw-user-setting-upload-img-box p {
+  margin: 0 0 8px;
+  color: var(--jsl-text-3);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+/* ---- 保存条：站方容器高度为 0（按钮 float 溢出），补 flex 容器并做成卡片页脚 ---- */
+html.jsl.jsl-community .aw-user-setting .tab-content > div:has(> .aw-user-setting-save) {
+  display: flex !important;
+  justify-content: flex-end;
+  align-items: center;
+  box-sizing: border-box;
+  height: auto !important;
+  margin-top: 14px;
+  padding: 12px 20px;
+  background: var(--jsl-surface);
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  box-shadow: var(--jsl-shadow);
+}
+
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-save {
+  float: none !important;
+  margin: 0 !important;
+}
+
+/* 设置页按钮：28px 胶囊；success 实底、danger 语义红、禁用降透明度 */
+html.jsl.jsl-community .aw-user-setting .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--jsl-border-2) !important;
+  border-radius: var(--jsl-radius-sm);
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--jsl-text) !important;
+  font-size: 12px;
+  line-height: 1;
+  text-shadow: none !important;
+  vertical-align: middle;
+}
+
+html.jsl.jsl-community .aw-user-setting .btn-success {
+  background: var(--jsl-accent-solid) !important;
+  border-color: var(--jsl-accent-solid) !important;
+  color: var(--jsl-accent-solid-ink) !important;
+}
+
+html.jsl.jsl-community .aw-user-setting .btn-success:hover {
+  background: var(--jsl-accent-solid-hover) !important;
+  border-color: var(--jsl-accent-solid-hover) !important;
+}
+
+/* 危险操作实底：--jsl-up 在深色下是 #f0655a，白字仅 3.13:1；
+   实底改压暗的红（白字 6.04:1），文字语义色仍可用 --jsl-up */
+html.jsl.jsl-community .aw-user-setting .btn-danger {
+  background: #b33534 !important;
+  border-color: #b33534 !important;
+  color: #fff !important;
+}
+
+html.jsl.jsl-community .aw-user-setting .btn-danger:hover {
+  filter: brightness(0.92);
+}
+
+html.jsl.jsl-community .aw-user-setting .btn.disabled,
+html.jsl.jsl-community .aw-user-setting .btn[disabled],
+html.jsl.jsl-community .aw-user-setting .btn-disabled {
+  opacity: 0.45 !important;
+  pointer-events: none;
+  cursor: default;
+}
+
+/* 「保存」：主按钮尺度（34px），推到右缘 */
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-save {
+  height: 34px !important;
+  padding: 0 22px !important;
+  font-size: 13px !important;
+}
+
+/* 设置页输入框：surface-2 胶囊 + 聚焦亮边界（与登录页/搜索框同源） */
+html.jsl.jsl-community .aw-user-setting input[type='text'],
+html.jsl.jsl-community .aw-user-setting input[type='password'],
+html.jsl.jsl-community .aw-user-setting input[type='email'],
+html.jsl.jsl-community .aw-user-setting textarea {
+  box-sizing: border-box;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid transparent !important;
+  border-radius: var(--jsl-radius-sm) !important;
+  background: var(--jsl-surface-2) !important;
+  box-shadow: none !important;
+  color: var(--jsl-text) !important;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+html.jsl.jsl-community .aw-user-setting textarea {
+  height: auto;
+  min-height: 64px;
+  padding: 8px 10px;
+  line-height: 20px;
+}
+
+html.jsl.jsl-community .aw-user-setting input:focus,
+html.jsl.jsl-community .aw-user-setting textarea:focus {
+  border-color: var(--jsl-border-2) !important;
+  background: var(--jsl-surface) !important;
+  outline: none;
+}
+
+/* 站方内联红字（非会员、更名提示）：深色下纯红 4.32:1，换语义红 */
+html.jsl.jsl-community .aw-user-setting [style*='color:red'],
+html.jsl.jsl-community .aw-user-setting [style*='color: red'] {
+  color: var(--jsl-up) !important;
+}
+
+/* 头像上传说明里的站方灰字 */
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-base dd span {
+  color: inherit;
+}
+
+/* 保存前的点线分隔 */
+html.jsl.jsl-community .aw-user-setting hr {
+  border: none;
+  border-top: 1px solid var(--jsl-border);
+  margin: 18px 0;
+}
