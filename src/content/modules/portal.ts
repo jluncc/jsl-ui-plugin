@@ -175,20 +175,22 @@ function unfoldCalendar(): void {
 
 /** 本周热点正文：站方 <br> 分隔的 4 条事件重排为竖排编号列表（原设计即竖排，
  *  双栏网格留白零碎，用户否决）。行高均分卡片剩余高度、1px 细线分隔，
- *  首条（当期头条）加重；标题条简化为区名「本周热点」——原标题就是首条事件，重复 */
+ *  首条（当期头条）加重；标题条简化为区名「本周热点」——原标题就是首条事件，重复。
+ *  节点直接移动而非 innerHTML 重解析：更快，且保留站方绑在链接上的事件。 */
 function layoutInvestmentEvents(): void {
   const text = document.querySelector<HTMLElement>('.first_column .right .content .text');
   if (!text || text.querySelector('.jsl-event-list')) return;
 
-  // 按 <br> 切分事件段（保留段内子节点），清掉站方换行带来的首尾空白
-  const segments: string[] = [];
+  // 按 <br> 切分事件段（保留段内节点引用）
+  const segments: Node[][] = [];
   let buffer: Node[] = [];
   const flush = () => {
     if (buffer.length === 0) return;
-    const wrap = document.createElement('div');
-    for (const node of buffer) wrap.appendChild(node.cloneNode(true));
-    const html = wrap.innerHTML.replace(/^[\s\u00a0]+/, '').trim();
-    if (html) segments.push(html);
+    const hasContent = buffer.some(
+      (node) =>
+        node.nodeType === Node.ELEMENT_NODE || (node.textContent ?? '').trim().length > 0,
+    );
+    if (hasContent) segments.push(buffer);
     buffer = [];
   };
   for (const node of [...text.childNodes]) {
@@ -211,7 +213,16 @@ function layoutInvestmentEvents(): void {
     index.textContent = String(i + 1).padStart(2, '0');
     const txt = document.createElement('span');
     txt.className = 'txt';
-    txt.innerHTML = segment;
+
+    for (const node of segment) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        // 站方 <br> 后的换行缩进一并清掉；清空后的纯空白节点直接丢弃
+        node.textContent = (node.textContent ?? '').replace(/^[\s\u00a0]+/, '');
+        if (!node.textContent) continue;
+      }
+      txt.appendChild(node);
+    }
+
     // 首段文本按首个「：」拆出事件名称（站方日后若改为「名称：描述」格式）
     const first = txt.firstChild;
     if (first && first.nodeType === Node.TEXT_NODE) {
@@ -225,6 +236,7 @@ function layoutInvestmentEvents(): void {
         txt.insertBefore(name, first);
       }
     }
+
     row.append(index, txt);
     list.appendChild(row);
   });

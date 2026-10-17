@@ -24,6 +24,25 @@ pnpm format  # prettier
 - **侧栏「发起人」卡（.aw-side-bar-mod-body dl）**：头像上边缘 = **用户名文字**上边缘（用户定稿，实测双主题 116.5=116.5）。实现：`dl` flex + `align-items:flex-start`、dt/dd 零 margin、`dt` 与 `dt a` flex/block + `line-height:0`、`img` block，再给 `dt` 加 `margin-top:4.5px`——dd 首行是 20px 行盒里 12px 的字，文字实际绘制在行盒内下沉约 4.5px，纯顶对齐会让头像比名字高一截。三个坑：① 不能用 `align-items:center`（dd 含多行简介 81px，头像会落到整块中线）；② 不要做中线对齐；③ **"上边缘齐平"指文字上边缘，不是 dd 块上边缘**。此类「头像+多行信息」卡一律按文字上边缘校准。
 - **DOM 增强**：`src/content/modules/list.ts`（合并导航、侧栏重排）、`detail.ts`（楼层号、回顶按钮）、`portal.ts`（门户首页内容区重排：温度计上移、收费数据移除、APP 链接入页脚）、`theme-toggle.ts`（顶栏主题切换按钮）。
 - **设置**：`src/shared/settings.ts`，chrome.storage.sync，含总开关与模块开关；options 页在 `static/options.html`。
+- **首帧无闪烁**：`applyThemeEarly()` + `applyEnabledEarly()` 在 document_start 同步读 localStorage 缓存（`jsl-polish-theme` / `jsl-polish-enabled`）先定 `data-theme` 与 `jsl` 类，chrome.storage 异步回包后再对齐；`saveSettings()` 同时写缓存。
+- **设置变更策略**：主题即时生效；总开关/模块开关涉及单向 DOM 变换，无法低成本撤销 → `location.reload()`（避免"关掉扩展但卡片头还在"的半应用状态）。
+- **事件委托**：列表整行点击、详情回复里的图片 load/error 复检都走容器级委托，不逐元素挂 handler。
+
+## 定期非功能性体检
+
+```bash
+pnpm audit:code   # 零依赖源码体检，有 error 退出码 1
+pnpm lint         # eslint + tsc
+```
+
+`scripts/audit.mjs` 检查四类信号，建议每积累一批改动跑一次：
+
+1. **危险 API**：`eval` / `new Function` / `document.write` / `window.open` 缺 noopener
+2. **XSS 面**：`innerHTML` 赋值（当前仅用于内置 SVG 常量，可信）；新增处必须确认内容来源
+3. **CSS 冗余**：`transition: all`（改显式属性）；**声明完全相同**的重复选择器（同一选择器分多条写基础+状态补丁是正常分层，不报）
+4. **体积预算**：`content.js ≤ 30KB`、三段 CSS 合计 ≤ 160KB（超了先查是不是又内联了大段 data URI）
+
+审查基线（2026-10 首轮）：CSS 142.8KB / content.js 22.7KB；已知可接受项 = 2 处 `innerHTML`（detail.ts 回顶图标、theme-toggle.ts 主题图标，均为内置 SVG 字符串常量）。
 
 ## 预览与验收工作流（不装扩展即可验证样式）
 

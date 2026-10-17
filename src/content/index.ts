@@ -1,11 +1,13 @@
-import { loadSettings, watchSettings } from '../shared/settings';
+import { applyEnabledEarly, loadSettings, watchSettings, type Settings } from '../shared/settings';
 import { applyThemeEarly, syncTheme } from './theme';
 import { enhanceListPage } from './modules/list';
 import { enhanceDetailPage } from './modules/detail';
 import { enhancePortalHome } from './modules/portal';
 import { injectThemeToggle } from './modules/theme-toggle';
 
+// document_start：同步定主题与总开关，避免异步设置回包前闪一下站点原样式
 applyThemeEarly();
+applyEnabledEarly();
 
 function applyPageFlags(): void {
   const root = document.documentElement;
@@ -19,9 +21,23 @@ function applyPageFlags(): void {
   }
 }
 
-function applySettings(settings: { enabled: boolean; themeMode: 'auto' | 'light' | 'dark' }): void {
+/** 总开关与主题即时生效；模块开关（列表/详情）涉及单向 DOM 变换，
+ *  无法低成本撤销，变更后重载页面让两侧状态一致 */
+let lastSettings: Settings | null = null;
+
+function applySettings(settings: Settings): void {
+  const previous = lastSettings;
+  lastSettings = settings;
+
   document.documentElement.classList.toggle('jsl', settings.enabled);
   syncTheme(settings.themeMode);
+
+  const structuralChange =
+    previous !== null &&
+    (previous.enabled !== settings.enabled ||
+      previous.modernList !== settings.modernList ||
+      previous.modernDetail !== settings.modernDetail);
+  if (structuralChange) location.reload();
 }
 
 /** 门户导航简化：去掉「首页」入口、「社区-知识库」简化为「社区」（与社区页导航一致） */

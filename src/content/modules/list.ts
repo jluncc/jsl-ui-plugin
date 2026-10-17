@@ -8,17 +8,23 @@ export function enhanceListPage(): void {
   mergePromoIntoMemberCard();
 }
 
-/** 帖子行整行可点击跳转（行内已有链接保持原生行为） */
+/** 帖子行整行可点击跳转（行内已有链接保持原生行为）。
+ *  用事件委托：一个监听覆盖所有行，避免 30+ 行各挂一个 handler；
+ *  noopener/noreferrer 阻止新窗口通过 window.opener 反向控制本页 */
 function makeRowsClickable(list: HTMLElement): void {
   for (const item of list.querySelectorAll<HTMLElement>('.aw-item')) {
-    const link = item.querySelector<HTMLAnchorElement>('.aw-questoin-content h4 a');
-    if (!link) continue;
     item.classList.add('jsl-clickable');
-    item.addEventListener('click', (event) => {
-      if ((event.target as Element).closest('a')) return;
-      window.open(link.href, '_blank');
-    });
   }
+
+  list.addEventListener('click', (event) => {
+    const target = event.target as Element;
+    // 行内链接/按钮走原生行为（含中键、修饰键）
+    if (target.closest('a, button')) return;
+    const item = target.closest<HTMLElement>('.aw-item');
+    if (!item || !list.contains(item)) return;
+    const link = item.querySelector<HTMLAnchorElement>('.aw-questoin-content h4 a');
+    if (link) window.open(link.href, '_blank', 'noopener,noreferrer');
+  });
 }
 
 /** 手绘稿：卡片顶部两行导航——第一行分类+话题，第二行排序；BBS 开关与权益说明随分类条移除 */

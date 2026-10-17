@@ -2,3 +2,6 @@ node_modules/
 dist/
 *.log
 .DS_Store
+
+# 调试用整页注入脚本（非源码，由 preview/真机验证临时生成）
+inject.js

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "JSL Polish · 集思录现代化",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "为集思录社区带来现代化界面：深浅双主题、现代排版与更舒适的阅读体验",
   "minimum_chrome_version": "114",
   "icons": {
@@ -9,7 +9,9 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["storage"],
+  "permissions": [
+    "storage"
+  ],
   "background": {
     "service_worker": "scripts/background.js"
   },
@@ -18,9 +20,17 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://www.jisilu.cn/*"],
-      "js": ["scripts/content.js"],
-      "css": ["styles/tokens.css", "styles/global.css", "styles/community.css"],
+      "matches": [
+        "https://www.jisilu.cn/*"
+      ],
+      "js": [
+        "scripts/content.js"
+      ],
+      "css": [
+        "styles/tokens.css",
+        "styles/global.css",
+        "styles/community.css"
+      ],
       "run_at": "document_start"
     }
   ],

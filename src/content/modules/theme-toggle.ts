@@ -17,6 +17,13 @@ const MOON_SVG = `
 export function injectThemeToggle(): void {
   if (document.querySelector('.jsl-theme-toggle')) return;
 
+  // 先定注入点：不匹配的页面（如文章页/数据页）不必创建按钮与 MutationObserver
+  const communityWrap = document.querySelector<HTMLElement>('.aw-top-menu-wrap');
+  const portalSearch = document.querySelector<HTMLElement>(
+    '.header_navbar_content .search_box',
+  );
+  if (!communityWrap && !portalSearch) return;
+
   const button = document.createElement('button');
   button.className = 'jsl-theme-toggle';
   button.type = 'button';
@@ -41,13 +48,9 @@ export function injectThemeToggle(): void {
   syncIcon();
 
   // 社区页：WeCenter 顶栏末尾；门户首页：搜索框之后（右侧控件簇的起点）
-  const communityWrap = document.querySelector<HTMLElement>('.aw-top-menu-wrap');
   if (communityWrap) {
     communityWrap.appendChild(button);
     return;
   }
-  const portalSearch = document.querySelector<HTMLElement>(
-    '.header_navbar_content .search_box',
-  );
   portalSearch?.insertAdjacentElement('afterend', button);
 }
