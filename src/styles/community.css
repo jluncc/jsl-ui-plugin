@@ -2111,19 +2111,45 @@ html.jsl.jsl-page-portal .header_navbar_content .popover .arrow {
   display: none !important;
 }
 
-/* 通知弹窗等其余 popover：外壳并入卡片语言（站方白底黑框替换） */
+/* 通知弹窗等其余 popover：与社区页 .aw-message-dropdown 同一套卡片语言——
+   surface 卡 + 1px 边框 + 10px 圆角、6px 内衬、内容区零内边距、正文 8/12 与 12px 三级色；
+   站方写死 250px 宽、10/14 内衬，视觉比社区页松一圈，这里统一收窄 */
 html.jsl.jsl-page-portal .header_navbar_content .popover:not(.user_menu_popover) {
   background: var(--jsl-surface);
   border: 1px solid var(--jsl-border);
   border-radius: var(--jsl-radius);
   box-shadow: var(--jsl-shadow-pop);
-  padding: 0;
+  padding: 6px !important;
+  width: auto !important;
+  min-width: 148px !important;
+  max-width: 320px;
 }
 
 html.jsl.jsl-page-portal .header_navbar_content .popover:not(.user_menu_popover) .popover-content {
-  padding: 10px 14px;
+  padding: 0 !important;
+  /* 站方给 .popover-content 写死 250px（社区页对应浮层只有 148）；
+     宽度交还给内容，空态/短文本时与社区页同样收窄 */
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 320px;
   color: var(--jsl-text-3);
-  font-size: 13px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* 空态/列表项：与社区页 p 的 8px 12px 节奏一致 */
+html.jsl.jsl-page-portal .header_navbar_content .popover:not(.user_menu_popover) .popover-content p,
+html.jsl.jsl-page-portal .header_navbar_content .popover:not(.user_menu_popover) .popover-content li {
+  margin: 0 !important;
+  padding: 8px 12px !important;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+  white-space: nowrap;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .popover:not(.user_menu_popover) .popover-content li {
+  list-style: none;
 }
 
 html.jsl.jsl-page-portal .header_navbar_content .popover:not(.user_menu_popover) .popover-content a {
@@ -2152,6 +2178,12 @@ html.jsl.jsl-page-portal .user_menu_popover {
 
 html.jsl.jsl-page-portal .user_menu_popover .popover-content {
   padding: 0 !important;
+  /* 站方给外层 .popover-content 写死 295px；外层 popover 被 max-width 收到 260，
+     内层菜单仅 148 且左对齐 → 菜单右缘比用户按钮右缘短 112px（用户反馈没对齐）。
+     宽度交还给内层菜单，外层 max-content 收缩后 right:0 才能贴住按钮右缘 */
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
 }
 
 /* 外层 popover-content 的站方内边距/描边交给我们自己的卡片 */
