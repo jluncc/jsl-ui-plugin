@@ -3,6 +3,7 @@ import { applyThemeEarly, syncTheme } from './theme';
 import { enhanceListPage } from './modules/list';
 import { enhanceDetailPage } from './modules/detail';
 import { enhancePortalHome, movePublishToHeader, reorganizePortalFooter } from './modules/portal';
+import { enhanceSettingsPage } from './modules/settings';
 import { injectThemeToggle } from './modules/theme-toggle';
 
 // document_start：同步定主题与总开关，避免异步设置回包前闪一下站点原样式
@@ -157,6 +158,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (settings.modernDetail && document.querySelector('.aw-question-detail-box')) {
         enhanceDetailPage();
+      }
+      // 设置页：会员信息 / 基本信息两张卡拆分（用户定稿）
+      if (document.querySelector('.aw-user-setting')) {
+        enhanceSettingsPage();
       }
       // 门户首页内容区重排（温度计上移/收费数据移除/APP 链接入页脚），
       // 以文章标题条的温度计容器为门户首页标志（搜索页等其他门户架构页不命中）

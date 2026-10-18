@@ -371,8 +371,9 @@ sim = """
       ctx.save();
       ctx.scale(dpr, dpr);
       ctx.clearRect(0, 0, 100, 80);
-      // 盘面上抬（cy=56），文案基线 cy+20——弧脚与文字间留足空隙
-      var cx = 50, cy = 56, r = 38;
+      // 盘面 center 58%（模拟 nudgeGaugeLabels 的 center ['50%','58%']，默认 50%
+      // 时上方 2px/下方 14px 头重脚轻）——cy=46 让盘面+文字整体上下居中
+      var cx = 50, cy = 46, r = 38;
       var segs = [[0, '#00CCFF'], [0.25, '#468847'], [0.5, '#F89406'], [0.75, '#B94A48']];
       segs.forEach(function (s, idx) {
         var end = idx < segs.length - 1 ? segs[idx + 1][0] : 1;
@@ -409,7 +410,8 @@ sim = """
       ctx.fillStyle = ink;
       ctx.font = '600 12px -apple-system, "PingFang SC", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(label + ' ' + value + '\u2103', cx, cy + 20);
+      // 文字基线 cy+22：模拟 offsetCenter [0,'50%']（站方 35%），盘面与文字留出空隙
+      ctx.fillText(label + ' ' + value + '\u2103', cx, cy + 22);
       ctx.restore();
     });
     // 门户搜索框：curl 快照是服务端 HTML，站方 JS 运行时才构建表单（与真实站点结构一致）；
@@ -553,6 +555,70 @@ sim = """
       '<div class="search_item"><a href="javascript:;"><div class="search_text">2026 转债策略及实盘</div><div class="search_info">495 个回答</div></a></div></div>';
     portalSearchBox.appendChild(dd);
   }
+
+  // 设置页：会员信息 / 基本信息拆成两张独立卡 + 单行信息归整（与 settings.ts 同步）
+  (function () {
+    // 保存按钮无包裹 div / 在 form 内时，补一层包裹 div 到 tab-content 末尾
+    //（与 settings.ts wrapSaveButton 同步）
+    var save = document.querySelector('.aw-user-setting .tab-content .aw-user-setting-save');
+    if (save) {
+      var sp = save.parentElement;
+      var inForm = sp && sp.tagName === 'FORM';
+      var direct = sp && sp.classList && sp.classList.contains('tab-content');
+      if (inForm || direct) {
+        var wrap = document.createElement('div');
+        if (inForm) {
+          var tc0 = sp.closest('.tab-content');
+          if (tc0) tc0.appendChild(wrap);
+        } else {
+          save.replaceWith(wrap);
+        }
+        wrap.appendChild(save);
+      }
+    }
+    var mod = document.querySelector('.aw-user-setting .tab-content > .aw-mod');
+    if (mod && mod.dataset.jslSplit !== '1') {
+      var children = Array.prototype.slice.call(mod.children);
+      var secondHead = -1;
+      children.forEach(function (el, index) {
+        if (index > 0 && secondHead < 0 && el.classList.contains('aw-mod-head')) secondHead = index;
+      });
+      if (secondHead > 0) {
+        var first = document.createElement('div');
+        first.className = 'aw-mod';
+        var second = document.createElement('div');
+        second.className = 'aw-mod';
+        children.forEach(function (child, index) {
+          (index < secondHead ? first : second).appendChild(child);
+        });
+        first.dataset.jslSplit = '1';
+        second.dataset.jslSplit = '1';
+        mod.replaceWith(first, second);
+      }
+    }
+    document.querySelectorAll('.aw-user-setting .aw-user-setting-layout').forEach(function (layout) {
+      Array.prototype.slice.call(layout.querySelectorAll(':scope > dl')).forEach(function (dl) {
+        Array.prototype.slice.call(dl.querySelectorAll(':scope > dd')).forEach(function (dd) {
+          if (!(dd.textContent || '').trim() && !dd.querySelector('input, img, select, textarea, button')) dd.remove();
+        });
+        var dd = dl.querySelector(':scope > dd');
+        if (!dd) return;
+        var dtText = ((dl.querySelector(':scope > dt') || {}).textContent || '').trim();
+        var inlineRow = dtText.indexOf('绑定手机') === 0 || dd.classList.contains('aw-user-setting-base-introduce');
+        if (!inlineRow) return;
+        dl.classList.add('jsl-inline-row');
+        dd.querySelectorAll('span, a').forEach(function (el) {
+          el.style.removeProperty('padding-left');
+          el.style.removeProperty('margin-left');
+        });
+        dd.querySelectorAll('span').forEach(function (span) {
+          Array.prototype.slice.call(span.childNodes).forEach(function (node) {
+            if (node.nodeType === 3 && !(node.textContent || '').replace(/[\s\u00a0]/g, '')) node.remove();
+          });
+        });
+      });
+    });
+  })();
 
   // 长回复折叠
   document.querySelectorAll('.aw-dynamic-topic > .aw-item').forEach(function (item) {

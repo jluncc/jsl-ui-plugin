@@ -2466,11 +2466,10 @@ html.jsl.jsl-page-portal #home-calendar .events-area {
   padding-right: 15px;
 }
 
-/* 投资事件多时（站方 JS 把 #events-area 内联高度设为 245px，少/无事件 72px）：
-   原站靠左卡 height:315 + overflow-y:auto 整卡滚动；我们放开左卡高度后，
-   卡片自身的 overflow:hidden（圆角裁剪）会把超出内容直接裁掉且无法滚动。
-   改为事件区自身滚动——日期行固定、列表内部滚动；无溢出时不出滚动条 */
+/* 事件区固定 174px = 5px 内衬 + 4×41px 条目 + 5px 内衬（用户定稿：可见四行），
+   第 5 条起内部滚动；!important 压过站方按事件量写的 72/245px 内联 height */
 html.jsl.jsl-page-portal #events-area {
+  height: 174px !important;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
@@ -2514,6 +2513,28 @@ html.jsl.jsl-page-portal .rest-sub {
 html.jsl.jsl-page-portal .cal-date,
 html.jsl.jsl-page-portal .cal-weekday {
   color: var(--jsl-text);
+}
+
+/* 日期行：站方 .cal-weekday 带 padding-left:50px 且四项均可收缩，会把日期挤成两行。
+   清内衬 + 日期 nowrap/禁收缩；站方 baseline 让 11px 星期几下沉 → 改 center */
+html.jsl.jsl-page-portal .cal-top-row {
+  align-items: center !important;
+}
+
+html.jsl.jsl-page-portal .cal-top-row .cal-date {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+html.jsl.jsl-page-portal .cal-top-row .cal-weekday {
+  margin-left: 12px; /* 用户定稿：与日期/箭头组多留一点空隙（站方原 50px 已清） */
+  padding-left: 0 !important;
+}
+
+/* echarts 悬停浮窗（tooltip div，hover 时显示「A股温度计…」）不保留：整个隐藏 */
+html.jsl.jsl-page-portal #indicator > div:last-child,
+html.jsl.jsl-page-portal #cb_indicator > div:last-child {
+  display: none !important;
 }
 
 html.jsl.jsl-page-portal .cal-btn {
@@ -4486,13 +4507,14 @@ html.jsl.jsl-community .aw-user-setting {
   background: transparent;
 }
 
-/* 「用户设置」标题：站方 h2 在 tab 条内、写死 #17344a，改为主文字色并推到左端 */
+/* 「用户设置」标题：左内衬 21px = 卡片 1px 边框 + 标题条 20px 内衬，
+   使标题与各 tab 页首个小节标题同缘 x=122 */
 html.jsl.jsl-community .aw-user-setting .nav-tabs > h2 {
   order: -1;
   /* 站方把 h2 absolute 钉在 tab 条上（与第一个 tab 重叠），拉回 flex 流 */
   position: static !important;
   margin: 0 auto 0 0 !important;
-  padding: 0 0 8px !important;
+  padding: 0 0 8px 21px !important;
   color: var(--jsl-text) !important;
   font-size: 18px;
   font-weight: 600;
@@ -4512,7 +4534,14 @@ html.jsl.jsl-community .aw-user-setting .aw-mod {
   overflow: hidden;
 }
 
-/* 设置页小节标题条（会员信息 / 基本信息）：站方透明 40px，改为灰底条 */
+/* 设置页「用户设置」标题条：用户定稿去掉底边线（与个人主页主 tab 行同一处理），
+   标题独占一行、下方 tab 胶囊右对齐 */
+html.jsl.jsl-community .aw-user-setting .nav-tabs {
+  border-bottom: none;
+}
+
+/* 小节标题条：灰底 40px + 20px 内衬（标题文字 x=94，与下方标签列同缘；
+   清成 0 会贴卡片外缘，用户反馈过） */
 html.jsl.jsl-community .aw-user-setting .aw-mod-head {
   display: flex;
   align-items: center;
@@ -4529,6 +4558,9 @@ html.jsl.jsl-community .aw-user-setting .aw-mod-head h3,
 html.jsl.jsl-community .aw-user-setting .aw-mod-head h4 {
   margin: 0;
   padding: 0 !important;
+  /* 站方写死 h4 height:40px：盒撑满标题条、24px 行盒贴顶，文字偏上 8.5px——
+     放开高度交回 flex align-items:center（垂直居中） */
+  height: auto !important;
   background: transparent !important;
   border: none !important;
   font-size: 13px;
@@ -4562,12 +4594,102 @@ html.jsl.jsl-community .aw-user-setting .aw-user-setting-layout > dl:last-of-typ
   margin-bottom: 0;
 }
 
+/* 用户名行是多行块：grid 的 center 会把标签居中到整块中线（看似跑到第二行），
+   改顶对齐使 dt 与 dd 首行共顶共中线 */
+html.jsl.jsl-community
+  .aw-user-setting
+  .aw-user-setting-layout
+  > dl:has(> dd > div) {
+  align-items: start;
+}
+
+/* 单行小节（会员信息）的 dl 站方带 padding-bottom:15px：内容上方 18px、下方 33px，
+   视觉偏上（用户反馈「这行垂直居中」）——去掉下内衬交回 18/18 对称 */
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-layout > dl:only-of-type {
+  padding-bottom: 0 !important;
+}
+
+/* 会员状态行末项（了解会员服务内容...）：站方 padding-left:10px 去掉交给 gap，
+   字号提到 12px 与行内文字协调 */
+html.jsl.jsl-community
+  .aw-user-setting
+  .aw-user-setting-layout
+  > dl:only-of-type
+  > dd
+  > span:last-child {
+  padding-left: 0 !important;
+  font-size: 12px !important;
+}
+
+/* 会员信息 / 基本信息拆成两张卡（settings.ts DOM 拆分）：卡间 16px。
+   隐私/提醒页三张卡在 form 里（不是 tab-content 直接子级），一并覆盖 */
+html.jsl.jsl-community .aw-user-setting .tab-content > .aw-mod + .aw-mod,
+html.jsl.jsl-community .aw-user-setting .tab-content > form > .aw-mod + .aw-mod {
+  margin-top: 16px;
+}
+
 html.jsl.jsl-community .aw-user-setting .aw-user-setting-layout > dl > dt {
   color: var(--jsl-text-3);
   font-size: 13px;
   font-weight: 400;
   line-height: 30px;
-  text-align: right;
+  /* 用户定稿：标签文字左缘与上方小节标题（会员信息/基本信息）同缘 x=122。
+     早先的右对齐会让「会员状态：/绑定手机:/用户名:/介绍:」左缘参差 137~170 */
+  text-align: left;
+}
+
+/* 「介绍:」的标签在站方 <label> 里（14px 字号 + margin-right:5px），
+   右缘比其他标签少 5px——归零交回 dt 的右对齐列，四个标签右缘同线 */
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-layout > dl > dt label {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+/* 单行信息行（会员状态 / 绑定手机 / 介绍）：站方裸排 + 内联 50px 间距，
+   改 flex 单行、统一 10px gap、控件垂直居中（settings.ts 给行加 jsl-inline-row） */
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-layout > dl.jsl-inline-row > dd,
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-layout > dl:only-of-type > dd {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+html.jsl.jsl-community
+  .aw-user-setting
+  .aw-user-setting-layout
+  > dl.jsl-inline-row
+  > dd
+  > span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 介绍行的辅助说明：与会员状态行末项同一档（12px 三级色） */
+html.jsl.jsl-community
+  .aw-user-setting
+  .aw-user-setting-layout
+  > dl.jsl-inline-row
+  > dd.aw-user-setting-base-introduce
+  > span {
+  color: var(--jsl-text-3) !important;
+  font-size: 12px;
+}
+
+/* 单行信息行里的输入框：站方 margin-bottom:10px 让 flex 居中的 margin 盒
+   比同排文字高 10px（内容上浮 5px）——归零，同排共中线 */
+html.jsl.jsl-community
+  .aw-user-setting
+  .aw-user-setting-layout
+  > dl.jsl-inline-row
+  > dd
+  > input {
+  margin: 0 !important;
 }
 
 html.jsl.jsl-community .aw-user-setting .aw-user-setting-layout > dl > dd {
@@ -4645,6 +4767,160 @@ html.jsl.jsl-community .aw-user-setting-upload-img-box p {
   line-height: 18px;
 }
 
+/* ---- 表格类设置页（服务购买/金币流水/我的内容）：筛选按钮行与表格站方贴死
+   （表格顶边 = 筛选行底边，gap 0）——补 14px 呼吸 ---- */
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-reset-table table {
+  margin-top: 14px;
+}
+
+/* 卡片内独立说明块（服务购买页的 FAQ 正文，直接挂在 .aw-mod 下、无任何内衬，
+   文字贴到卡片内缘 x=102、比正文内容缘 x=122 靠左 20px）——补同款横向内衬 */
+html.jsl.jsl-community .aw-user-setting .aw-mod > div:not(.aw-mod-head):not(.aw-mod-body) {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* ---- 账号绑定页已绑定账号卡：站方 body 内衬 30px 60px、状态/头像裸 inline、
+   按钮 float 右侧——统一为内容缘 x=122 的单行 flex 布局 ---- */
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-bind > .aw-mod-body {
+  padding: 18px 20px;
+}
+
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-bind > .aw-mod-body > ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-bind > .aw-mod-body > ul > li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+html.jsl.jsl-community
+  .aw-user-setting
+  .aw-user-setting-bind
+  > .aw-mod-body
+  > ul
+  > li:not(:last-child) {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--jsl-border);
+}
+
+/* 站方 PUA 图标字体（i-weixin）在此环境不渲染字形，只留 16px 空盒——隐藏，
+   状态胶囊前用绿色圆点表达「已绑定」 */
+html.jsl.jsl-community .aw-user-setting .aw-user-setting-bind .aw-icon {
+  display: none !important;
+}
+
+/* 「微信已绑定」状态胶囊：surface-2 底 + 12px 二级文字，圆点用语义绿
+   （文字保持 text-2 而不是绿色——语义绿对浅色底只有 ~3.5:1，不达 AA） */
+html.jsl.jsl-community
+  .aw-user-setting
+  .aw-user-setting-bind
+  > .aw-mod-body
+  > ul
+  > li
+  > span:nth-of-type(1) {
+  order: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--jsl-surface-2);
+  color: var(--jsl-text-2);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+html.jsl.jsl-community
+  .aw-user-setting
+  .aw-user-setting-bind
+  > .aw-mod-body
+  > ul
+  > li
+  > span:nth-of-type(1)::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--jsl-down);
+}
+
+/* 头像 + 昵称：32px 圆角缩略图 + 主文字色昵称；站方内联 margin-left:5% 清零 */
+html.jsl.jsl-community
+  .aw-user-setting
+  .aw-user-setting-bind
+  > .aw-mod-body
+  > ul
+  > li
+  > span:nth-of-type(2) {
+  order: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 0 !important;
+  color: var(--jsl-text);
+  font-size: 13px;
+}
+
+html.jsl.jsl-community
+  .aw-user-setting
+  .aw-user-setting-bind
+  > .aw-mod-body
+  > ul
+  > li
+  > span:nth-of-type(2)
+  img {
+  box-sizing: border-box;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--jsl-border);
+  object-fit: cover;
+}
+
+/* 操作按钮组：取消绑定在右、重新绑定紧邻其左，靠 margin-left:auto 推到行尾
+   （站方两个 float:right 在 flex 行里失效） */
+html.jsl.jsl-community
+  .aw-user-setting
+  .aw-user-setting-bind
+  > .aw-mod-body
+  > ul
+  > li
+  > a.btn {
+  float: none !important;
+}
+
+html.jsl.jsl-community
+  .aw-user-setting
+  .aw-user-setting-bind
+  > .aw-mod-body
+  > ul
+  > li
+  > a.btn:nth-of-type(2) {
+  order: 3;
+  margin-left: auto !important;
+}
+
+html.jsl.jsl-community
+  .aw-user-setting
+  .aw-user-setting-bind
+  > .aw-mod-body
+  > ul
+  > li
+  > a.btn:nth-of-type(1) {
+  order: 4;
+  margin-left: 0 !important;
+}
+
 /* ---- 保存条：站方容器高度为 0（按钮 float 溢出），补 flex 容器并做成卡片页脚 ---- */
 html.jsl.jsl-community .aw-user-setting .tab-content > div:has(> .aw-user-setting-save) {
   display: flex !important;
@@ -4660,9 +4936,24 @@ html.jsl.jsl-community .aw-user-setting .tab-content > div:has(> .aw-user-settin
   box-shadow: var(--jsl-shadow);
 }
 
+/* 隐私/提醒页等：保存按钮直接挂在 .tab-content 下（没有包裹 div，float:right 会
+   脱流贴左缘）——settings.ts 给它补一层包裹 div，复用上面的页脚条规则 */
+
 html.jsl.jsl-community .aw-user-setting .aw-user-setting-save {
   float: none !important;
   margin: 0 !important;
+}
+
+/* 复选框 / 单选框与文字之间站方为零间隙（input margin:0、label inline-block），
+   统一 6px 并垂直居中（隐私/提醒等设置页所有选项行） */
+html.jsl.jsl-community
+  .aw-user-setting
+  .tab-content
+  label:has(> input[type='checkbox']),
+html.jsl.jsl-community .aw-user-setting .tab-content label:has(> input[type='radio']) {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* 设置页按钮：28px 胶囊；success 实底、danger 语义红、禁用降透明度 */
@@ -5629,26 +5920,31 @@ html[data-theme='dark'].jsl-page-data .color-light {
 }
 
 /* ---- 用户中心各面板内的子标签（.aw-tabs，如「关注的人/关注者/关注的话题」）：
-   站方 #f7f7f7 白底横条在深色下刺眼，改为与主 tab 同款的透明胶囊 ---- */
+   用户定稿改用列表页排序行同款语言——通栏 surface-2 灰带 + 13px 胶囊
+   （选中 accent-weak 底 accent 字），取代早期的透明胶囊方案 ---- */
 html.jsl.jsl-community .aw-user-center-tab .aw-tabs {
-  background: transparent;
+  background: var(--jsl-surface-2);
   border: none;
-  padding: 0;
-  /* 胶囊左右各 10px 内衬——整行左移 10px，让子标签文字与主 tab 文字同左缘（x=114） */
-  margin: 0 0 10px -10px;
-  /* 站方 .aw-tabs 定高 30px：26px 胶囊盒高 38px，底边溢出压到下方标题 */
+  /* 通栏灰带：负边距吃掉面板 20px 内衬贴卡片两缘（同列表页排序行）；
+     站方 .aw-tabs 定高 30px 会把胶囊顶出灰带，height:auto 放开 */
+  margin: 0 -20px 10px;
+  padding: 5px 20px;
   height: auto;
+  display: flex;
+  align-items: center;
 }
 
 html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin: 0;
+  gap: 2px;
+  /* -12px 负边距 = 主 tab 行的同款做法：首个胶囊盒子落在 x=82 与主 tab 同缘 */
+  margin: 0 0 0 -12px;
   padding: 0;
   list-style: none;
   border: none;
   background: transparent;
+  float: none !important;
 }
 
 html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul > li {
@@ -5657,32 +5953,46 @@ html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul > li {
   height: auto;
   background: transparent;
   border: none;
+  list-style: none;
 }
 
 html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul > li > a,
 html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul > li.active > a {
   display: inline-block;
-  /* 站方 a 定高 30px（content-box），把 26px 胶囊撑到 38px */
+  /* 站方 a 定高 30px（content-box），会把胶囊撑高溢出灰带 */
   height: auto;
-  padding: 4px 10px;
+  padding: 6px 12px;
   border: none !important;
-  border-radius: var(--jsl-radius-sm);
+  border-radius: 7px;
   background: transparent !important;
   color: var(--jsl-text-2) !important;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 18px;
+  white-space: nowrap;
   cursor: pointer;
+  transition:
+    color 0.12s,
+    background 0.12s;
 }
 
+/* 灰带上的胶囊：hover 只变色（surface-2 底在灰带上不可见，同列表页排序行） */
 html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul > li > a:hover {
-  color: var(--jsl-text) !important;
-  background: var(--jsl-surface-2) !important;
+  color: var(--jsl-accent) !important;
+  background: transparent !important;
 }
 
 html.jsl.jsl-community .aw-user-center-tab .aw-tabs ul > li.active > a {
   background: var(--jsl-accent-weak) !important;
   color: var(--jsl-accent) !important;
   font-weight: 500;
+}
+
+/* 关注面板「更多...」与两列同长：420px×2 + 14px 列距 = 854px
+   （BS2 静态栅格定宽）；动态面板保持通栏，故只限本面板 */
+html.jsl.jsl-community .aw-user-center-follow-mod .aw-load-more-content {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 854px;
 }
 
 /* ---- 详细资料 dl：用户定稿整段去线（站方 dt/dl 自带分隔线，原 1px dotted），
@@ -5768,4 +6078,16 @@ html.jsl.jsl-community .aw-user-center-dynamic .aw-mod-head {
 
 html.jsl.jsl-community .aw-user-center-dynamic .aw-load-more-content span {
   color: inherit;
+}
+
+/* 「更多...」垂直居中：站方 line-height:34px（=盒高）把文字推到底部
+   （留白 19/1px）→ flex 居中 + 行高归位 */
+html.jsl.jsl-community .aw-user-center-follow-mod .aw-load-more-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+html.jsl.jsl-community .aw-user-center-follow-mod .aw-load-more-content span {
+  line-height: 1.4 !important;
 }

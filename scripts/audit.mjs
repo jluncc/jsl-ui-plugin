@@ -114,9 +114,9 @@ for (const file of cssFiles) {
 }
 
 // ---- 4. 体积预算 ----
-// 预算随覆盖页面增长：现含门户/列表/详情/登录注册/通知/私信/个人主页/设置/日历/数据页
-// 新增整页样式时先评估是否复用既有卡片语言，再按实际需要上调
-const BUDGET = { contentJs: 32_000, cssTotal: 225_000 };
+// 预算随覆盖页面增长：现含门户/列表/详情/登录注册/通知/私信/个人主页/设置（8 个 tab）/
+// 日历/数据页/搜索结果/关注面板。新增整页样式时先评估是否复用既有卡片语言，再按实际需要上调
+const BUDGET = { contentJs: 32_000, cssTotal: 235_000 };
 const cssBytes = cssFiles.reduce((n, f) => n + statSync(join(ROOT, f)).size, 0);
 const distContent = (() => {
   try {

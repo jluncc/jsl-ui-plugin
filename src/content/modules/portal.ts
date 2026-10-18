@@ -17,6 +17,7 @@ const APP_LINK_TEXTS = ['苹果APP', '安卓APP'];
 export function enhancePortalHome(): void {
   removeMemberDataPanel();
   moveTemperatureIndicators();
+  nudgeGaugeLabels();
   unfoldCalendar();
   layoutInvestmentEvents();
   moveAppLinksToFooter();
@@ -180,6 +181,43 @@ function moveTemperatureIndicators(): void {
 /** 投资日历折叠开关（▿，触发 calToggleShow）移除，日历常开 */
 function unfoldCalendar(): void {
   document.getElementById('cal-btn-toggle')?.remove();
+}
+
+/** 温度计文字（echarts detail，canvas 内绘制）下移：站方 offsetCenter [0,'35%']
+ *  紧贴盘面，用户定稿多留一点空隙 → [0,'50%']；同时 gauge center 下移到 58%，
+ *  盘面+文字整体在 canvas 里上下居中（默认 50% 时上方 2px/下方 14px 头重脚轻）。
+ *  echarts 由站方 AJAX 回包后才 init，轮询等实例就绪；dataset 标记防重复 setOption */
+function nudgeGaugeLabels(): void {
+  if (!document.querySelector('.jsl-temp-panel')) return;
+  const w = window as unknown as {
+    echarts?: { getInstanceByDom?: (el: HTMLElement) => { setOption: (opt: object) => void } | undefined };
+  };
+  const ids = ['indicator', 'cb_indicator'];
+  const apply = (): boolean => {
+    if (!w.echarts?.getInstanceByDom) return false;
+    let allDone = true;
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (!el || el.dataset.jslLabelOffset === '1') continue;
+      const inst = w.echarts.getInstanceByDom(el);
+      if (!inst) {
+        allDone = false;
+        continue;
+      }
+      try {
+        inst.setOption({ series: [{ center: ['50%', '58%'], detail: { offsetCenter: [0, '50%'] } }] });
+        el.dataset.jslLabelOffset = '1';
+      } catch {
+        allDone = false;
+      }
+    }
+    return allDone;
+  };
+  if (apply()) return;
+  const timer = setInterval(() => {
+    if (apply()) clearInterval(timer);
+  }, 500);
+  setTimeout(() => clearInterval(timer), 12000);
 }
 
 /** 本周热点正文：站方 <br> 分隔的 4 条事件重排为竖排编号列表（原设计即竖排，
