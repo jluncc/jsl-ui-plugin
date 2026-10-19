@@ -1774,6 +1774,19 @@ html.jsl.jsl-page-portal .first_column .right .event-detail-long {
   color: var(--jsl-text-2);
 }
 
+/* 投资日历事件里的转债/新股链接：站方 Bootstrap 默认 #337ab7，
+   深色下仅 3.79:1 → 品牌色（与全站链接同一令牌） */
+html.jsl.jsl-page-portal #home-calendar .events-area a,
+html.jsl.jsl-page-portal .first_column .left .events-area a {
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-page-portal #home-calendar .events-area a:hover,
+html.jsl.jsl-page-portal .first_column .left .events-area a:hover {
+  color: var(--jsl-accent-solid-hover);
+  text-decoration: underline;
+}
+
 /* 社区区块（#006699 分类 / #eee 分隔线） */
 html.jsl.jsl-page-portal .tag_column .category {
   color: var(--jsl-accent);
@@ -2863,15 +2876,27 @@ html.jsl.jsl-page-portal .tag_top .relative a:hover {
   color: var(--jsl-accent);
 }
 
-/* Beta 上标：站方红底白字药丸过重，改 10px 小红字缀在 tab 后 */
+/* Beta 上标：站方 absolute 钉在 tab 右上角（top:0/right:18px，红底白字药丸）。
+   与数据页子导航统一：缩成 9px/14px 小胶囊挂在「持仓」右上角外侧
+   （容器高 24 = 胶囊 22 居中，故 top:-2 对应胶囊上缘上方 3px） */
 html.jsl.jsl-page-portal .tag_top sup {
-  margin-left: 4px;
-  font-size: 10px;
+  position: absolute;
+  top: -2px;
+  right: -12px;
+  /* 站方 JS 会写内联 transform 平移角标，必须清零否则纵向偏 7px */
+  transform: none !important;
+  display: block;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--jsl-accent-solid);
+  color: var(--jsl-accent-solid-ink);
+  font-size: 9px;
   font-weight: 500;
-  line-height: 1;
-  color: var(--jsl-up);
-  background: none;
-  padding: 0;
+  line-height: 14px;
+  height: 14px;
+  pointer-events: none;
 }
 
 /* 社区区头：红链接居左（「必看」提示语义红，站方内联 color:red 令牌化）、
@@ -5421,12 +5446,7 @@ html[data-theme='dark'].jsl-page-calendar .fc-event:hover {
   background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)) !important;
 }
 
-/* ============================================================
-   实时数据页（.jsl-page-data）：Vue + Element UI 架构
-   —— 表格列宽合计 ~1650（39 列），页面天然宽于视口；
-      因此 header / 子导航 / 内容区统一改为全宽 + 15px 内衬对齐，
-      而不是像门户页那样收 960。
-   ============================================================ */
+/* ---- 实时数据页（.jsl-page-data）：Vue + Element UI，39 列宽表 ---- */
 
 /* 页面底色（站方 #app 写死白底） */
 html.jsl.jsl-page-data #app,
@@ -5443,8 +5463,13 @@ html.jsl.jsl-page-data #app > .layout-default {
   min-height: 100vh;
 }
 
-html.jsl.jsl-page-data #app > .layout-default > .nav-data {
+/* Vue 内容区不只 .nav-data（持仓页是 .nav-positions-create） */
+html.jsl.jsl-page-data #app > .layout-default > :not(.header_navbar_bg):not(.footer_bg) {
   flex: 1 0 auto;
+}
+
+html.jsl.jsl-page-data #app > .layout-default > .footer_bg {
+  flex: 0 0 auto;
 }
 
 /* header：与门户/社区/日历页同一规格——内容 960 居中（x=245）。
@@ -6135,6 +6160,55 @@ html.jsl.jsl-page-data .el-select .el-input.is-focus .el-input__inner {
   border-color: var(--jsl-border-2) !important;
 }
 
+/* 工具条搜索 3 图标按钮：站方负边距被 margin-left 覆盖，44 宽只前进 34 → 压 10px */
+/* 搜索胶囊：底色提到外层，input 与图标区都透明 */
+html.jsl.jsl-page-data .table-top .search {
+  background: var(--jsl-surface-2) !important;
+  border-radius: 8px;
+}
+
+html.jsl.jsl-page-data .table-top .search .el-input__inner {
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+html.jsl.jsl-page-data .table-top .search .el-input-group__append {
+  /* 保持 table-cell：改 flex 会把同组的 input 挤掉 */
+  padding: 0 6px !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  white-space: nowrap;
+  vertical-align: middle;
+
+  & .el-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 24px;
+    height: 24px;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 6px;
+    background: transparent !important;
+    color: var(--jsl-text-3) !important;
+    line-height: 1;
+    vertical-align: middle;
+
+    &:hover {
+      background: var(--jsl-surface-hover) !important;
+      color: var(--jsl-text) !important;
+    }
+
+    & + .el-button {
+      margin-left: 2px !important;
+    }
+  }
+}
+
+
 /* ---- 表格工具条（粘顶） ---- */
 
 html.jsl.jsl-page-data .table-top.sticky-top {
@@ -6154,8 +6228,7 @@ html.jsl.jsl-page-data .table-top a:hover {
 
 /* ---- 数据表 ---- */
 
-/* 站方在表格容器 .jsl-table.sticky-header 上挂 table-bg.png（近纯白纹理）：
-   偶数行透明时直接露出白图 → 深色下整行发白、文字仅 2.35:1。清图改 surface */
+/* .jsl-table.sticky-header 挂 table-bg.png 白纹理，深色整行发白 → 清图 */
 html.jsl.jsl-page-data .jsl-table.sticky-header {
   background-image: none !important;
   background-color: var(--jsl-surface) !important;
@@ -6422,6 +6495,9 @@ html.jsl.jsl-page-data .layout-default .content-title {
   color: var(--jsl-text);
   font-size: 18px;
   font-weight: 600;
+  /* 文字对齐「持仓」按钮（用户定稿）：标题容器 1200 定宽、子导航 960，
+     两者都居中 → 每档视口左缘恒差 81px，故 24 + 81 = 105 */
+  padding-left: 105px !important;
 }
 
 /* Element UI 卡片 / 表单控件令牌化（持仓页的创建表单） */
@@ -6449,14 +6525,9 @@ html.jsl.jsl-page-data .layout-default .el-form-item__label {
   color: var(--jsl-text-2) !important;
 }
 
-/* ============================================================
-   旧版服务端数据页（.jsl-page-data-legacy）
-   新股 / ETF / LOF / 债券 / 转债详情等仍是服务端渲染的 .grid.data_content，
-   没有 Vue 的 #app 与 .data-content.auto-content-width；header / 子导航 /
-   表格 / 页脚与 Vue 数据页保持同一套视觉语言。
-   结构差异：子导航是 .grid > .grid-row > .grid-col-3/21，Beta 是 a.beta::after，
-   激活项是 .on（不是 .router-link-active）。
-   ============================================================ */
+/* ---- 旧版服务端数据页（.jsl-page-data-legacy）
+   新股/ETF/LOF/债券/详情/计算器：无 #app，子导航用 grid-col-3/21、
+   Beta 用 a.beta::after、激活项 .on ---- */
 
 html.jsl.jsl-page-data-legacy {
   & body {
@@ -6572,7 +6643,13 @@ html.jsl.jsl-page-data-legacy {
         content: 'Beta';
         position: absolute;
         top: -3px;
-        right: -12px;
+        /* 站方 ::after 用 right:18px + translateY(-50%) translateX(100%) 定位，
+           会把角标推到胶囊右侧 ~40px；全部清掉改贴右上角 */
+        left: auto !important;
+        top: -3px !important;
+        right: -12px !important;
+        bottom: auto !important;
+        transform: none !important;
         height: 14px;
         padding: 0 4px;
         border-radius: 999px;
@@ -6586,6 +6663,11 @@ html.jsl.jsl-page-data-legacy {
     }
   }
 
+  /* 页脚贴底：门外壳 flex 只覆盖 .wrapper_content/#wrap，旧版页内容容器是 .data_content */
+  & body:has(> .footer_bg) > .data_content {
+    flex: 1 0 auto;
+  }
+
   /* ---- 内容区：全宽（表格天然宽于 960，与 Vue 数据页同一策略） ---- */
   .data_content {
     box-sizing: border-box;
@@ -6594,6 +6676,13 @@ html.jsl.jsl-page-data-legacy {
     margin: 0 !important;
     padding: 16px 15px 40px !important;
     color: var(--jsl-text-2);
+
+    /* Bootstrap clearfix 伪元素在 flex 胶囊行里会变成 0 宽 flex 项，
+       各自吃掉一端 4px gap（首个胶囊被推右 4px，与表格左缘错位） */
+    .data_type_nav .nav-pills::before,
+    .data_type_nav .nav-pills::after {
+      display: none !important;
+    }
 
     /* ---- 二级类别（新股申购/专业数据版/…）与详情页面板内 tab：胶囊行 ---- */
     .nav-pills {
@@ -6638,6 +6727,15 @@ html.jsl.jsl-page-data-legacy {
     .data_type_nav {
       height: auto !important;
       padding: 0 0 12px !important;
+    }
+
+    /* 主表居中：站方 tablesorter 封顶 1900 后贴左；只作用于 data_table_tabs 内 */
+    .data_table_tabs table.tablesorter {
+      /* 站方 JS 切 tab 时给主表写内联 float:left（收缩宽度用），
+         浮动元素会忽略 auto 外边距 → 一并拉回文档流 */
+      float: none !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
     }
 
     /* ---- 数据表：表头/斑马纹/粘性列全部令牌化 ---- */
@@ -7083,4 +7181,584 @@ html.jsl.jsl-community .aw-user-center-follow-mod .aw-load-more-content {
 
 html.jsl.jsl-community .aw-user-center-follow-mod .aw-load-more-content span {
   line-height: 1.4 !important;
+}
+
+/* ============================================================
+   话题页（.jsl-page-topic，/topic/<name>）
+   社区外壳 + 话题头卡 + tab 行 + 话题侧栏；列表复用列表页行语言。
+   ============================================================ */
+
+/* 话题头卡：站方 absolute 头像 + absolute 关注块 → flex 单行） */
+html.jsl.jsl-page-topic .aw-topic-detail-title {
+  /* 站方 min-height:70 撑出空卡、margin-top:10 让标题卡比侧栏低 10px */
+  min-height: 0 !important;
+  margin: 0 0 16px !important;
+  padding: 14px 16px;
+}
+
+html.jsl.jsl-page-topic .aw-topic-detail-title .aw-mod-body {
+  position: static;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 !important;
+  height: auto;
+}
+
+html.jsl.jsl-page-topic .aw-topic-detail-title img {
+  position: static;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+/* 站方 h1/h2 写死 #17344a（深色 1.34:1） */
+html.jsl.jsl-page-topic .aw-topic-detail-title h2 {
+  float: none !important;
+  margin: 0;
+  color: var(--jsl-text);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 26px;
+}
+
+/* 关注数 + 关注按钮：贴右，单行（站方是 <br> 换行 + absolute） */
+html.jsl.jsl-page-topic .aw-topic-detail-title-follow {
+  position: static;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 0 auto;
+  color: var(--jsl-text-3);
+  font-size: 12px;
+}
+
+html.jsl.jsl-page-topic .aw-topic-detail-title-follow br {
+  display: none;
+}
+
+/* 「关注」按钮：站方淡黄绿实底 #e0f4ad + 灰字（深色下成亮块、对比 1.9:1） */
+html.jsl.jsl-page-topic .aw-topic-detail-title-follow .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 14px;
+  border: 1px solid var(--jsl-border-2) !important;
+  border-radius: var(--jsl-radius-sm);
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--jsl-text) !important;
+  font-size: 12px;
+  text-shadow: none;
+  transition:
+    color 0.12s,
+    border-color 0.12s;
+}
+
+html.jsl.jsl-page-topic .aw-topic-detail-title-follow .btn:hover {
+  color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+}
+
+/* 已关注态（站方 aw-active 绿底）：实底 accent */
+html.jsl.jsl-page-topic .aw-topic-detail-title-follow .btn.aw-active {
+  background: var(--jsl-accent-solid) !important;
+  border-color: var(--jsl-accent-solid) !important;
+  color: var(--jsl-accent-solid-ink) !important;
+}
+
+/* tab 行：站方白底 tab → surface-2 通栏灰带 + 胶囊 */
+html.jsl.jsl-page-topic .aw-main-content > .aw-mod > .aw-mod-head {
+  padding: 0 !important;
+  background: var(--jsl-surface-2);
+  border-bottom: 1px solid var(--jsl-border);
+}
+
+html.jsl.jsl-page-topic .aw-topic-detail-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 44px;
+  margin: 0 !important;
+  padding: 0 14px;
+  border: none !important;
+  background: transparent;
+}
+
+html.jsl.jsl-page-topic .aw-topic-detail-tabs > li {
+  float: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: auto;
+  border: none;
+}
+
+html.jsl.jsl-page-topic .aw-topic-detail-tabs > li > a {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border: none !important;
+  border-radius: 7px;
+  background: transparent !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
+  text-shadow: none;
+}
+
+html.jsl.jsl-page-topic .aw-topic-detail-tabs > li > a:hover {
+  background: transparent !important;
+  color: var(--jsl-accent) !important;
+}
+
+/* 选中态用 surface 底：accent-weak 叠在 surface-2 灰带上仅 3.84:1，surface 底为 5.52:1 */
+html.jsl.jsl-page-topic .aw-topic-detail-tabs > li.active > a {
+  background: var(--jsl-surface) !important;
+  color: var(--jsl-accent) !important;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* 话题内搜索：与全站搜索胶囊同构 */
+html.jsl.jsl-page-topic .aw-search-box {
+  position: static !important;
+  margin-left: auto;
+}
+
+html.jsl.jsl-page-topic .aw-topic-search {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  width: 220px;
+  height: 30px;
+  padding: 0 8px 0 10px;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: 8px;
+  background: var(--jsl-surface);
+}
+
+html.jsl.jsl-page-topic .aw-topic-search .icon-search {
+  flex: 0 0 auto;
+  margin: 0 6px 0 0;
+  color: var(--jsl-text-3);
+  font-size: 12px;
+}
+
+html.jsl.jsl-page-topic .aw-topic-search input.search-query {
+  flex: 1 1 auto;
+  width: auto;
+  height: 26px;
+  margin: 0;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--jsl-text) !important;
+  font-size: 13px;
+}
+
+html.jsl.jsl-page-topic .aw-topic-search input.search-query::placeholder {
+  color: var(--jsl-text-3);
+}
+
+/* 搜索下拉：站方白底，改 surface 卡 */
+html.jsl.jsl-page-topic .aw-topic-dropdown {
+  border: 1px solid var(--jsl-border);
+  border-radius: var(--jsl-radius);
+  background: var(--jsl-surface);
+  box-shadow: var(--jsl-shadow-pop);
+}
+
+html.jsl.jsl-page-topic .aw-topic-dropdown .title {
+  color: var(--jsl-text-3);
+}
+
+/* 「关于话题」面板正文：站方 aw-text-color-666（深色 2.46:1）→ 次级色 */
+html.jsl.jsl-page-topic .aw-topic-detail-about {
+  margin: 0;
+  padding: 20px 16px !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+/* ---- 「更多...」：站方浅蓝实底条 → 描边胶囊（与通知/用户中心同款） ---- */
+html.jsl.jsl-page-topic .aw-load-more-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  margin: 15px 16px;
+  padding: 0 10px !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: var(--jsl-radius-sm);
+  background: transparent !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 12px;
+  text-align: center;
+  text-decoration: none;
+}
+
+html.jsl.jsl-page-topic .aw-load-more-content:hover {
+  color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+}
+
+/* 侧栏标题：站方 h3 写死 #17344a（深色 1.34:1）→ 令牌化 */
+html.jsl.jsl-page-topic .aw-side-bar-mod-head h3,
+html.jsl.jsl-page-topic .aw-side-bar .aw-side-bar-head h3,
+html.jsl.jsl-page-topic .aw-side-bar .aw-mod-head h3 {
+  margin: 0;
+  padding: 12px 14px 0;
+  color: var(--jsl-text-2) !important;
+  font-size: 13px;
+  font-weight: 600;
+  text-shadow: none;
+}
+
+html.jsl.jsl-page-topic .aw-side-bar-head {
+  padding: 0;
+}
+
+html.jsl.jsl-page-topic .aw-side-bar-body {
+  padding: 8px 14px 12px;
+}
+
+/* 侧栏正文里的站方深灰（#666/#666 类名与内联色） */
+html.jsl.jsl-page-topic .aw-side-bar .aw-text-color-666,
+html.jsl.jsl-page-topic .aw-side-bar .aw-text-color-999,
+html.jsl.jsl-page-topic .aw-side-bar p {
+  color: var(--jsl-text-3) !important;
+}
+
+/* 「话题描述」为空时整卡隐藏 */
+html.jsl.jsl-page-topic
+  .aw-side-bar
+  > .aw-side-bar-mod:has(> .aw-side-bar-mod-body > p:empty):not(:has(dl)) {
+  display: none;
+}
+
+/* 相关话题 chip：站方无底色纯链接 → 与全站 tag chip 同款的浅品牌胶囊 */
+html.jsl.jsl-page-topic .aw-side-bar-topic-about .aw-topic-name span {
+  /* 全局 .aw-topic-name span 规则带 !important（清站方浅蓝底），这里需同级覆盖 */
+  display: inline-flex !important;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px !important;
+  border-radius: var(--jsl-radius-sm);
+  background: var(--jsl-accent-weak) !important;
+  color: var(--jsl-accent) !important;
+  font-size: 12px;
+}
+
+html.jsl.jsl-page-topic .aw-side-bar-topic-about .aw-topic-name:hover span {
+  background: var(--jsl-accent) !important;
+  color: var(--jsl-accent-solid-ink) !important;
+}
+
+/* 最佳回复者：头像 32px 圆角、名字主文字色、统计行弱化 */
+html.jsl.jsl-page-topic .aw-side-bar dl img {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+html.jsl.jsl-page-topic .aw-side-bar dl .aw-user-name {
+  color: var(--jsl-text) !important;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+html.jsl.jsl-page-topic .aw-side-bar dl dd p {
+  margin: 2px 0 0;
+  color: var(--jsl-text-3);
+  font-size: 12px;
+}
+
+html.jsl.jsl-page-topic .aw-side-bar dl dd p b {
+  color: var(--jsl-text-2);
+  font-weight: 600;
+}
+
+/* 关注者头像墙 */
+html.jsl.jsl-page-topic .aw-side-bar-user-list img {
+  width: 26px;
+  height: 26px;
+  margin: 0 4px 4px 0;
+  border-radius: 6px;
+}
+
+/* 话题修改记录：折叠头（h3 + 三角图标），图标字体在扩展环境不渲染 */
+html.jsl.jsl-page-topic .aw-side-bar-topic-edit-notes .aw-icon {
+  display: none !important;
+}
+
+html.jsl.jsl-page-topic .aw-side-bar-topic-edit-notes .aw-side-bar-head {
+  padding: 10px 14px;
+}
+
+html.jsl.jsl-page-topic .aw-side-bar-topic-edit-notes .aw-side-bar-head h3 {
+  padding: 0;
+  cursor: pointer;
+}
+
+/* ============================================================
+   话题广场（/topic/，.aw-topic-content）
+   主卡 = 热门话题列表（头像 + 话题名 + 3 条最新问题）；侧栏 = 导航/今日/新增。
+   ============================================================ */
+
+/* 主卡头：站方裸 h2（18px），并入卡片头的灰底条语言 */
+html.jsl.jsl-community .aw-topic-follow > .aw-mod-head {
+  display: flex;
+  align-items: center;
+  height: 47px;
+  margin: 0 !important;
+  padding: 0 16px;
+  background: var(--jsl-surface-2);
+  border-bottom: 1px solid var(--jsl-border);
+}
+
+html.jsl.jsl-community .aw-topic-follow > .aw-mod-head h2 {
+  margin: 0;
+  color: var(--jsl-text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+html.jsl.jsl-community .aw-topic-follow > .aw-mod-body {
+  padding: 0;
+}
+
+/* 话题行：站方 66px 左内衬 + absolute 头像 → 内衬 82px + 2px 分隔线 */
+html.jsl.jsl-community .aw-topic-follow .aw-item {
+  padding: 16px 16px 16px 82px;
+  border: none !important;
+  position: relative;
+}
+
+html.jsl.jsl-community .aw-topic-follow .aw-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 82px;
+  right: 16px;
+  bottom: 0;
+  height: 2px;
+  background: var(--jsl-border);
+}
+
+html.jsl.jsl-community .aw-topic-follow .aw-item:hover {
+  background: var(--jsl-surface-hover);
+}
+
+html.jsl.jsl-community .aw-topic-follow .aw-item .aw-topic-img {
+  left: 16px;
+  top: 16px;
+}
+
+html.jsl.jsl-community .aw-topic-follow .aw-item .aw-topic-img img {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+/* 话题名：站方 15px 主色 + 内层 span 浅蓝底 → 统一成主文字色标题 */
+html.jsl.jsl-community .aw-topic-follow .aw-topic-name {
+  display: block;
+  margin: 0 0 6px;
+}
+
+html.jsl.jsl-community .aw-topic-follow .aw-topic-name span {
+  display: inline-block !important;
+  padding: 0 !important;
+  background: transparent !important;
+  color: var(--jsl-text) !important;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+html.jsl.jsl-community .aw-topic-follow .aw-topic-name:hover span {
+  color: var(--jsl-accent) !important;
+}
+
+/* 「N 个问题 / N 个关注」：右对齐弱化元信息 */
+html.jsl.jsl-community .aw-topic-follow .aw-topic-options {
+  color: var(--jsl-text-3);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+html.jsl.jsl-community .aw-topic-follow .aw-topic-options span + span {
+  margin-left: 10px;
+}
+
+/* 最新问题行：标题主文字色、日期右对齐弱化，行间分隔线弱化 */
+html.jsl.jsl-community .aw-topic-follow .aw-item ul {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+html.jsl.jsl-community .aw-topic-follow .aw-item ul li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 3px 0;
+  border: none;
+}
+
+/* DOM 顺序是「日期 span.pull-right → 标题 a」，flex 化后日期会跑到左边；
+   用 order 还原成标题左、日期右 */
+html.jsl.jsl-community .aw-topic-follow .aw-item ul li a {
+  order: 1;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--jsl-text-2);
+  font-size: 13px;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html.jsl.jsl-community .aw-topic-follow .aw-item ul li a:hover {
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-community .aw-topic-follow .aw-item ul li .aw-text-color-999 {
+  order: 2;
+  float: none !important;
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--jsl-text-3) !important;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 侧栏话题导航：站方 #2b77a8 实底蓝条 → accent-weak 胶囊 */
+html.jsl.jsl-community .aw-side-bar-topic-nav .aw-side-bar-mod-body {
+  padding: 10px 14px;
+}
+
+html.jsl.jsl-community .aw-side-bar-topic-nav ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+html.jsl.jsl-community .aw-side-bar-topic-nav li {
+  padding: 0;
+}
+
+html.jsl.jsl-community .aw-side-bar-topic-nav li + li {
+  margin-top: 2px;
+}
+
+html.jsl.jsl-community .aw-side-bar-topic-nav li a {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 12px !important;
+  border-radius: var(--jsl-radius-sm);
+  color: var(--jsl-text-2);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+html.jsl.jsl-community .aw-side-bar-topic-nav li a:hover {
+  background: var(--jsl-surface-2);
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-community .aw-side-bar-topic-nav li a.active {
+  background: var(--jsl-accent-weak) !important;
+  color: var(--jsl-accent) !important;
+  font-weight: 500;
+}
+
+/* 新增话题 chip：与详情页「相关话题」同款 */
+html.jsl.jsl-community .aw-side-bar-topic-edit .aw-side-bar-mod-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 14px 14px;
+}
+
+html.jsl.jsl-community .aw-side-bar-topic-edit .aw-topic-name {
+  display: inline-flex;
+  margin: 0 !important;
+}
+
+html.jsl.jsl-community .aw-side-bar-topic-edit .aw-topic-name span {
+  display: inline-flex !important;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px !important;
+  border-radius: var(--jsl-radius-sm);
+  background: var(--jsl-surface-2) !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 12px;
+}
+
+html.jsl.jsl-community .aw-side-bar-topic-edit .aw-topic-name:hover span {
+  background: var(--jsl-accent-weak) !important;
+  color: var(--jsl-accent) !important;
+}
+
+/* 今日话题：站方 dl/dt/dd 浮动 → flex */
+html.jsl.jsl-community .aw-topic-daily .aw-side-bar-mod-body {
+  padding: 8px 14px 14px;
+}
+
+html.jsl.jsl-community .aw-topic-daily dl {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 8px;
+}
+
+html.jsl.jsl-community .aw-topic-daily dl dt,
+html.jsl.jsl-community .aw-topic-daily dl dd {
+  float: none !important;
+  margin: 0 !important;
+}
+
+/* 站方 .aw-topic-daily .aw-topic-img 带固定宽，img 会被压成 32×40 变形 */
+html.jsl.jsl-community .aw-topic-daily dl .aw-topic-img {
+  display: block;
+  width: 40px !important;
+  height: 40px !important;
+  flex: 0 0 auto;
+}
+
+html.jsl.jsl-community .aw-topic-daily dl img {
+  display: block;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+html.jsl.jsl-community .aw-topic-daily .aw-side-bar-mod-body > p {
+  margin: 0;
+  color: var(--jsl-text-3);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+html.jsl.jsl-community .aw-topic-daily .aw-side-bar-mod-body > p a {
+  color: var(--jsl-accent);
+  text-decoration: none;
+}
+
+html.jsl.jsl-community .aw-topic-daily .aw-side-bar-mod-body > p a:hover {
+  text-decoration: underline;
 }

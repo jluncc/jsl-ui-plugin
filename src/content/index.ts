@@ -16,6 +16,8 @@ function applyPageFlags(): void {
   if (document.querySelector('.aw-wecenter')) root.classList.add('jsl-community');
   if (document.querySelector('.aw-question-list')) root.classList.add('jsl-page-list');
   if (document.querySelector('.aw-question-detail-box')) root.classList.add('jsl-page-detail');
+  // 话题页（/topic/<name>）：社区外壳内的独立话题头 + tab 行 + 话题侧栏
+  if (document.querySelector('.aw-topic-detail-title')) root.classList.add('jsl-page-topic');
   // 门户新架构页（www.jisilu.cn/ 首页、搜索结果等，非 WeCenter 架构，共用新版导航）
   if (document.querySelector('.wrapper_content') || document.querySelector('.header_navbar_bg')) {
     root.classList.add('jsl-page-portal');
@@ -32,11 +34,17 @@ function applyPageFlags(): void {
     // 但没有 .data-content.auto-content-width，单独识别后共用数据页外壳样式
     root.classList.add('jsl-page-data');
   }
-  // 旧版服务端渲染数据页（新股/ETF/LOF/债券/转债详情…）：
-  // 常见是 .grid.data_content，计算器页（新股人品计算器/收益计算器）只有 .data_content
-  if (document.querySelector('.data_content')) {
-    root.classList.add('jsl-page-data-legacy');
-  }
+  // 旧版服务端渲染数据页（新股/ETF/债券/详情/计算器…）
+  if (isLegacyDataShell()) root.classList.add('jsl-page-data-legacy');
+}
+
+/** 旧版数据页：.data_content + 数据子导航（排除首页/日历等门户外壳）。 */
+function isLegacyDataShell(): boolean {
+  return (
+    !!document.querySelector('.data_content') &&
+    !!document.querySelector('.header_subnavbar_bg') &&
+    !document.querySelector('.wrapper_content')
+  );
 }
 
 /** FullCalendar 按容器宽度在渲染时算好事件的内联 left/width；
@@ -183,22 +191,16 @@ function reorderUserNavMenu(): void {
   }
 }
 
-/** 数据页外壳判定：Vue 数据页（.data-content.auto-content-width）、
- *  Vue 数据外壳的其它页（持仓，有 #app 内的子导航）、
- *  旧版服务端数据页（.grid.data_content）。三者共用 header/footer 增强。 */
+/** 数据页外壳（Vue 数据页 / 持仓 / 旧版服务端页）判定。 */
 function isDataShellPage(): boolean {
   return (
     !!document.querySelector('.data-content.auto-content-width') ||
     !!document.querySelector('#app .layout-default .header_subnavbar_bg') ||
-    !!document.querySelector('.data_content')
+    isLegacyDataShell()
   );
 }
 
-/** 数据页 header 浮层：Element UI 的 popper 打开时被挂到 body 下，并按站方
- *  300px 宽度相对触发按钮居中定位；样式收窄成 148px 后左缘不变，右缘会比按钮
- *  缩进 74px（宽 300 时则溢出 header 104px）。把 popper 右缘对齐到触发按钮右缘。
- *  Element 在弹窗上回写 aria-describedby，用它反查触发元素。
- *  选择器只命中 Element UI 的 popper（门户/社区用的是 Bootstrap popover），不影响其它页。 */
+/** 数据页 popper（挂 body 下）右缘对齐触发按钮，幂等。 */
 let dataPagePopperWatcherStarted = false;
 
 function alignDataPagePoppers(): void {
@@ -244,6 +246,140 @@ function alignDataPagePoppers(): void {
   new MutationObserver(schedule).observe(document.body, { childList: true });
 }
 
+/** 数据页：tab 行/筛选条/说明块对齐主表左缘，右浮动图表对齐主表右缘。
+ *  主表宽屏封顶 1900 后居中，兄弟块仍贴内容区两缘 → 量差值补内衬/外边距。 */
+let dataPageTabAlignStarted = false;
+
+function alignDataPageTabs(): void {
+  if (dataPageTabAlignStarted) return;
+  // 容器可能晚于 DOMContentLoaded 渲染（Vue）：找不到就先不置位，留给延时重试
+  if (!document.querySelector('.data_content, .data-content')) return;
+  dataPageTabAlignStarted = true;
+
+  const padded = new Set<HTMLElement>();
+
+  // 还原上一轮写的内联样式（含右浮动块）
+  const restore = (el: HTMLElement) => {
+    const undo = (key: 'jslPl' | 'jslMl' | 'jslMr' | 'jslImr', prop: string) => {
+      const original = el.dataset[key];
+      if (original === undefined) return;
+      if (original) el.style.setProperty(prop, original);
+      else el.style.removeProperty(prop);
+      delete el.dataset[key];
+    };
+    undo('jslPl', 'padding-left');
+    undo('jslMl', 'margin-left');
+    undo('jslMr', 'margin-right');
+    undo('jslImr', 'margin-right');
+  };
+
+  const apply = () => {
+    // 先还原再量：否则被推开的块不再满足「贴边」条件，下一轮会反复抖动
+    for (const el of padded) restore(el);
+    padded.clear();
+
+    const container =
+      document.querySelector<HTMLElement>('.data_content') ??
+      document.querySelector<HTMLElement>('.data-content');
+    if (!container) return;
+    const table = [
+      ...container.querySelectorAll<HTMLElement>('.data_table_tabs table, .jsl-table'),
+    ].find((t) => {
+      const b = t.getBoundingClientRect();
+      return b.width > 0 && b.height > 0;
+    });
+    if (!table) return;
+
+    const tableRect = table.getBoundingClientRect();
+    const cs = getComputedStyle(container);
+    const contentLeft = container.getBoundingClientRect().left + parseFloat(cs.paddingLeft);
+    const offset = Math.round(tableRect.left - contentLeft);
+
+    // ---- 左缘：贴内容左缘的兄弟块（满宽块用 padding，窄块用 margin） ----
+    if (offset > 0) {
+      const base = [
+        ...container.querySelectorAll<HTMLElement>('div, p, form, ul, ol'),
+      ].filter((el) => {
+        if (el.closest('table') || el.contains(table)) return false;
+        const b = el.getBoundingClientRect();
+        const s = getComputedStyle(el);
+        if (s.display === 'none' || b.width < 200 || b.height < 8) return false;
+        if (Math.abs(b.left - contentLeft) > 2) return false;
+        // 图表容器（canvas/echarts）没有文字，但同样需要跟表格左缘对齐
+        return !!(el.textContent ?? '').trim() || !!el.querySelector('canvas');
+      });
+      const baseSet = new Set(base);
+      const candidates = base.filter(
+        (el) => !(el.parentElement && baseSet.has(el.parentElement)),
+      );
+      const avail =
+        container.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      for (const el of candidates) {
+        const narrow = el.getBoundingClientRect().width < avail - 2;
+        el.dataset[narrow ? 'jslMl' : 'jslPl'] = narrow
+          ? el.style.marginLeft
+          : el.style.paddingLeft;
+        el.style.setProperty(
+          narrow ? 'margin-left' : 'padding-left',
+          `${offset}px`,
+          'important',
+        );
+        padded.add(el);
+      }
+    }
+
+    // ---- 右缘：右浮动图表块（A股温度仪表盘等）贴主表右缘 ----
+    // 目标右缘 = min(主表右缘, 行右缘)：表格宽于视口时右缘不可见，
+    // 退回对齐行右缘而不是把图表推出屏幕。
+    // 站方给 echarts 外层留了 10px 右内衬与 5px 上边距，先清零再按外框对齐，
+    // 否则图形会比容器右缘缩进 10px。
+    const floats = [
+      ...container.querySelectorAll<HTMLElement>('div, section'),
+    ].filter((el) => {
+      if (el.closest('table') || el.contains(table)) return false;
+      if (getComputedStyle(el).float !== 'right') return false;
+      const b = el.getBoundingClientRect();
+      if (b.width < 20 || b.height < 20) return false;
+      return !!el.querySelector('canvas');
+    });
+    for (const el of floats) {
+      if (floats.some((other) => other !== el && other.contains(el))) continue;
+      const row = el.parentElement;
+      if (!row) continue;
+      const rowRight =
+        row.getBoundingClientRect().right -
+        parseFloat(getComputedStyle(row).paddingRight || '0');
+      const target = Math.min(tableRect.right, rowRight);
+
+      // echarts 内层（canvas 的祖辈里带内联 margin 的那个）：清零右/上内衬
+      const inner = el.querySelector<HTMLElement>('div[style*="margin-right"]');
+      if (inner && el !== inner && !inner.querySelector('div[style*="margin-right"]')) {
+        inner.dataset.jslImr = inner.style.marginRight;
+        inner.style.setProperty('margin-right', '0px', 'important');
+        padded.add(inner);
+      }
+
+      const shift = Math.round(el.getBoundingClientRect().right - target);
+      if (shift === 0) continue;
+      const original = parseFloat(el.style.marginRight) || 0;
+      el.dataset.jslMr = el.style.marginRight;
+      el.style.setProperty('margin-right', `${original + shift}px`, 'important');
+      padded.add(el);
+    }
+  };
+
+  // 样式表异步加载、tablesorter 初始化、切 tab 都会改变表格位置 → 多轮复算
+  apply();
+  [300, 800, 1500, 2500, 4000].forEach((ms) => window.setTimeout(apply, ms));
+  window.addEventListener('resize', apply);
+  // 切子 tab 只换表格显隐，不触发 resize → 点击 tab 区后补一次
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement | null;
+    if (!target?.closest('.data_type_nav, .data_table_tabs, .nav-box, .el-menu')) return;
+    requestAnimationFrame(apply);
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   applyPageFlags();
   polishHeaderLinks();
@@ -252,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
   injectThemeToggle();
   reflowCalendar();
   alignDataPagePoppers();
-  // 数据页是 Vue/服务端两套外壳，header、子导航、页脚都可能晚于 DOMContentLoaded 出现：
+  alignDataPageTabs();
   // 延时重跑标志检测与 DOM 变换（幂等）
   const enhanceDataShellLater = () => {
     applyPageFlags();
@@ -263,6 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
       movePublishToHeader();
       reorganizePortalFooter();
       alignDataPagePoppers();
+      alignDataPageTabs();
     }
   };
   window.setTimeout(enhanceDataShellLater, 1200);

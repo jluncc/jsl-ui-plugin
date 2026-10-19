@@ -46,6 +46,8 @@ if "aw-question-list" in html:
     flags += " jsl-page-list"
 if "aw-question-detail-box" in html:
     flags += " jsl-page-detail"
+if "aw-topic-detail-title" in html:
+    flags += " jsl-page-topic"
 if "wrapper_content" in html or "header_navbar_bg" in html:
     flags += " jsl-page-portal"
 if "content_box" in html:
@@ -56,7 +58,7 @@ if "auto-content-width" in html:
     flags += " jsl-page-data"
 elif 'layout-default' in html and 'header_subnavbar_bg' in html:
     flags += " jsl-page-data"
-if "data_content" in html:
+if "data_content" in html and "header_subnavbar_bg" in html and "wrapper_content" not in html:
     flags += " jsl-page-data-legacy"
 
 sim = """

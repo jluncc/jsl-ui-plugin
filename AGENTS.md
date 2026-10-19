@@ -86,10 +86,39 @@ pnpm format  # prettier
 
 - **标志检测（2026-10-19 补齐）**：`.grid.data_content` 存在 → `jsl-page-data-legacy`；另把 `#app .layout-default .header_subnavbar_bg`（持仓等 Vue 数据外壳页，无 `.auto-content-width`）也识别为 `jsl-page-data`。`isDataShellPage()` 统一判定三类页，延时 1200ms / 2500ms 重跑标志与 header/footer 增强（Vue 渲染晚于 DOMContentLoaded）。
 - **子导航结构差异**：`.grid > .grid-row > .grid-col-3/21`（不是 el-row/el-col），Beta 是 `a.beta::after`（不是 el-badge），激活项是 `.on`（不是 `.router-link-active`）。样式全部复用 Vue 数据页的数值：960 居中、44px 单行、持仓 x=245、分隔线落 logo 右缘 x=335、首类别 x=345、芯片 28px。`subnavbar_right > div` 同样用 `display: contents` 并成一行。
-- **Beta 角标（用户定稿）**：两种外壳统一缩成**右上角小标**——`position:absolute; top:-3px; right:-12px; height:14px; font-size:9px; padding:0 4px; radius:999px`，实底 `--jsl-accent-solid`。站方原本是压在「持仓」文字上的红底横条（Vue 是 absolute 13px 白字、旧版是 `a.beta::after`）。
+- **Beta 角标（用户定稿，三处外壳统一）**：全部缩成**右上角小标**——9px 字 / 14px 高 / `padding:0 4px` / `radius:999px`、实底 `--jsl-accent-solid`，相对「持仓」**上提 3px、右探 12px**、`pointer-events:none`。三处实现：
+  1. Vue 数据页 `.el-badge__content`（站方 absolute 13px 白字）；
+  2. 旧版数据页 `a.beta::after`（站方红底横条压字）；
+  3. 门户首页 `.tag_top sup`（站方红字 + **JS 内联 `transform: translate(28px,-7px)`**——必须 `transform: none !important` 清零，否则纵向偏 7px；包含块是 24px 高的 `.relative`，故 `top:-2px` 才等于相对 22px 胶囊上提 3px）。
+  实测三页几何一致：首页 beta(401..429, 622) / 持仓(371..417, 625)；数据页 beta(265..293, 58) / 持仓(235..281, 61)；旧版页伪元素 top:-3/right:-12。
 - **表格令牌化**：`.tablesorter` / `.jisilu_tcdata` 同样挂 `table-bg.png` 白纹理 → 统一 `background-image:none` + surface；表头 `#86c5e3` → surface-2；斑马行 `rgba(240,240,246,.6)` → surface-2/surface；内联 `background-color:yellow`（申购日/发行价/预估字段）→ accent-weak + accent；内联 `color:red/green` → 主题涨跌色；`.btn-info`（+自选，亮蓝 2.1:1）→ accent-solid。
+- **表格下方说明块对齐（2026-10-19 定稿）**：主表居中后，表格下方的「数据说明」「基金份额数据口径说明」以及股息率页的筛选条仍贴内容区左缘（x=15 vs 表格 330）。`alignDataPageTabs()` 扩展为：找出所有贴内容左缘、宽 >200px、含文字的块级容器，跳过「含主表」的祖先（否则会把表格一起推走）、跳过父级也被选中的嵌套块（否则双重内衬），统一加 `padding-left = 表格左缘 - 内容左缘`。**用 padding 而不是 margin**——站方不少块写死 `width:100%`，加左外边距会撑出横向滚动（实测 2560 下 docW 变 2860）；padding 只压缩内容盒。**每轮先还原再测量**——否则被推右的块下一轮不再满足「贴左缘」，会在候选/非候选之间抖动。`offset<=0`（窄屏/满宽表）时直接跳过，不写零内衬去覆盖站方原有 padding。切子 tab 后补一次（点击 `.data_type_nav/.data_table_tabs/.nav-box/.el-menu` 时 rAF 重算）。
+- **持仓页标题左对齐（2026-10-19 定稿）**：`/web/positions` 的「持仓组合」标题（`.content-title`）在 1200 定宽容器内（x=125@1450，padding 24），而「持仓」按钮文字在 960 子导航内（x=245），两者恒差 **81px**（两个容器都定宽+居中，差值不随视口变化）。修法：`.content-title { padding-left: 105px }`（24+81）。实测 1280/1450/1920/2560 四档标题文字与「持仓」按钮文字同值（160/245/480/800）。只动标题内衬，下方说明文字与两张创建卡位置不变。
+- **数据页 footer 恒贴底（2026-10-19 补全）**：两套外壳各缺一条。
+  1. **旧版服务端页**：门户外壳的 `body:has(> .footer_bg)` flex 规则只让 `.wrapper_content` / `#wrap` 吃剩余高度，而旧版数据页的直接内容容器是 `.data_content`（债券页少 261px、REITs 页少 97px 空白）→ 补 `body:has(> .footer_bg) > .data_content { flex: 1 0 auto }`。
+  2. **Vue 数据外壳**：原规则只给 `.nav-data` 加 `flex:1`，持仓页内容容器是 `.nav-positions-create`（1300 高视口下留 169px）→ 改为 `#app > .layout-default > :not(.header_navbar_bg):not(.footer_bg) { flex: 1 0 auto }`，footer 显式 `flex: 0 0 auto`。
+  实测 900/1300/1400 视口 × 12 个旧版数据页（含各子 tab）+ Vue 数据页/持仓页：footer 底边均等于文档底（差 0；ETF/股息率页的 -1 是 `scrollHeight` 整值与元素小数边界取整，实际差 0.48/0.30px）。
+- **图表容器也要跟着对齐（2026-10-19 补）**：ETF「场内货币ETF」子 tab 的 `#moneyFundPie` 里 canvas 是 **absolute 定位**，只给容器加 `padding-left` 不会让 canvas 移动（实测仍停在 x=15，表格在 330）。所以候选块分两类：满宽块（宽 ≈ 可用宽）用 `padding-left` 防横向溢出；**窄块（图表等，宽 < 可用宽 −2）用 `margin-left`**，把容器盒子整体推过去。另外容器本身没有文字，候选过滤条件补 `|| el.querySelector('canvas')`，否则饼图容器根本进不了候选。
+- **右浮动图表（A股温度仪表盘）右缘对齐（2026-10-19 补）**：股息率页的直角仪表盘是 `#indicator`（ECharts，90×90）套在 `.grid-col-auto` 右浮动容器里。表格宽屏居中后右缘内移，右浮动块仍贴筛选行右缘，两者错开（2560 下差 315px）。`alignDataPageTabs()` 增加右缘处理：取 `min(主表右缘, 行右缘)` 作目标（表格宽于视口时退回行右缘，否则会把图表推出屏幕产生滚动），按 `margin-right` 把浮动块往左推。**两个细节**：① 站方给 `#indicator` 写死 `margin-right:10px`，必须先清零再对齐，否则图形比容器右缘缩进 10px；② 别用「收窄容器宽度」——右浮动元素宽度变小反而更靠右（实测 2560 下容器被压成 0、图形跑到 2535）。实测 1450/1920/2560 图形右缘与目标右缘差值均为 0（2560 下 2230=2230，1920 下 1905=1905，1450 下退回行右缘 1435）。
+- **Beta 贴右上角补齐（2026-10-19 补）**：旧版数据页 `a.beta::after` 的站方规则是 `right:18px` + `transform: translateY(-50%) translateX(100%)`，`translateX(100%)` 等于再右移一个徽标宽（28px），实测角标右缘比「持仓」胶囊右缘多出 **40px**（看起来离得很远）。我们的 `left:auto` 压不住它——必须同时 `top/right/bottom/transform` 全部 `!important` 覆盖。修复后全站五处（首页 / 数据列表 / 新版旧版数据页 / 持仓页）统一为：**上提 3px、右探 12px、28×14、9px 字**。
+- **子 tab 行对齐主表左缘（2026-10-19 定稿）**：主表宽屏居中后，站方 `.data_type_nav`（股票LOF/指数LOF 胶囊行）仍满宽贴左，与表格左缘错位（2560 下 tab x=15 vs 表格 x=330）。各页表格宽度来源不同（内联 1000/1400、`tablesorter max-width:1900`、满宽），无法用一条 CSS 对齐 → `alignDataPageTabs()` 量「可见主表」左缘、把偏移写成 tab 行的 `padding-left`（`setProperty(..., 'important')`，因为样式表里该 padding 带 `!important`；普通内联压不住）。三个坑：① **每页有多张子 tab 表格，未激活的 `display:none` 宽 0**，必须筛可见的那张，否则取到 0 宽直接跳过；② 站方 padding 带 `!important`，内联必须同级；③ Bootstrap clearfix 的 `::before/::after` 在 flex 胶囊行里各吃 4px gap，首个胶囊偏右 4px → `display:none`。多轮复算（0/300/800/1500/2500/4000ms + resize）覆盖 tablesorter 初始化与切 tab。实测 1280/1450/1920/2560 下 tab 与表格左缘完全同值（如 2560：330=330，A/H 比价 780=780，指数涨幅 552=552）。
+- **表格工具条搜索框的 3 个图标按钮重叠（2026-10-19 修复）**：升/降/清除三个按钮 Element UI 用 `margin:-10px -20px` 抵消 append 的 20px 内衬，但 `.el-button + .el-button { margin-left:10px }` 会覆盖**左侧**那个 -20px → 相邻按钮只前进 34px，而按钮宽 44px，**互相压 10px**（截图可见三个按钮叠在一起）。修法：接管 append 内按钮为 `width:24px; height:24px; margin:0 !important; padding:0 !important; border:none`，相邻按钮 `margin-left:2px !important`。**append 必须保持 `display:table-cell`**——改成 flex 会把同组的 `.el-input__inner` 挤没、搜索框只剩图标区。同时把底色提到外层 `.table-top .search`（surface-2 + 8px 圆角）并让 input 透明，否则右半截仍露出站方 `#f5f7fa`。实测 11 个子 tab：按钮 24×24、间距 2px、零重叠，搜索胶囊 244 宽、圆角 8px。
+- **子 tab 主表居中（2026-10-19 定稿）**：站方 `table.tablesorter { width:100%; max-width:1900px; margin:0 0 15px }`——视口 >1920 时表格封顶 1900 后**贴左**，右侧留一大片空白（2560 下右侧空 645px）。修法：`.data_table_tabs table.tablesorter { float: none !important; margin-left/right: auto !important }`。**必须同时清 float**——站方 JS 切 tab 时给主表写内联 `float: left`，浮动元素会忽略 auto 外边距（实测只写 margin 无效）。作用域限定 `.data_table_tabs` 内，详情页双栏小表（`.jisilu_tcdata` / `detail_hist`）不受影响。实测 1280/1450/1920 右左等距（15/15），2560 为 330/330。
 - **转债详情专属浅底块**：`.tips-bg`（淡黄提示条）、`.jisilu_title`（浅蓝指标标题）、`.calc`（计算器条）、`.tag`/`.item`（概念标签）、`.breadcrumb`、个股页内联 `#e1f3fd` 信息表与 `.item_div`/`.item_chart` 图表块 → 全部 surface-2/surface + 令牌边框。
 - **注意**：这类页左右布局由站方内联 `margin: 0 25px` + 固定表格宽度决定，**内容区保持全宽**（`width:100%; padding:16px 15px 40px`），不要收 960，否则宽表会溢出/错列。
+
+## 话题页 / 话题广场（.jsl-page-topic / .aw-topic-content）
+
+`/topic/<name>` 是 WeCenter 社区外壳（`.aw-wecenter` + `.aw-question-list`，会自动命中列表页样式），但多了三块站方原色区域；`/topic/`（话题广场）是另一套结构。
+
+- **标志**：`.aw-topic-detail-title` 存在 → `jsl-page-topic`（`applyPageFlags`、`preview.sh`、预览注入脚本三处同步）。话题广场没有该节点，只靠 `jsl-community` + `.aw-topic-content` 作用域，不需要新标志。
+- **话题头卡**：站方 `.aw-mod-body` 是 `position:relative` + `padding-left:80px`、头像 `absolute` 50px、关注块 `absolute` 贴右、`min-height:70px`、卡片 `margin-top:10px`。改成 flex 单行（44px 头像 + 18px 标题 + 右侧「N 人关注 + 关注按钮」），并清 `min-height` / `margin`。不清 `min-height` 会留 100px 空卡；不清 `margin-top` 会让标题卡比侧栏首卡低 10px。
+- **「关注」按钮**：站方淡黄绿实底 `#e0f4ad` + 灰字（深色下成亮块、1.9:1），已关注态还叠 `aw-active` → 统一描边胶囊，`.aw-active` 用 accent-solid 实底。
+- **tab 行**（主题/问题 | 关于话题）：站方白底 tab + `#f5faff` 未选。改 surface-2 通栏灰带 + 胶囊，**选中态用 `--jsl-surface` 底而不是 accent-weak**——accent-weak 叠在 surface-2 上时 accent 文字只有 3.84:1（深色）/3.91:1（浅色），surface 底才是 5.52/4.55。
+- **话题内搜索**：站方白底 `input.search-query` + 灰框；改 surface 胶囊（同 header 搜索）。下拉 `.aw-topic-dropdown` 同步 surface 卡。
+- **侧栏**：五种卡片。标题有两种站方结构（`aw-side-bar-mod-head` 与 `aw-side-bar-head`），h3 都写死 `#17344a`（深色 1.34:1）→ 令牌化。**「话题描述」为空时站方仍渲染一张只有标题的空卡**，用 `:has(> .aw-side-bar-mod-body > p:empty)` 整卡隐藏。「相关话题」「新增话题」的 chip 需要 `!important` 覆盖全局 `.aw-topic-name span` 的透明化规则。
+- **「更多...」**：站方浅蓝实底条 → 描边胶囊。
+- **话题广场 `/topic/`**：主卡 `.aw-topic-follow`，每条 = 50px 头像 + 话题名 + 「N 个问题/N 个关注」+ 3 条最新问题。站方话题行 `padding-left:66px` + absolute 头像，改 82px 内衬并把分隔线做成 `::after` 2px。**最新问题行的 DOM 顺序是「日期 span → 标题 a」**，flex 化后日期会跑到左边，必须用 `order:1/2` 还原标题左、日期右。侧栏导航选中态是 `#2b77a8` 实底蓝条 → accent-weak 胶囊；「新增话题」chip 容器改 flex wrap + gap。
 
 ## 投资日历页（.jsl-page-calendar）
 
@@ -135,9 +164,9 @@ pnpm lint         # eslint + tsc
 1. **危险 API**：`eval` / `new Function` / `document.write` / `window.open` 缺 noopener
 2. **XSS 面**：`innerHTML` 赋值（当前仅用于内置 SVG 常量，可信）；新增处必须确认内容来源
 3. **CSS 冗余**：`transition: all`（改显式属性）；**声明完全相同**的重复选择器（同一选择器分多条写基础+状态补丁是正常分层，不报）
-4. **体积预算**：`content.js ≤ 32KB`、三段 CSS 合计 ≤ 256KB（随覆盖页面增长上调：12 页 → 含设置页 8 个 tab + 数据页 header 精修 + 旧版服务端数据页适配；超了先查是不是又内联了大段 data URI 或可压缩的冗长注释）
+4. **体积预算**：`content.js ≤ 36KB`、三段 CSS 合计 ≤ 274KB（随覆盖页面增长上调：12 页 → 含设置页 8 个 tab + 数据页 header 精修 + 旧版服务端数据页适配；超了先查是不是又内联了大段 data URI 或可压缩的冗长注释）
 
-审查基线（2026-10 首轮）：CSS 142.8KB / content.js 22.7KB；当前 **254.4KB / 31.2KB**（十二页 + 用户中心 + 设置页 8 个 tab + 投资日历页 + 数据页 header/子导航/浮层精修 + 旧版服务端数据页适配后）；已知可接受项 = 2 处 `innerHTML`（detail.ts 回顶图标、theme-toggle.ts 主题图标，均为内置 SVG 字符串常量）。
+审查基线（2026-10 首轮）：CSS 142.8KB / content.js 22.7KB；当前 **272.0KB / 34.3KB**（十二页 + 用户中心 + 设置页 8 个 tab + 投资日历页 + 数据页 header/子导航/浮层精修 + 旧版服务端数据页 + 话题页/话题广场适配后）；已知可接受项 = 2 处 `innerHTML`（detail.ts 回顶图标、theme-toggle.ts 主题图标，均为内置 SVG 字符串常量）。
 
 ## 预览与验收工作流（不装扩展即可验证样式）
 
