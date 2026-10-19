@@ -12,10 +12,24 @@ OUT="/tmp/jsl-preview"
 mkdir -p "$OUT"
 
 python3 - "$SNAPSHOT" "$OUT/$NAME.html" "$THEME" "$ROOT" <<'PY'
+import json
+import os
+import re
 import sys
 
 src, dst, theme, root = sys.argv[1:5]
 html = open(src, encoding="utf-8").read()
+
+# 投资日历事件快照（scripts/refresh-calendar-events.mjs 抓取）。
+# 预览服务没有站方 AJAX 后端，用这份真实响应替代 eventSources。
+calendar_events = {}
+calendar_events_path = os.path.join(os.path.dirname(dst), "calendar-events.json")
+if os.path.exists(calendar_events_path):
+    try:
+        calendar_events = json.load(open(calendar_events_path, encoding="utf-8"))
+    except (OSError, ValueError):
+        calendar_events = {}
+calendar_events_json = json.dumps(calendar_events, ensure_ascii=False)
 
 css = ""
 for name in ("tokens.css", "global.css", "community.css"):
@@ -36,7 +50,7 @@ if "wrapper_content" in html or "header_navbar_bg" in html:
     flags += " jsl-page-portal"
 if "content_box" in html:
     flags += " jsl-page-auth"
-if 'id="calendar"' in html:
+if re.search(r"""id=["']calendar["']""", html):
     flags += " jsl-page-calendar"
 if "auto-content-width" in html:
     flags += " jsl-page-data"
@@ -97,7 +111,35 @@ sim = """
     else injectTarget.appendChild(b);
   }
 
-  // 投资日历：FullCalendar 按容器宽度算事件内联 left/width，
+  // 投资日历：事件由站方 AJAX（/data/calendar/get_calendar_data/）拉取，
+  // 本地静态服务没有后端 → 在站方 ready 初始化 FullCalendar 之前劫持 $.ajax，
+  // 用真实响应快照应答。必须在首帧前喂入：renderEvent 后补事件不会触发
+  // 月视图行高重算，密集日期会溢出单元格（实测 46 条/天时溢出 800px+）。
+  // 只影响本地预览页，扩展不注入任何事件。
+  var CAL_EVENTS = __CALENDAR_EVENTS__;
+  if (window.jQuery && document.getElementById('calendar')) {
+    (function ($) {
+      var origAjax = $.ajax;
+      $.ajax = function (opts) {
+        if (opts && typeof opts === 'object' && typeof opts.url === 'string' &&
+            opts.url.indexOf('/data/calendar/get_calendar_data/') >= 0) {
+          var m = /[?&]qtype=([^&]+)/.exec(opts.url);
+          var type = m ? decodeURIComponent(m[1]) : '';
+          var data = CAL_EVENTS[type] || [];
+          var xhr = $.Deferred();
+          setTimeout(function () {
+            if (opts.success) opts.success(data, 'success', xhr);
+            if (opts.complete) opts.complete(xhr, 'success');
+            xhr.resolve(data, 'success', xhr);
+          }, 0);
+          return xhr.promise();
+        }
+        return origAjax.apply(this, arguments);
+      };
+    })(window.jQuery);
+  }
+
+  // FullCalendar 按容器宽度算事件内联 left/width，
   // CSS 收窄容器后需要 resize 让它重算（与 index.ts reflowCalendar 同步）
   if (document.getElementById('calendar')) {
     var fireResize = function () { window.dispatchEvent(new Event('resize')); };
@@ -105,6 +147,34 @@ sim = """
     window.addEventListener('load', fireResize, { once: true });
     setTimeout(fireResize, 600);
     setTimeout(fireResize, 1500);
+
+    // 跨周续接段（无 fc-event-start）是 left:0、起始段是 left:3px，
+    // 圆角卡片下续接段会凸出 3px——内缩 3px 且宽度 -3，右缘不动（与 index.ts 同步）
+    var normalizeEventInsets = function () {
+      document.querySelectorAll('#calendar .fc-event:not(.fc-event-start)').forEach(function (el) {
+        if (parseFloat(el.style.left || '0') !== 0) return;
+        var w = parseFloat(el.style.width);
+        if (!isFinite(w)) return;
+        el.style.left = '3px';
+        el.style.width = (w - 3) + 'px';
+      });
+    };
+    normalizeEventInsets();
+    var queued = false;
+    var scheduleNormalize = function () {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(function () { queued = false; normalizeEventInsets(); });
+    };
+    new MutationObserver(scheduleNormalize).observe(document.getElementById('calendar'), {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['style'],
+    });
+    window.addEventListener('load', scheduleNormalize, { once: true });
+    setTimeout(scheduleNormalize, 600);
+    setTimeout(scheduleNormalize, 1500);
   }
 
   // list.ts：卡片顶部两行导航——第一行分类+话题，第二行排序
@@ -661,6 +731,9 @@ sim = """
 })();
 </script>
 """
+
+# 烘焙的日历事件 JSON：转义 </script> 防止提前闭合脚本标签
+sim = sim.replace("__CALENDAR_EVENTS__", calendar_events_json.replace("</", "<\\/"))
 
 # 插入 base 让相对资源指向线上；样式注到 head 末尾（真实扩展的 CSS 也晚于站方生效）
 if "</head>" in html:

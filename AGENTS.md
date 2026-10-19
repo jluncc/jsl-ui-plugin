@@ -79,12 +79,20 @@ pnpm format  # prettier
 
 `/data/calendar/` 是门户外壳 + **FullCalendar 1.x**（`#calendar`，站方内联 `width:950px` 右浮动）+ 左侧筛选表（`#event-category`，`width:150px` 左浮动，底层是一张 17 行 × 5 列的表）。
 
-- **布局**：站方内容区 1170 宽、与 header 960 错位。改为 `data_content` flex 纵向 + 960 宽居中；左侧竖栏打平成顶部**横向筛选条**（表格 `display:contents` + 每个 `tr` 变一枚芯片，占位列 `td[width]` 隐藏、`td[bgcolor]` 变 10px 圆点），日历占满 960。
-- **FullCalendar 的坑**：事件块的 `left/width` 是渲染时按容器宽度算好的**内联值**，只改 CSS 不重算会溢出单元格。必须 `window.dispatchEvent(new Event('resize'))` 触发重算（`reflowCalendar()`：立即 + load + 600ms + 1500ms 各一次，幂等）。实测从 183px 正确变为 169px。
+- **布局（2026-10-19 定稿：回归站方排版 + 对齐 header）**：左侧 **150px 筛选竖栏**、间距 **16px**、右侧日历吃满剩余 **794px**；内容区整体 **960 宽居中**，实测左栏 x=245 = header logo 左缘、日历右缘 1205 = 注册按钮（登录态为用户按钮）右缘。筛选栏 **sticky**（`top:16px`）固定，长月历下拉时筛选始终可见；实测 scrollY 300/1000/2500 时栏顶恒为 y=16。竖栏内表格还原成「一行一项」：标签列 `flex:1` 把复选框/色点推到右侧成列，「确定」按钮通栏、上方**不画分隔线**（用户定稿，`tr:has(td[colspan])` 只留 4px 间距）。**flex 化后必须摘掉站方收尾的 `<div style="clear:both"></div>`**——它会变成 0 宽 flex 项、白吃一组 gap（`:empty` 规则处理）。此前「顶部横向筛选条 + 960 收窄」和「站方 1170 原宽」两版方案均已废弃。
+- **FullCalendar 的坑**：事件块的 `left/width` 是渲染时按容器宽度算好的**内联值**，只改 CSS 不重算会溢出单元格。必须 `window.dispatchEvent(new Event('resize'))` 触发重算（`reflowCalendar()`：立即 + load + 600ms + 1500ms 各一次，幂等）。实测竖栏布局下 cellW=184、500 条事件无右溢出。
 - **配色**：站方硬编码 `#eee` 筛选底、`#999` 边框、`#4d4d4d` 文字、`#ddd` 网格线、今天 `#b4e6ff`+红字+蓝色外发光、fc 按钮浅色渐变——全部令牌化。
 - **事件块**：底色来自站方内联 `background-color`（十几种高饱和色，是日历类型的语义），**不要逐个改色**。深色下改用 `background-image: linear-gradient(rgba(0,0,0,.55),…)` 叠遮罩 + 白字：任意底色都被压到 L≤0.19，白字对比 ≥4.7（最亮白底 4.74、最暗紫底 11.5），色相仍保留。
 - **验证注意**：对比度扫描只读 `backgroundColor`，看不到 `background-image` 遮罩，会误报事件块不达标——这种情况用 PIL 采样渲染像素仲裁（实测黄底被压到 `(113,102,49)`，白字 5.76:1）。
-- 站方筛选表最后一行的「确定」按钮用 `tr:has(td[colspan])` 单独还原成右侧对齐的普通按钮。
+- 站方筛选表最后一行的「确定」按钮用 `tr:has(td[colspan])` 单独还原成通栏按钮。
+- **预览脚本的引号坑（2026-10-19 实测）**：快照里日历容器写作 `id='calendar'`（单引号），`preview.sh` 原先只匹配 `id="calendar"`，`jsl-page-calendar` 标志没挂上 → 整套日历样式一条不命中、页面退回站方原始布局（左竖栏 + 950 日历）。标志检测改为正则同时匹配单双引号；`index.ts` 用 `getElementById` 不受影响。排查此类"样式没生效"先 `grep '<html'` 看标志类。
+- **筛选空行**：站方用 `<tr height='5'/>` 撑行距，HTML 不认自闭合 → 解析成空行。`tr:not(:has(td))` 整行摘掉（实测 30 行 → 16 行可见）。
+- **竖栏内三件套垂直居中（用户定稿）**：文字 18px 行盒 / 复选框 13px / 色点 10px，站方基线对齐会让复选框浮高 2px。`td:has(> input[type=checkbox])` 改 flex + `align-items:center` + `height:18px`，三点中心严格共线（横排布局实测同为 cy=124，竖栏布局沿用同一规则）。
+- **翻页箭头居中（用户定稿，2026-10-19 二次修正）**：`.fc-header .fc-button-prev/next` 站方是行内文本 + `text-align:right`，24px 字形贴右缘、相对 28px 按钮偏右 4.5px → 改 `inline-flex + center + line-height:1` 后**字形盒**中心与按钮中心偏差 0/0。但盒子居中 ≠ 墨迹居中：`‹ ›` 在 em 盒内本身偏下，像素扫描实测墨迹质心比按钮中心低 2.15px（按钮 9–38 行、质心 25.65、盒中心 23.5）→ 给 `.fc-text-arrow` 加 `transform: translateY(-2px)`，复测浅色质心 19.95 / 深色 19.70（按钮中心 19.5），两主题均居中。此类「几何对齐但看着偏」优先用像素质心仲裁，不要只信 getBoundingClientRect。
+- **表头与网格间距**：`.fc-header` 与月历网格之间 10px（原 4px 太贴，用户反馈「太靠近」）。
+- **本地预览为什么没有事件 / 数据量对不上**：事件全部由站方 AJAX 从 `/data/calendar/get_calendar_data/?qtype=<id>&start=<unix>&end=<unix>` 拉取，静态预览服务没有该后端。`preview.sh` 在站方 `$(document).ready` 初始化 FullCalendar **之前**劫持 `$.ajax`，用 `node scripts/refresh-calendar-events.mjs`（`pnpm preview:calendar-data`）抓的真实响应快照应答，数据写到 `/tmp/jsl-preview/calendar-events.json`。两个关键点：① **必须走 `eventSources` 初始化路径**——先用 `renderEvent` 后补事件不会触发月视图行高重算，密集日期会溢出单元格（实测 46 条/天溢出 800px+）；走数据源初始化后站方自己会把行撑到 1305px，与线上一致。② **请求必须带 `start`/`end`**（当前月的 6×7 天范围，`start` = 当月 1 日所在周周一、`end` = start+42 天），不带时间范围时接口只回最近几天，实测 174 条 vs 线上 500 条。③ 预览会话会残留 `event_*` cookie 让复选框全勾选，量默认状态前先清掉。**仅本地预览**，扩展本身不注入任何事件。
+- **事件点击跳转（已实测通过）**：站方 FullCalendar 是改造版，带 `url` 的事件渲染成 `<a target="_blank" href="...">`，点击新标签页打开实时数据页（如 `/data/convert_bond_detail/123287` → 满坤转债）。预览里劫持的是数据源、不是渲染，所以 `target="_blank"` 与链接地址都保留，实测点「【申购日】满坤转债」新开 `https://www.jisilu.cn/data/convert_bond_detail/123287`。`eventClick` 里的 `window.open(event.url, "_calendar")` 是站方冗余分支（用的是全局 `event`，非 `calEvent`），实际不会走到——链接自身的 `target` 已经生效，扩展未改动这段逻辑。
+- **跨周续接段左缘凸出 3px（2026-10-19 实测修复）**：FullCalendar 的跨周事件按行拆段——起始段（`.fc-event-start`）内联 `left:<cellLeft+3>px`，而续接段（无 `fc-event-start`，从上一周延续进来）是 `left:0` 贴单元格左缘。平铺色块时代无感，改用 4px 圆角卡片后，续接段左缘会比同列起始段凸出 3px（实测 x=260 vs 263）。修法：`index.ts normalizeCalendarEventInsets()` 把续接段 `left` 从 0 改 3px、`width` 同步 -3px（**右缘不动**，实测右缘原本已对齐在 432）。续接段必然从行首列开始（上一周延续进来），所以只需处理 `left===0`。翻月/切视图/窗口重排会重建节点并重写内联定位 → `watchCalendarEvents()` 用 MutationObserver 在 rAF 末尾幂等补一次（校正后 left 非 0，不会自触发循环）。`preview.sh` 内嵌同一份逻辑。实测深浅两主题 500 条事件：续接段与起始段最小 x 均为 263、残留 left:0 为 0。
 
 ## 用户中心四页（通知 / 私信 / 个人主页 / 设置）
 
@@ -113,7 +121,7 @@ pnpm lint         # eslint + tsc
 3. **CSS 冗余**：`transition: all`（改显式属性）；**声明完全相同**的重复选择器（同一选择器分多条写基础+状态补丁是正常分层，不报）
 4. **体积预算**：`content.js ≤ 32KB`、三段 CSS 合计 ≤ 235KB（随覆盖页面增长上调：12 页 → 含设置页 8 个 tab 深度精修；超了先查是不是又内联了大段 data URI 或可压缩的冗长注释）
 
-审查基线（2026-10 首轮）：CSS 142.8KB / content.js 22.7KB；当前 **224.8KB / 28.1KB**（十二页 + 用户中心 + 设置页 8 个 tab 深度精修后）；已知可接受项 = 2 处 `innerHTML`（detail.ts 回顶图标、theme-toggle.ts 主题图标，均为内置 SVG 字符串常量）。
+审查基线（2026-10 首轮）：CSS 142.8KB / content.js 22.7KB；当前 **227.4KB / 29.3KB**（十二页 + 用户中心 + 设置页 8 个 tab + 投资日历页深度精修后）；已知可接受项 = 2 处 `innerHTML`（detail.ts 回顶图标、theme-toggle.ts 主题图标，均为内置 SVG 字符串常量）。
 
 ## 预览与验收工作流（不装扩展即可验证样式）
 
@@ -122,6 +130,7 @@ pnpm lint         # eslint + tsc
 3. 侧栏内嵌浏览器不能开 `file://`，本地起服务：`cd /tmp/jsl-preview && python3 -m http.server 8642`，访问 `http://127.0.0.1:8642/r5-list-dark.html?v=N`。
 4. **`?v=N` 是缓存击穿约定**：每次重新生成预览页，把 `index.html` 里的版本号 +1（`sed -i '' -E 's/\?v=旧/\?v=新/g'`），否则浏览器拿到缓存的旧 HTML，会让你误判"改了没生效"。
 5. `preview.sh` 内嵌的模拟脚本与 `src/content/modules/*` **必须同步改**——两边是同一套 DOM 变换的 TS/JS 双实现。
+6. 日历页的事件数据要先 `pnpm preview:calendar-data` 抓一份真实响应到 `/tmp/jsl-preview/calendar-events.json`（再跑 `preview.sh`）；数据量、行高、点击跳转才和线上一致。快照过期后重抓即可。
 
 验收手段（按成本递增）：`playwright.evaluate` 读 computed style / getBoundingClientRect 数值对齐 → 截图 + `nodeRepl.emitImage` 目测 → PIL 像素扫描（连续性/周期性图案）。数值探针优先。
 

@@ -7,7 +7,8 @@
     "build": "tsup",
     "lint": "eslint . && tsc --noEmit",
     "format": "prettier --write .",
-    "audit:code": "node scripts/audit.mjs"
+    "audit:code": "node scripts/audit.mjs",
+    "preview:calendar-data": "node scripts/refresh-calendar-events.mjs"
   },
   "keywords": [],
   "author": "",

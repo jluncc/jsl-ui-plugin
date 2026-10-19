@@ -40,6 +40,49 @@ function reflowCalendar(): void {
   window.addEventListener('load', fire, { once: true });
   window.setTimeout(fire, 600);
   window.setTimeout(fire, 1500);
+  watchCalendarEvents();
+}
+
+/** FullCalendar 的跨周续接段（无 fc-event-start）用 left:0 贴齐单元格左缘，
+ *  而起始段是 left:3px——圆角卡片语言下续接段左缘会凸出 3px。
+ *  统一内缩 3px 并把宽度同步减 3，右缘保持不动（实测同列右缘原本对齐）。 */
+function normalizeCalendarEventInsets(): void {
+  if (!document.documentElement.classList.contains('jsl')) return;
+  for (const el of document.querySelectorAll<HTMLElement>(
+    '#calendar .fc-event:not(.fc-event-start)',
+  )) {
+    if (parseFloat(el.style.left || '0') !== 0) continue;
+    const width = parseFloat(el.style.width);
+    if (!Number.isFinite(width)) continue;
+    el.style.left = '3px';
+    el.style.width = `${width - 3}px`;
+  }
+}
+
+/** 翻月/切视图/窗口重排都会重建事件节点或重写内联定位，
+ *  用 MutationObserver 在每帧末尾补一次校正（幂等，只处理 left:0 的续接段） */
+function watchCalendarEvents(): void {
+  const calendar = document.getElementById('calendar');
+  if (!calendar) return;
+  let queued = false;
+  const schedule = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      normalizeCalendarEventInsets();
+    });
+  };
+  normalizeCalendarEventInsets();
+  new MutationObserver(schedule).observe(calendar, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['style'],
+  });
+  window.addEventListener('load', schedule, { once: true });
+  window.setTimeout(schedule, 600);
+  window.setTimeout(schedule, 1500);
 }
 
 /** 总开关与主题即时生效；模块开关（列表/详情）涉及单向 DOM 变换，

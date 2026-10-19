@@ -2252,11 +2252,24 @@ html.jsl.jsl-page-portal .header_navbar_content .popover-menu .menu_links li a:h
 
 
 
-html.jsl.jsl-page-portal .header_navbar_content .menu li.active a,
+/* 当前页选中态：站方是蓝渐变实底 + 深蓝字（浅色下 2.1:1），
+   改项目统一的选中胶囊——accent-weak 底 + accent 字，深浅两套令牌自适应 */
+html.jsl.jsl-page-portal .header_navbar_content .menu ul li.active {
+  background: none !important;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .menu ul li.active a,
+html.jsl.jsl-page-portal .header_navbar_content .menu ul li.active a:link,
+html.jsl.jsl-page-portal .header_navbar_content .menu ul li.active a:visited {
+  background: var(--jsl-accent-weak);
+  color: var(--jsl-accent);
+}
+
 html.jsl.jsl-page-portal .header_navbar_content .menu a:hover {
   color: var(--jsl-accent);
 }
-：外框 surface-2 + 2px 内衬 + 8px 圆角，
+
+/* 搜索胶囊：外框 surface-2 + 2px 内衬 + 8px 圆角，
    输入框与按钮透明化，聚焦时只亮外框 */
 html.jsl.jsl-page-portal .header_navbar_content .search_box .input-group {
   display: flex;
@@ -5063,30 +5076,41 @@ html.jsl.jsl-community .aw-user-setting hr {
 }
 
 /* ============================================================
-   投资日历页（.jsl-page-calendar）：FullCalendar 1.x + 左侧筛选表
-   —— 筛选竖栏改顶部横向筛选条，日历占满 960 宽并与 header 同边；
+   投资日历页（.jsl-page-calendar）：FullCalendar 1.x + 左侧筛选竖栏
+   —— 内容区 960 与 header 同宽同边（左缘对齐 logo、右缘对齐注册/用户按钮），
+      左栏 150 + 间距 16 + 日历 794；筛选栏 sticky 固定，随日历下拉不滚走；
       全量令牌化站方硬编码色（#eee/#999/#4d4d4d/#ddd/高亮蓝）
    ============================================================ */
 
-/* 内容区：与 header 内容盒同宽同边（站方是 1170 居中，与 header 960 错位） */
+/* 内容区：与 header 内容盒同宽同边（左右缘对齐 logo / 注册按钮），
+   左栏 150 + 间距 16 + 日历吃满剩余（960-150-16=794） */
 html.jsl.jsl-page-calendar .data_content {
   box-sizing: border-box;
   width: 960px !important;
   max-width: 100%;
   margin: 0 auto !important;
-  padding: 16px 0 40px !important;
+  padding: 20px 0 40px !important;
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
 }
 
-/* ---- 筛选条 ---- */
+/* 站方给 float 布局收尾的 `<div style="clear:both"></div>`：
+   flex 下变成 0 宽 flex 项、白吃一组 gap（日历会被挤窄 16px） */
+html.jsl.jsl-page-calendar .data_content > div:empty {
+  display: none !important;
+}
+
+/* ---- 左侧筛选竖栏（sticky） ---- */
 
 html.jsl.jsl-page-calendar #event-category {
-  float: none !important;
+  position: sticky;
+  top: 16px;
+  flex: 0 0 150px;
   box-sizing: border-box;
-  width: 100% !important;
-  padding: 12px 14px !important;
+  width: 150px !important;
+  padding: 12px 10px !important;
   border: 1px solid var(--jsl-border) !important;
   border-radius: var(--jsl-radius);
   background: var(--jsl-surface) !important;
@@ -5096,7 +5120,7 @@ html.jsl.jsl-page-calendar #event-category {
 }
 
 html.jsl.jsl-page-calendar #event-category h4 {
-  margin: 0 0 10px !important;
+  margin: 0 0 8px !important;
   padding: 0 !important;
   color: var(--jsl-text-3) !important;
   font-size: 12px !important;
@@ -5105,30 +5129,38 @@ html.jsl.jsl-page-calendar #event-category h4 {
 }
 
 /* 站方是 17 行 × 5 列的表格（标签/占位/复选框/占位/色块）；
-   打平成 flex 芯片：占位列隐藏，每个 tr 变成一枚筛选芯片 */
+   竖栏里还原成一行一项：标签占满剩余宽度，复选框与色点在右侧成一列 */
 html.jsl.jsl-page-calendar #event-category table {
-  display: flex !important;
-  flex-wrap: wrap;
-  gap: 6px 8px;
+  display: block !important;
   width: 100% !important;
 }
 
 html.jsl.jsl-page-calendar #event-category tbody {
-  display: contents !important;
+  display: block !important;
 }
 
 html.jsl.jsl-page-calendar #event-category tr {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 6px;
   margin: 0 !important;
-  padding: 4px 10px;
-  border: 1px solid var(--jsl-border);
+  padding: 3px 4px;
+  border: none !important;
   border-radius: var(--jsl-radius-sm);
-  background: var(--jsl-surface-2);
+  background: transparent !important;
+  transition: background 0.12s;
 }
 
-/* 占位列（站方用来撑间距）在芯片布局里多余 */
+html.jsl.jsl-page-calendar #event-category tr:hover {
+  background: var(--jsl-surface-2) !important;
+}
+
+/* 站方用 <tr height=5/> 撑行距，HTML 不认自闭合 → 解析成空行，整行摘掉 */
+html.jsl.jsl-page-calendar #event-category tr:not(:has(td)) {
+  display: none !important;
+}
+
+/* 占位列（站方用来撑间距）在竖栏布局里多余 */
 html.jsl.jsl-page-calendar #event-category td[width] {
   display: none !important;
 }
@@ -5141,41 +5173,59 @@ html.jsl.jsl-page-calendar #event-category td {
   white-space: nowrap;
 }
 
+/* 标签列吃掉剩余宽度，把复选框/色点推到右侧 */
+html.jsl.jsl-page-calendar #event-category td:first-child {
+  flex: 1 1 auto;
+}
+
 /* 色块（td[bgcolor]）：10px 圆点，颜色保留站方语义 */
 html.jsl.jsl-page-calendar #event-category td[bgcolor] {
   display: inline-block !important;
+  flex: 0 0 10px;
   width: 10px !important;
   height: 10px !important;
   border-radius: 50%;
 }
 
 html.jsl.jsl-page-calendar #event-category input[type='checkbox'] {
+  display: block;
   margin: 0 !important;
   accent-color: var(--jsl-accent);
   cursor: pointer;
 }
 
-/* 「确定」行：不参与芯片样式，按钮独立右侧 */
+/* 复选框盒高 13px < 文字行高 18px，按基线排会浮高 2px；
+   所在单元格改 flex 居中，与文字、色点同一条水平中线 */
+html.jsl.jsl-page-calendar #event-category td:has(> input[type='checkbox']) {
+  display: flex !important;
+  align-items: center;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+/* 「确定」行：独占一行，按钮通栏（无分隔线） */
 html.jsl.jsl-page-calendar #event-category tr:has(td[colspan]) {
   display: flex;
-  justify-content: flex-end;
   width: 100%;
   margin-top: 4px !important;
-  padding: 0 !important;
+  padding: 4px 0 0 !important;
   border: none !important;
+  border-radius: 0;
   background: transparent !important;
 }
 
 html.jsl.jsl-page-calendar #event-category td[colspan] {
+  flex: 1 1 auto;
   padding: 0 !important;
-  text-align: right !important;
+  text-align: center !important;
 }
 
 html.jsl.jsl-page-calendar #event-category button {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  width: 100%;
   min-width: 64px;
   height: 28px;
   padding: 0 14px;
@@ -5199,7 +5249,9 @@ html.jsl.jsl-page-calendar #event-category button:hover {
 
 html.jsl.jsl-page-calendar #calendar {
   float: none !important;
-  width: 100% !important;
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto !important;
   box-sizing: border-box;
   padding: 12px 14px 14px;
   background: var(--jsl-surface);
@@ -5208,9 +5260,10 @@ html.jsl.jsl-page-calendar #calendar {
   box-shadow: var(--jsl-shadow);
 }
 
-/* 表头行：左「月/周/日」、中月份、右翻页，统一 28px 高 */
+/* 表头行：左「月/周/日」、中月份、右翻页，统一 28px 高；
+   与月历网格留 10px，避免按钮行贴住星期表头 */
 html.jsl.jsl-page-calendar .fc-header {
-  margin-bottom: 4px;
+  margin-bottom: 10px;
 }
 
 html.jsl.jsl-page-calendar .fc-header td {
@@ -5249,10 +5302,25 @@ html.jsl.jsl-page-calendar .fc-header .fc-button:hover {
   border-color: var(--jsl-accent) !important;
 }
 
-html.jsl.jsl-page-calendar .fc-button-prev,
-html.jsl.jsl-page-calendar .fc-button-next {
+/* 翻页箭头：站方按钮是行内文本、字形按 text-align:right 贴右缘（偏右 4.5px），
+   改 flex 居中，字形与 28px 按钮盒同一中心 */
+html.jsl.jsl-page-calendar .fc-header .fc-button-prev,
+html.jsl.jsl-page-calendar .fc-header .fc-button-next {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 28px;
   padding: 0 !important;
+  line-height: 1 !important;
+}
+
+html.jsl.jsl-page-calendar .fc-header .fc-button-prev .fc-text-arrow,
+html.jsl.jsl-page-calendar .fc-header .fc-button-next .fc-text-arrow {
+  display: block;
+  line-height: 1;
+  /* ‹ › 的字形在 em 盒内偏下：墨迹中心比 28px 按钮中心低约 2px
+     （像素扫描：按钮 9–38 行、墨迹质心 25.65、盒中心 23.5），上移补偿 */
+  transform: translateY(-2px);
 }
 
 html.jsl.jsl-page-calendar .fc-header-title {
