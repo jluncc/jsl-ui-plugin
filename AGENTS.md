@@ -68,12 +68,28 @@ pnpm format  # prettier
 `/web/data/cb/` 是 **Vue + Element UI** SPA（`#app`），与门户（jQuery）、社区（WeCenter）都是不同外壳；导航菜单没有 id。
 
 - **架构识别**：`document.querySelector('.data-content.auto-content-width')` → `jsl-page-data`。
-- **宽度策略与门户相反**：表格 39 列、自然宽 ~1650px，页面本就宽于视口（1450 下横向滚动）。所以 header / 子导航 / 内容区统一改为**全宽**，而不是收 960；强行把横向滚动关进内容区会让固定表头与表体列宽错位（实测），保持整页横向滚动即可。
-- **站方的居中 hack**：header / 子导航用 JS 写 `transform: translateX((innerWidth-1200)/2)`，页面实际 1686 宽时该值（125px）会把整条 header 右移 → 必须 `transform: none !important`。同时内层 `.el-row` 带 `-15px` 负边距，需清零，否则再撑宽 30px。
-- **左基线**：`header_navbar_content` 自己不加 padding（否则 30px），左缘交给内层 `el-col` 自带的 15px——与数据区 `padding: 0 15px` 的表格起点（x=16）对齐。
+- **宽度策略**：表格 39 列、自然宽 ~1650px，页面本就宽于视口（1450 下横向滚动），**内容区保持全宽**；但 **header / 子导航 / 页脚统一 960 居中**（与全站硬约定一致，实测 x=245..1205），横向滚动时用 `position: sticky; left: 0; width: 100vw` 钉在视口。强行把横向滚动关进内容区会让固定表头与表体列宽错位（实测），保持整页横向滚动即可。
+- **站方的居中 hack**：header / 子导航用 JS 写 `transform: translateX((innerWidth-1200)/2)`，页面实际 1686 宽时该值（125px）会把整条 header 右移 → 必须 `transform: none !important`。同时内层 `.el-row` 带 `-15px` 负边距，需清零。
+- **header 控件簇（2026-10-19 精修）**：Element UI 的 el-col 百分比栅格打平成 flex 单行、gap 10px；搜索改成 surface-2 胶囊（240×30、2px 内衬、8px 圆角，`el-input-group__append` 透明化并去掉浅灰底）；通知/私信从站方 22px 实底蓝 mini 按钮改成 30px 描边胶囊；用户区从「下沉的裸头像 + 站方 15px padding-top」改成 30px 描边胶囊（20px 圆形头像 + 13px/700 名字）。主导航选中态是站方亮蓝渐变 + 灰字（深色 3.48:1）→ 统一 accent-weak 底 + accent 字。实测两主题所有控件 y=11..41、右缘 1205、间距 10px。
+- **子导航**：站方是两行 div 堆叠（80px 撑破 60px 容器）+ 持仓 30px 白描边 + 绝对定位的 Beta 角标。改成 960 容器内单行：左侧「持仓 Beta」、13px 分隔线（落在 logo 右缘 x=335），右组 13 个数据类别首链接 x=345（与主导航同缘）；`subnavbar_right > div` 用 `display: contents` 把两行链接并成一行；Beta 角标改 `position: static` 行内胶囊。
+- **header 浮层（Element UI popper）**：打开时被挂到 **body 下**（不是 `.user_icon` 里），所以浮层样式必须用 `body > .el-popover.el-popper` 作用域，不能挂在 header 下。站方按 300px 宽度居中定位，样式收窄成 148px 后右缘会缩进/溢出 → `index.ts alignDataPagePoppers()` 用 `aria-describedby` 反查触发按钮、把 popper 右缘对齐按钮右缘（实测差 0）。用户菜单改单列纯链接（个人主页/个人设置/我的关注/我的收藏/我的购买/我的金币/黑名单/退出），用户信息行/会员条/「发起讨论」隐藏；通知弹窗同款卡片 + 居中空态。
 - **配色**：`#app` 白底、子导航深蓝 `#206798`、表头浅蓝 `#86c5e3`、行斑马 `rgba(245,245,245,.6)`、粘性列白线、涨跌纯红/绿——全部令牌化。深色下 `Beta` 徽标（亮蓝实底白字 3.13）与表头站方深蓝字（3.06）也已修。
 - **导航文案**：SPA 渲染晚于 DOMContentLoaded，`polishPortalNav()` 需延时 800ms 再跑一次才能命中「首页」移除 / 「社区-知识库」→「社区」。
 - **已知边界**：站方 `#app` 有 `min-width: max-content`，页面宽度由表格决定，超出视口时整页横向滚动（这是站点原生行为，未改）。
+- **表格白纹理（2026-10-19 已修）**：`div.jsl-table.sticky-header` 挂站方 `table-bg.ffab7e61.png`（270×135 近纯白纹理），偶数行透明时露出白图 → 行底变白、文字 2.35:1。已 `background-image:none` + `background-color: var(--jsl-surface)`，深色整页对比度复扫 0 项。
+- **页脚二维码溢出（已修）**：站方给第二个二维码挂 `margin-left:30px`，与 28px gap 叠加成 58px（96+58+96=250 > 220），右缘冲到 1235 vs 内容盒 1205。`footer_right > .el-row > div { margin-left:0 !important }` 后两张码 x=985/1109、右缘 1205。
+- **分段按钮 / 输入追加块（已修）**：`el-checkbox-button__inner` 未选中白底 + `#606266`、选中站方 `#206798` → 统一 surface-2 / 描边 / accent-solid；`el-input-group__append` 的 `#f5f7fa` 底一并令牌化（header 搜索按钮与工具条两处都覆盖）。
+
+## 旧版服务端数据页（.jsl-page-data-legacy）
+
+数据页里大量按钮跳转的目标**不是** Vue 数据页，而是服务端渲染的旧外壳：新股申购 `/data/new_stock/`、ETF `/data/etf/`、LOF `/data/lof/`、债券 `/data/bond/`、转债详情 `/data/convert_bond_detail/<code>`、个股 `/data/stock/<code>` 等。它们的 DOM 是 `body > header_navbar_bg + header_subnavbar_bg + .grid.data_content`，**没有 `#app`、没有 `.data-content.auto-content-width`**——只靠原来的标志检测会漏掉整套数据页样式（只剩门户 header/footer 生效）。
+
+- **标志检测（2026-10-19 补齐）**：`.grid.data_content` 存在 → `jsl-page-data-legacy`；另把 `#app .layout-default .header_subnavbar_bg`（持仓等 Vue 数据外壳页，无 `.auto-content-width`）也识别为 `jsl-page-data`。`isDataShellPage()` 统一判定三类页，延时 1200ms / 2500ms 重跑标志与 header/footer 增强（Vue 渲染晚于 DOMContentLoaded）。
+- **子导航结构差异**：`.grid > .grid-row > .grid-col-3/21`（不是 el-row/el-col），Beta 是 `a.beta::after`（不是 el-badge），激活项是 `.on`（不是 `.router-link-active`）。样式全部复用 Vue 数据页的数值：960 居中、44px 单行、持仓 x=245、分隔线落 logo 右缘 x=335、首类别 x=345、芯片 28px。`subnavbar_right > div` 同样用 `display: contents` 并成一行。
+- **Beta 角标（用户定稿）**：两种外壳统一缩成**右上角小标**——`position:absolute; top:-3px; right:-12px; height:14px; font-size:9px; padding:0 4px; radius:999px`，实底 `--jsl-accent-solid`。站方原本是压在「持仓」文字上的红底横条（Vue 是 absolute 13px 白字、旧版是 `a.beta::after`）。
+- **表格令牌化**：`.tablesorter` / `.jisilu_tcdata` 同样挂 `table-bg.png` 白纹理 → 统一 `background-image:none` + surface；表头 `#86c5e3` → surface-2；斑马行 `rgba(240,240,246,.6)` → surface-2/surface；内联 `background-color:yellow`（申购日/发行价/预估字段）→ accent-weak + accent；内联 `color:red/green` → 主题涨跌色；`.btn-info`（+自选，亮蓝 2.1:1）→ accent-solid。
+- **转债详情专属浅底块**：`.tips-bg`（淡黄提示条）、`.jisilu_title`（浅蓝指标标题）、`.calc`（计算器条）、`.tag`/`.item`（概念标签）、`.breadcrumb`、个股页内联 `#e1f3fd` 信息表与 `.item_div`/`.item_chart` 图表块 → 全部 surface-2/surface + 令牌边框。
+- **注意**：这类页左右布局由站方内联 `margin: 0 25px` + 固定表格宽度决定，**内容区保持全宽**（`width:100%; padding:16px 15px 40px`），不要收 960，否则宽表会溢出/错列。
 
 ## 投资日历页（.jsl-page-calendar）
 
@@ -119,9 +135,9 @@ pnpm lint         # eslint + tsc
 1. **危险 API**：`eval` / `new Function` / `document.write` / `window.open` 缺 noopener
 2. **XSS 面**：`innerHTML` 赋值（当前仅用于内置 SVG 常量，可信）；新增处必须确认内容来源
 3. **CSS 冗余**：`transition: all`（改显式属性）；**声明完全相同**的重复选择器（同一选择器分多条写基础+状态补丁是正常分层，不报）
-4. **体积预算**：`content.js ≤ 32KB`、三段 CSS 合计 ≤ 235KB（随覆盖页面增长上调：12 页 → 含设置页 8 个 tab 深度精修；超了先查是不是又内联了大段 data URI 或可压缩的冗长注释）
+4. **体积预算**：`content.js ≤ 32KB`、三段 CSS 合计 ≤ 256KB（随覆盖页面增长上调：12 页 → 含设置页 8 个 tab + 数据页 header 精修 + 旧版服务端数据页适配；超了先查是不是又内联了大段 data URI 或可压缩的冗长注释）
 
-审查基线（2026-10 首轮）：CSS 142.8KB / content.js 22.7KB；当前 **227.4KB / 29.3KB**（十二页 + 用户中心 + 设置页 8 个 tab + 投资日历页深度精修后）；已知可接受项 = 2 处 `innerHTML`（detail.ts 回顶图标、theme-toggle.ts 主题图标，均为内置 SVG 字符串常量）。
+审查基线（2026-10 首轮）：CSS 142.8KB / content.js 22.7KB；当前 **254.4KB / 31.2KB**（十二页 + 用户中心 + 设置页 8 个 tab + 投资日历页 + 数据页 header/子导航/浮层精修 + 旧版服务端数据页适配后）；已知可接受项 = 2 处 `innerHTML`（detail.ts 回顶图标、theme-toggle.ts 主题图标，均为内置 SVG 字符串常量）。
 
 ## 预览与验收工作流（不装扩展即可验证样式）
 

@@ -54,6 +54,10 @@ if re.search(r"""id=["']calendar["']""", html):
     flags += " jsl-page-calendar"
 if "auto-content-width" in html:
     flags += " jsl-page-data"
+elif 'layout-default' in html and 'header_subnavbar_bg' in html:
+    flags += " jsl-page-data"
+if "data_content" in html:
+    flags += " jsl-page-data-legacy"
 
 sim = """
 <script>

@@ -5495,11 +5495,6 @@ html.jsl.jsl-page-data .header_navbar_content .search {
   margin-left: auto !important;
 }
 
-/* 搜索框 240（站方 el-input 是 185） */
-html.jsl.jsl-page-data .header_navbar_content .search .el-input {
-  width: 240px !important;
-}
-
 /* 子导航：同样是 960 容器，内部 el-row 的 -15px 负边距清零 */
 html.jsl.jsl-page-data .header_subnavbar_content .el-row--flex {
   width: 100% !important;
@@ -5512,31 +5507,338 @@ html.jsl.jsl-page-data .header_navbar_content .el-row--flex {
   width: 100% !important;
   margin-left: 0 !important;
   margin-right: 0 !important;
-}
-
-html.jsl.jsl-page-data .header_navbar_content .el-row--flex {
   align-items: center;
   height: 52px;
 }
 
-html.jsl.jsl-page-data .header_navbar_content .logo {
-  height: 52px;
-  align-items: center;
+/* logo / 菜单链接的尺寸与选中态样式复用 .jsl-page-portal 规则
+   （数据页同时带 jsl-page-portal 标志）；这里只补 Element UI 外壳没有的部分 */
+
+/* 主导航选中态：站方是亮蓝渐变 + 灰字（深色下 3.48:1），
+   改用全站统一胶囊——accent-weak 底 + accent 字 */
+html.jsl.jsl-page-data .header_navbar_content .menu ul li a.router-link-active,
+html.jsl.jsl-page-data .header_navbar_content .menu ul li a.router-link-active:hover {
+  background: var(--jsl-accent-weak) !important;
+  background-image: none !important;
+  color: var(--jsl-accent) !important;
+  font-weight: 500;
 }
 
-/* logo 文字标在数据页稍收（76px 盒放 26 图标 + 17px 字会溢出 3px） */
-html.jsl.jsl-page-data .header_navbar_content .logo a {
+/* hover 与门户一致：accent 字 + surface-2 底 */
+html.jsl.jsl-page-data .header_navbar_content .menu ul li a:hover {
+  color: var(--jsl-accent) !important;
+  background: var(--jsl-surface-2) !important;
+}
+
+/* ---- header 搜索胶囊（Element UI 版）：与门户/社区同一套语言 ----
+   站方是 185px 输入 + 独立浅灰 append 按钮（深色下右半截发白、圆角割裂），
+   改为 surface-2 外框 + 2px 内衬 + 8px 圆角，输入与按钮透明化 */
+html.jsl.jsl-page-data .header_navbar_content .search > span {
+  display: block;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .search .el-input {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 240px !important;
+  height: 30px;
+  padding: 2px;
+  background: var(--jsl-surface-2) !important;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  transition: border-color 0.15s;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .search .el-input:focus-within {
+  border-color: var(--jsl-border-2);
+}
+
+html.jsl.jsl-page-data .header_navbar_content .search .el-input__inner {
+  display: block;
+  flex: 1 1 auto;
   width: auto !important;
-  font-size: 16px;
-  letter-spacing: 1px;
-  white-space: nowrap;
+  min-width: 0;
+  height: 26px;
+  padding: 0 10px !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--jsl-text) !important;
+  font-size: 13px;
 }
 
-html.jsl.jsl-page-data .header_navbar_content .menu ul li a {
-  white-space: nowrap;
+html.jsl.jsl-page-data .header_navbar_content .search .el-input__inner::placeholder {
+  color: var(--jsl-text-3) !important;
 }
 
-/* 子导航（站方深蓝 #206798）：并入 header 材质，链接改芯片 */
+html.jsl.jsl-page-data .header_navbar_content .search .el-input-group__append {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  width: 26px;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .search .el-input-group__append .el-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 6px;
+  color: var(--jsl-text-3) !important;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .search .el-input-group__append .el-button:hover {
+  background: var(--jsl-surface) !important;
+  color: var(--jsl-text) !important;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .search .el-icon-search {
+  font-size: 14px;
+}
+
+/* ---- 通知 / 私信 / 用户区：站方是 22px 实底蓝 mini 按钮 + 下沉的裸头像，
+   统一成门户的 30px 描边胶囊控件，整簇垂直居中 ---- */
+html.jsl.jsl-page-data .header_navbar_content .flex.el-col {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .notification {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 !important;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .notification .el-badge {
+  display: inline-flex;
+  align-items: center;
+  /* 站方给第二个 badge 挂 1px margin-left，与 gap 叠加成 11px */
+  margin-left: 0 !important;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .notification .el-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: auto !important;
+  min-width: 0;
+  height: 30px !important;
+  padding: 0 12px !important;
+  background: transparent !important;
+  border: 1px solid var(--jsl-border-2) !important;
+  border-radius: var(--jsl-radius-sm);
+  box-shadow: none;
+  color: var(--jsl-text) !important;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .notification .el-button:hover {
+  background: transparent !important;
+  border-color: var(--jsl-accent) !important;
+  color: var(--jsl-accent) !important;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .user_icon {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 !important;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .user_icon > span {
+  display: flex;
+  align-items: center;
+  height: 30px;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .user_icon > span > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  height: 30px;
+  padding: 0 8px 0 10px;
+  border: 1px solid var(--jsl-border-2);
+  border-radius: var(--jsl-radius-sm);
+  color: var(--jsl-text) !important;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .user_icon > span > a:hover {
+  border-color: var(--jsl-accent);
+}
+
+html.jsl.jsl-page-data .header_navbar_content .user_icon .name {
+  width: auto !important;
+  margin: 0 !important;
+  overflow: visible;
+  color: var(--jsl-text) !important;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .user_icon .avatar-middle.el-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: transparent !important;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+html.jsl.jsl-page-data .header_navbar_content .user_icon .avatar-middle.el-avatar img {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* 站方「通知/私信」badge 圆点随按钮走 */
+html.jsl.jsl-page-data .header_navbar_content .notification .el-badge__content {
+  background: var(--jsl-accent-solid) !important;
+  color: var(--jsl-accent-solid-ink) !important;
+  border: none !important;
+}
+
+/* ---- 数据页 header 浮层（用户菜单 / 通知）：并入卡片语言 ----
+   Element UI 的 popper 打开时挂在 body 下（不在 .user_icon 里），故用 body 级选择器；
+   站方是 300px 白框 + 白底会员条 + 双列散排菜单，改成门户/社区同构的
+   surface 卡 + 148px 单列纯链接列表 */
+html.jsl.jsl-page-data body > .el-popover.el-popper {
+  box-sizing: border-box;
+  background: var(--jsl-surface) !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: var(--jsl-radius) !important;
+  box-shadow: var(--jsl-shadow-pop) !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 13px;
+
+  /* 站方小箭头：与门户用户菜单一致，扁平化隐藏 */
+  .popper__arrow {
+    display: none !important;
+  }
+
+  /* 用户信息行 / 会员推广条 / 分隔线：只留纯链接列表 */
+  .user_info,
+  .member_box,
+  .bottom_links .divide {
+    display: none !important;
+  }
+
+  &:has(.menu_links) {
+    width: 148px !important;
+    min-width: 0 !important;
+    max-width: 240px !important;
+    padding: 6px !important;
+  }
+
+  /* 两个 ul 打平成同一列，按门户顺序排（个人主页/个人设置/我的关注/我的收藏/
+     我的购买/我的金币/黑名单/退出）；「发起讨论」与 header「发起」重复，隐藏 */
+  .menu_links {
+    display: flex !important;
+    flex-direction: column;
+    padding: 0 !important;
+
+    ul {
+      display: contents !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+      list-style: none;
+    }
+
+    ul:first-child li:nth-child(1) { order: 1; }
+    ul:last-child li:nth-child(1) { order: 2; }
+    ul:first-child li:nth-child(2) { order: 3; }
+    ul:first-child li:nth-child(3) { order: 4; }
+    ul:last-child li:nth-child(2) { order: 5; }
+    ul:last-child li:nth-child(3) { order: 6; }
+    ul:last-child li:nth-child(4) { order: 7; }
+
+    li {
+      float: none !important;
+      padding: 0 !important;
+      list-style: none;
+    }
+
+    li:has(button) {
+      display: none !important;
+    }
+  }
+
+  .menu_links a,
+  .bottom_links a {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-height: 30px;
+    padding: 4px 12px;
+    border-radius: var(--jsl-radius-sm);
+    color: var(--jsl-text-2) !important;
+    font-size: 13px;
+    line-height: 18px !important;
+    text-decoration: none;
+  }
+
+  .menu_links a:hover,
+  .bottom_links a:hover {
+    background: var(--jsl-surface-2);
+    color: var(--jsl-text) !important;
+  }
+
+  .bottom_links {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+
+    ul,
+    li {
+      margin: 0 !important;
+      padding: 0 !important;
+      list-style: none;
+    }
+  }
+
+  /* 通知弹窗：同款卡片 + 居中空态 */
+  &:has(.notification_box) {
+    width: auto !important;
+    min-width: 148px !important;
+    max-width: 320px !important;
+    padding: 6px !important;
+  }
+
+  .notification_box {
+    padding: 8px 12px !important;
+    color: var(--jsl-text-3) !important;
+    font-size: 12px;
+    text-align: center;
+    white-space: nowrap;
+  }
+}
+
+/* 子导航（站方深蓝 #206798）：与 header 同宽同边（960 居中），
+   改成一行——持仓在左、13 个数据类别在右。
+   站方原本是两行 div 堆叠（80px 撑破 60px 容器）+ 持仓 30px 白描边 */
 html.jsl.jsl-page-data .header_subnavbar_bg {
   height: auto !important;
   background: var(--jsl-surface) !important;
@@ -5544,32 +5846,114 @@ html.jsl.jsl-page-data .header_subnavbar_bg {
 }
 
 html.jsl.jsl-page-data .header_subnavbar_content {
-  width: 100% !important;
-  max-width: none !important;
-  padding: 0 15px !important;
+  width: 960px !important;
+  max-width: 960px !important;
+  height: auto !important;
+  padding: 0 !important;
 }
 
-html.jsl.jsl-page-data .header_subnavbar_content .el-row--flex {
+html.jsl.jsl-page-data .header_subnavbar_content > .el-row {
+  display: flex !important;
   align-items: center;
-  min-height: 44px;
+  gap: 10px;
+  width: 100% !important;
+  height: 44px;
+  margin: 0 !important;
+}
+
+html.jsl.jsl-page-data .header_subnavbar_content > .el-row > .el-col {
+  float: none !important;
+  width: auto !important;
+  padding: 0 !important;
+  flex: 0 0 auto;
+}
+
+html.jsl.jsl-page-data .header_subnavbar_content > .el-row > .el-col:last-child {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 html.jsl.jsl-page-data .header_subnavbar_content .subnavbar_left {
   display: flex;
   align-items: center;
   height: 44px;
+  /* 站方给左侧分组挂了 1px #fff 竖线（深色下是刺眼白线）→ 令牌化低对比分隔；
+     右内衬 13px 让分隔线落在 logo 右缘（x=335），右组首链接与主导航同缘 x=345 */
+  border-right: 1px solid var(--jsl-border) !important;
+  /* 链接自带 10px 内衬；负边距让「持仓」文字与 header logo 同缘 x=245 */
+  margin: 0 0 0 -10px;
+  padding-right: 13px;
 }
 
+html.jsl.jsl-page-data .header_subnavbar_content .subnavbar_left .el-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 「持仓」站方白描边（选中/示意框）在深色下是悬空白线，清掉；
+   站方还写死 width:65px（文字溢出），交还内容 */
+html.jsl.jsl-page-data .header_subnavbar_content .subnavbar_left a {
+  width: auto !important;
+  height: 28px !important;
+  padding: 0 10px !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+html.jsl.jsl-page-data .header_subnavbar_content .subnavbar_left .el-badge {
+  position: relative;
+}
+
+/* 「Beta」角标：缩到右上角挂一个小标（站方原本 absolute 顶到上一行）。
+   9px/14px 高，压在「持仓」右上角外侧：上移 3px、右探 12px，
+   不占行内空间（绝对定位），窄屏也不会挤动右侧类别链接 */
+html.jsl.jsl-page-data .header_subnavbar_content .subnavbar_left .el-badge__content {
+  position: absolute !important;
+  top: -3px;
+  right: -12px;
+  transform: none !important;
+  margin: 0 !important;
+  height: 14px;
+  padding: 0 4px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 14px;
+  pointer-events: none;
+}
+
+html.jsl.jsl-page-data .header_subnavbar_content .subnavbar_right {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 4px;
+  height: 44px;
+  margin: 0;
+}
+
+/* 站方两个 div 各装一行链接；display:contents 让 13 个链接并入同一行 */
+html.jsl.jsl-page-data .header_subnavbar_content .subnavbar_right > div {
+  display: contents;
+}
+
+html.jsl.jsl-page-data .header_subnavbar_content .subnavbar_right a {
+  width: auto !important;
+  margin: 0 !important;
+}
+
+/* 数据类别链接：13px 芯片，与主导航/用户中心子标签同一套语言 */
 html.jsl.jsl-page-data .header_subnavbar_content a {
   display: inline-flex;
-  white-space: nowrap;
   align-items: center;
   height: 28px;
   padding: 0 10px;
   border-radius: var(--jsl-radius-sm);
   color: var(--jsl-text-2) !important;
   font-size: 13px;
+  line-height: 18px;
   text-decoration: none;
+  white-space: nowrap;
   transition:
     color 0.12s,
     background-color 0.12s;
@@ -5581,7 +5965,8 @@ html.jsl.jsl-page-data .header_subnavbar_content a:hover {
 }
 
 /* 当前数据类别：浅品牌底 + 品牌色（站方是白底蓝字） */
-html.jsl.jsl-page-data .header_subnavbar_content a.router-link-active {
+html.jsl.jsl-page-data .header_subnavbar_content a.router-link-active,
+html.jsl.jsl-page-data .header_subnavbar_content a.router-link-active:hover {
   background: var(--jsl-accent-weak) !important;
   color: var(--jsl-accent) !important;
   font-weight: 500;
@@ -5720,6 +6105,27 @@ html.jsl.jsl-page-data .el-radio__input.is-checked .el-radio__inner {
   border-color: var(--jsl-accent-solid) !important;
 }
 
+/* 分段按钮（沪主/科创/三板、仅看自选/仅看持仓）：站方未选中是白底 #fff +
+   #606266 字，深色下成亮块；选中态也还是站方 #206798 实底 → 统一胶囊令牌 */
+html.jsl.jsl-page-data .el-checkbox-button__inner {
+  background: var(--jsl-surface-2) !important;
+  border-color: var(--jsl-border) !important;
+  box-shadow: none !important;
+  color: var(--jsl-text-2) !important;
+}
+
+html.jsl.jsl-page-data .el-checkbox-button__inner:hover {
+  color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+}
+
+html.jsl.jsl-page-data .el-checkbox-button.is-checked .el-checkbox-button__inner {
+  background: var(--jsl-accent-solid) !important;
+  border-color: var(--jsl-accent-solid) !important;
+  box-shadow: none !important;
+  color: var(--jsl-accent-solid-ink) !important;
+}
+
 html.jsl.jsl-page-data .el-link,
 html.jsl.jsl-page-data .el-link.el-link--primary {
   color: var(--jsl-accent) !important;
@@ -5747,6 +6153,13 @@ html.jsl.jsl-page-data .table-top a:hover {
 }
 
 /* ---- 数据表 ---- */
+
+/* 站方在表格容器 .jsl-table.sticky-header 上挂 table-bg.png（近纯白纹理）：
+   偶数行透明时直接露出白图 → 深色下整行发白、文字仅 2.35:1。清图改 surface */
+html.jsl.jsl-page-data .jsl-table.sticky-header {
+  background-image: none !important;
+  background-color: var(--jsl-surface) !important;
+}
 
 /* 表头：站方浅蓝 #86c5e3 → 灰底条 */
 html.jsl.jsl-page-data .jsl-table-header-wrapper,
@@ -5890,6 +6303,9 @@ html.jsl.jsl-page-data .footer_right > .el-row > div {
   align-items: center;
   gap: 8px;
   width: 96px !important;
+  /* 站方给第二个二维码挂 margin-left:30px，与 28px gap 叠加成 58px，
+     右缘溢出内容盒 30px（实测 1235 vs 1205）*/
+  margin-left: 0 !important;
   flex: 0 0 auto !important;
   color: var(--jsl-text-3);
   font-size: 12px;
@@ -5965,7 +6381,9 @@ html.jsl-page-data .right-tools .custom-menu-btn {
   height: 28px;
   padding: 0 12px;
   background: transparent !important;
-  border: 1px solid var(--jsl-border-2);
+  /* 站方 .filter-tools .right-tools .custom-menu-btn[data-v-…] 优先级更高，
+     浅黄描边 #fffacd 会透出来 */
+  border: 1px solid var(--jsl-border-2) !important;
   border-radius: var(--jsl-radius-sm);
   color: var(--jsl-text-2) !important;
   font-size: 12px;
@@ -5985,6 +6403,513 @@ html[data-theme='dark'].jsl-page-data .color-darkorange {
 
 html[data-theme='dark'].jsl-page-data .color-light {
   color: var(--jsl-text-3) !important;
+}
+
+/* ---- 数据外壳的其它 Vue 页（当前是持仓 /web/positions）：
+   与数据列表共用 header/子导航，但内容区是 Element UI 卡片表单 ---- */
+html.jsl.jsl-page-data .layout-default .default-content {
+  background: transparent !important;
+  background-image: none !important;
+}
+
+/* 站方 .background 挂创建引导大图（浅色插画），深色下整块发白 */
+html.jsl.jsl-page-data .layout-default .background {
+  background: transparent !important;
+  background-image: none !important;
+}
+
+html.jsl.jsl-page-data .layout-default .content-title {
+  color: var(--jsl-text);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Element UI 卡片 / 表单控件令牌化（持仓页的创建表单） */
+html.jsl.jsl-page-data .layout-default .el-card {
+  background: var(--jsl-surface) !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: var(--jsl-radius) !important;
+  box-shadow: var(--jsl-shadow) !important;
+  color: var(--jsl-text-2);
+}
+
+html.jsl.jsl-page-data .layout-default .el-card__header {
+  border-bottom: 1px solid var(--jsl-border) !important;
+  color: var(--jsl-text);
+}
+
+html.jsl.jsl-page-data .layout-default .el-input-group__append,
+html.jsl.jsl-page-data .layout-default .el-input-group__prepend {
+  background: var(--jsl-surface-2) !important;
+  border-color: var(--jsl-border) !important;
+  color: var(--jsl-text-3) !important;
+}
+
+html.jsl.jsl-page-data .layout-default .el-form-item__label {
+  color: var(--jsl-text-2) !important;
+}
+
+/* ============================================================
+   旧版服务端数据页（.jsl-page-data-legacy）
+   新股 / ETF / LOF / 债券 / 转债详情等仍是服务端渲染的 .grid.data_content，
+   没有 Vue 的 #app 与 .data-content.auto-content-width；header / 子导航 /
+   表格 / 页脚与 Vue 数据页保持同一套视觉语言。
+   结构差异：子导航是 .grid > .grid-row > .grid-col-3/21，Beta 是 a.beta::after，
+   激活项是 .on（不是 .router-link-active）。
+   ============================================================ */
+
+html.jsl.jsl-page-data-legacy {
+  & body {
+    background: var(--jsl-bg);
+    color: var(--jsl-text-2);
+  }
+
+  /* ---- 子导航：960 居中、单行 44px、芯片链接 ---- */
+  .header_subnavbar_bg {
+    position: sticky !important;
+    left: 0;
+    box-sizing: border-box;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: auto !important;
+    background: var(--jsl-surface) !important;
+    border-bottom: 1px solid var(--jsl-border);
+  }
+
+  .header_subnavbar_content {
+    box-sizing: border-box;
+    width: 960px !important;
+    max-width: 960px !important;
+    height: auto !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    transform: none !important;
+
+    > .grid-row {
+      display: flex !important;
+      align-items: center;
+      gap: 10px;
+      width: 100% !important;
+      height: 44px;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .grid-col-3,
+    .grid-col-21 {
+      float: none !important;
+      box-sizing: border-box;
+      width: auto !important;
+      padding: 0 !important;
+      flex: 0 0 auto;
+    }
+
+    .grid-col-21 {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .subnavbar_left {
+      display: flex;
+      align-items: center;
+      height: 44px;
+      margin: 0 0 0 -10px;
+      padding-right: 13px;
+      border-right: 1px solid var(--jsl-border);
+    }
+
+    .subnavbar_right {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 4px;
+      height: 44px;
+      margin: 0;
+
+      /* 站方两个 div 各装一行链接；display:contents 并成一行 */
+      > div {
+        display: contents;
+      }
+    }
+
+    & a {
+      display: inline-flex;
+      align-items: center;
+      width: auto !important;
+      height: 28px !important;
+      padding: 0 10px !important;
+      border: none !important;
+      border-radius: var(--jsl-radius-sm);
+      background: transparent !important;
+      color: var(--jsl-text-2) !important;
+      font-size: 13px;
+      line-height: 18px;
+      text-decoration: none;
+      white-space: nowrap;
+      transition:
+        color 0.12s,
+        background-color 0.12s;
+
+      &:hover {
+        color: var(--jsl-text) !important;
+        background: var(--jsl-surface-2) !important;
+      }
+
+      /* 当前数据类别：站方白底蓝字 → 全站统一选中胶囊 */
+      &.on,
+      &.on:hover {
+        background: var(--jsl-accent-weak) !important;
+        color: var(--jsl-accent) !important;
+        font-weight: 500;
+      }
+    }
+
+    /* 「Beta」角标：站方红底横条压在「持仓」文字上 → 缩成右上角小标 */
+    .subnavbar_left a.beta {
+      position: relative;
+
+      &::after {
+        content: 'Beta';
+        position: absolute;
+        top: -3px;
+        right: -12px;
+        height: 14px;
+        padding: 0 4px;
+        border-radius: 999px;
+        background: var(--jsl-accent-solid);
+        color: var(--jsl-accent-solid-ink);
+        font-size: 9px;
+        font-weight: 500;
+        line-height: 14px;
+        pointer-events: none;
+      }
+    }
+  }
+
+  /* ---- 内容区：全宽（表格天然宽于 960，与 Vue 数据页同一策略） ---- */
+  .data_content {
+    box-sizing: border-box;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 16px 15px 40px !important;
+    color: var(--jsl-text-2);
+
+    /* ---- 二级类别（新股申购/专业数据版/…）与详情页面板内 tab：胶囊行 ---- */
+    .nav-pills {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px;
+        margin: 0;
+        padding: 0;
+
+        > li {
+          float: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
+
+          > a {
+            display: inline-flex;
+            align-items: center;
+            height: 28px;
+            padding: 0 12px;
+            border: none !important;
+            border-radius: var(--jsl-radius-sm);
+            background: transparent !important;
+            color: var(--jsl-text-2) !important;
+            font-size: 13px;
+            line-height: 18px;
+
+            &:hover {
+              background: var(--jsl-surface-2) !important;
+              color: var(--jsl-text) !important;
+            }
+          }
+
+        &.active > a {
+          background: var(--jsl-accent-weak) !important;
+          color: var(--jsl-accent) !important;
+          font-weight: 500;
+        }
+      }
+    }
+
+    .data_type_nav {
+      height: auto !important;
+      padding: 0 0 12px !important;
+    }
+
+    /* ---- 数据表：表头/斑马纹/粘性列全部令牌化 ---- */
+    & table {
+      background-image: none !important;
+      background-color: var(--jsl-surface) !important;
+      border-color: var(--jsl-border) !important;
+      color: var(--jsl-text-2) !important;
+      font-variant-numeric: tabular-nums;
+    }
+
+    & thead td,
+    & thead th,
+    & tbody td,
+    & tbody th {
+      border-color: var(--jsl-border) !important;
+    }
+
+    /* 工具条行（新股申购(刷新) / 市场：…）与表头同灰带 */
+    & thead td.title,
+    & thead tr td[colspan] {
+      background: var(--jsl-surface-2) !important;
+      color: var(--jsl-text-2) !important;
+    }
+
+    & thead th {
+      background: var(--jsl-surface-2) !important;
+      color: var(--jsl-text-2) !important;
+      font-weight: 500;
+
+      /* 站方用内联 yellow 标注关键列：深色下是刺眼亮块 → 浅品牌底 */
+      &[style*='yellow'] {
+        background: var(--jsl-accent-weak) !important;
+        color: var(--jsl-accent) !important;
+      }
+    }
+
+    & tbody {
+      & tr.odd > td,
+      & tr.odd > th {
+        background: var(--jsl-surface-2) !important;
+      }
+
+      & tr.even > td,
+      & tr.even > th {
+        background: var(--jsl-surface) !important;
+      }
+
+      & tr:hover > td,
+      & tr:hover > th {
+        background: var(--jsl-surface-hover) !important;
+      }
+
+      & td {
+        color: var(--jsl-text-2) !important;
+        font-size: 12.5px;
+      }
+
+      & a {
+        color: var(--jsl-text) !important;
+        text-decoration: none;
+
+        &:hover {
+          color: var(--jsl-accent) !important;
+        }
+      }
+    }
+
+    /* 站方内联涨跌色：深色下纯红/绿过饱和，映射主题涨跌色 */
+    [style*='color:red'],
+    [style*='color: red'] {
+      color: var(--jsl-up) !important;
+    }
+
+    [style*='color:green'],
+    [style*='color: green'] {
+      color: var(--jsl-down) !important;
+    }
+
+    /* 表尾说明 / 页面提示 */
+    .tip,
+    .remark {
+      color: var(--jsl-text-3) !important;
+      font-size: 12px;
+    }
+
+    /* 站方在数据表上挂 table-bg.png（近纯白纹理）：深色下整表变白底、
+       文字 2.35:1。清图改 surface（Vue 数据页同款做法） */
+    .jisilu_tcdata,
+    .tablesorter {
+      background-image: none !important;
+      background-color: var(--jsl-surface) !important;
+    }
+
+    /* 转债详情：指标表的行标题/小标题（站方浅蓝 #86c5e3 + #333 字） */
+    .jisilu_title,
+    .calc,
+    .extitle {
+      background: var(--jsl-surface-2) !important;
+      color: var(--jsl-text-2) !important;
+    }
+
+    /* 站方提示条（淡黄 tips-bg / 淡蓝信息块 / 图表灰底）统一成 surface-2 */
+    .tips-bg,
+    .item_div,
+    .item_chart,
+    .breadcrumb,
+    table[style*='background:#e1f3fd'],
+    table[style*='background: #e1f3fd'] {
+      background: var(--jsl-surface-2) !important;
+      color: var(--jsl-text-2) !important;
+      border-color: var(--jsl-border) !important;
+    }
+
+    /* 概念标签：站方 69px 浅蓝竖块 + 每个浅蓝小 chip */
+    .tag,
+    .item {
+      background: var(--jsl-surface) !important;
+      color: var(--jsl-text-2) !important;
+      border-color: var(--jsl-border) !important;
+
+      &:hover {
+        background: var(--jsl-surface-hover) !important;
+        color: var(--jsl-accent) !important;
+      }
+    }
+
+    /* 个股页：「最新公告 / 相关讨论」等 Bootstrap tab（站方白底 A） */
+    & a[role='tab'] {
+      background: var(--jsl-surface-2) !important;
+      color: var(--jsl-text-2) !important;
+      border-color: var(--jsl-border) !important;
+
+      &:hover {
+        color: var(--jsl-accent) !important;
+      }
+    }
+
+    & li.active > a[role='tab'] {
+      background: var(--jsl-accent-weak) !important;
+      color: var(--jsl-accent) !important;
+      font-weight: 500;
+    }
+
+    /* 筛选控件（债券页的 select/input.form-control）：站方白底 */
+    .form-control {
+      background: var(--jsl-surface-2) !important;
+      border-color: var(--jsl-border) !important;
+      color: var(--jsl-text) !important;
+
+      &:focus {
+        border-color: var(--jsl-border-2) !important;
+        box-shadow: none !important;
+      }
+    }
+
+    /* 站方工具栏/面包屑/概念标签里的链接（#337ab7，深色下 3.24:1）→ 品牌色 */
+    & a {
+      color: var(--jsl-accent) !important;
+    }
+
+    /* 表体内的链接保持主文字色（数值链接不宜高饱和） */
+    & tbody a {
+      color: var(--jsl-text) !important;
+    }
+
+    /* 站方内联灰色文字（#333/#4d4d4d/#555/#666/#777）→ 主题次级色 */
+    [style*='color:#333'],
+    [style*='color: #333'],
+    [style*='color:#4d4d4d'],
+    [style*='color: #4d4d4d'],
+    [style*='color:#555'],
+    [style*='color: #555'],
+    [style*='color:#666'],
+    [style*='color: #666'],
+    [style*='color:#777'],
+    [style*='color: #777'],
+    [style*='color:#636363'],
+    [style*='color: #636363'] {
+      color: var(--jsl-text-2) !important;
+    }
+
+    /* 交易所/板块彩色小徽标（京/科/创/转，站方内联高饱和底 + 白字，
+       白字对比仅 1.9:1）：压暗底色保留色相与白字 */
+    & td div[style*='background-color'][style*='color: white'],
+    & td div[style*='background-color'][style*='color:white'],
+    & td span[style*='background-color'][style*='color: white'],
+    & td span[style*='background-color'][style*='color:white'] {
+      box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.5);
+    }
+
+    /* 个数页（个股详情）的深色文字：内联 #575757/#666/#119 等在深色底上过暗 */
+    & .breadcrumb li.active,
+    & .breadcrumb li.active a {
+      color: var(--jsl-text-2) !important;
+    }
+
+    & [style*='color:#575757'],
+    & [style*='color: #575757'] {
+      color: var(--jsl-text-2) !important;
+    }
+
+    & .stock_note_edit_tip,
+    & .stock_note_edit_tip a {
+      color: var(--jsl-accent) !important;
+    }
+
+    /* 个股页指标：站方 #0088cb/#0088cc 百分比在深色 4.43:1 → 品牌色 */
+    & .dc,
+    & .item_title {
+      color: var(--jsl-accent) !important;
+    }
+
+    & .item_desc {
+      color: var(--jsl-text-2) !important;
+    }
+
+    /* 计算器页把表头写成 td + 内联 #86C5E3（无 th、无 class）→ 令牌化 */
+    & td[style*='86C5E3'],
+    & td[style*='86c5e3'] {
+      background: var(--jsl-surface-2) !important;
+      color: var(--jsl-text-2) !important;
+    }
+
+    /* 站方内联黄色单元格（转债详情预估字段、收益计算器最优行 #fffd38）→ 浅品牌底 */
+    & td[style*='yellow'],
+    & th[style*='yellow'],
+    & td[style*='#fffd38'],
+    & td[style*='#FFFD38'],
+    & tr:has(> td[style*='#fffd38']) > td {
+      background: var(--jsl-accent-weak) !important;
+      color: var(--jsl-accent) !important;
+    }
+
+    /* 站方 btn-info（+自选）是亮蓝 #5bc0de + 白字 2.1:1 → 实底 accent */
+    & .btn-info {
+      background: var(--jsl-accent-solid) !important;
+      border-color: var(--jsl-accent-solid) !important;
+      color: var(--jsl-accent-solid-ink) !important;
+
+      &:hover {
+        background: var(--jsl-accent-solid-hover) !important;
+        border-color: var(--jsl-accent-solid-hover) !important;
+      }
+    }
+
+    /* 站方 btn-default（查询栏「重置」、搜索按钮）：白底 #333 字，
+       深色下是亮块；改透明描边胶囊（与全站次级按钮一致） */
+    & .btn-default {
+      background: transparent !important;
+      border-color: var(--jsl-border-2) !important;
+      color: var(--jsl-text) !important;
+
+      &:hover {
+        background: var(--jsl-surface-2) !important;
+        border-color: var(--jsl-accent) !important;
+        color: var(--jsl-accent) !important;
+      }
+    }
+
+    /* 会员预览图（compare_dish.jpg）是浅色截图：只收圆角，不改内容 */
+    & .dish img {
+      border-radius: 8px;
+    }
+
+    & h1,
+    & h2,
+    & h3,
+    & h4 {
+      color: var(--jsl-text);
+    }
+  }
 }
 
 /* ---- 用户中心各面板内的子标签（.aw-tabs，如「关注的人/关注者/关注的话题」）：

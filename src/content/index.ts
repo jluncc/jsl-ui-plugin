@@ -27,6 +27,15 @@ function applyPageFlags(): void {
   // 实时数据页（Vue + Element UI 架构，与门户/社区都是两套不同外壳）
   if (document.querySelector('.data-content.auto-content-width')) {
     root.classList.add('jsl-page-data');
+  } else if (document.querySelector('#app .layout-default .header_subnavbar_bg')) {
+    // Vue 数据外壳的其它页（如持仓 /web/positions）：header + 子导航与数据页同构，
+    // 但没有 .data-content.auto-content-width，单独识别后共用数据页外壳样式
+    root.classList.add('jsl-page-data');
+  }
+  // 旧版服务端渲染数据页（新股/ETF/LOF/债券/转债详情…）：
+  // 常见是 .grid.data_content，计算器页（新股人品计算器/收益计算器）只有 .data_content
+  if (document.querySelector('.data_content')) {
+    root.classList.add('jsl-page-data-legacy');
   }
 }
 
@@ -174,6 +183,67 @@ function reorderUserNavMenu(): void {
   }
 }
 
+/** 数据页外壳判定：Vue 数据页（.data-content.auto-content-width）、
+ *  Vue 数据外壳的其它页（持仓，有 #app 内的子导航）、
+ *  旧版服务端数据页（.grid.data_content）。三者共用 header/footer 增强。 */
+function isDataShellPage(): boolean {
+  return (
+    !!document.querySelector('.data-content.auto-content-width') ||
+    !!document.querySelector('#app .layout-default .header_subnavbar_bg') ||
+    !!document.querySelector('.data_content')
+  );
+}
+
+/** 数据页 header 浮层：Element UI 的 popper 打开时被挂到 body 下，并按站方
+ *  300px 宽度相对触发按钮居中定位；样式收窄成 148px 后左缘不变，右缘会比按钮
+ *  缩进 74px（宽 300 时则溢出 header 104px）。把 popper 右缘对齐到触发按钮右缘。
+ *  Element 在弹窗上回写 aria-describedby，用它反查触发元素。
+ *  选择器只命中 Element UI 的 popper（门户/社区用的是 Bootstrap popover），不影响其它页。 */
+let dataPagePopperWatcherStarted = false;
+
+function alignDataPagePoppers(): void {
+  if (dataPagePopperWatcherStarted) return;
+  // 数据页标志可能尚未挂上（Vue 渲染晚于 DOMContentLoaded）：由延时重试补上
+  if (!isDataShellPage()) return;
+  dataPagePopperWatcherStarted = true;
+
+  const watched = new WeakSet<HTMLElement>();
+  let queued = false;
+
+  const align = () => {
+    queued = false;
+    for (const popper of document.querySelectorAll<HTMLElement>('body > .el-popover.el-popper')) {
+      if (!watched.has(popper)) {
+        watched.add(popper);
+        new MutationObserver(schedule).observe(popper, {
+          attributes: true,
+          attributeFilter: ['style', 'aria-hidden'],
+        });
+      }
+      const rect = popper.getBoundingClientRect();
+      if (!rect.width) continue;
+      const ref = popper.id
+        ? document.querySelector<HTMLElement>(`[aria-describedby="${popper.id}"]`)
+        : null;
+      if (!ref) continue;
+      const target = Math.round(ref.getBoundingClientRect().right + window.scrollX - rect.width);
+      const current = Math.round(parseFloat(popper.style.left || '0'));
+      if (Number.isFinite(target) && Math.abs(current - target) > 1) {
+        popper.style.left = `${target}px`;
+      }
+    }
+  };
+
+  function schedule(): void {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(align);
+  }
+
+  schedule();
+  new MutationObserver(schedule).observe(document.body, { childList: true });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   applyPageFlags();
   polishHeaderLinks();
@@ -181,16 +251,22 @@ document.addEventListener('DOMContentLoaded', () => {
   reorderUserNavMenu();
   injectThemeToggle();
   reflowCalendar();
-  // 数据页是 Vue SPA（header 由客户端渲染），DOMContentLoaded 时菜单/搜索/页脚可能还不存在
-  window.setTimeout(() => {
+  alignDataPagePoppers();
+  // 数据页是 Vue/服务端两套外壳，header、子导航、页脚都可能晚于 DOMContentLoaded 出现：
+  // 延时重跑标志检测与 DOM 变换（幂等）
+  const enhanceDataShellLater = () => {
+    applyPageFlags();
     polishPortalNav();
     polishHeaderLinks();
-    if (document.querySelector('.data-content.auto-content-width')) {
+    if (isDataShellPage()) {
       injectThemeToggle();
       movePublishToHeader();
       reorganizePortalFooter();
+      alignDataPagePoppers();
     }
-  }, 1200);
+  };
+  window.setTimeout(enhanceDataShellLater, 1200);
+  window.setTimeout(enhanceDataShellLater, 2500);
 
   void loadSettings().then((settings) => {
     applySettings(settings);
@@ -213,8 +289,8 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (document.querySelector('.content_box')) {
         // 登录/注册页：内容区是独立登录卡，只复用页脚整理（与门户首页同一套文案结构）
         reorganizePortalFooter();
-      } else if (document.querySelector('.data-content.auto-content-width')) {
-        // 实时数据页（Vue）：header 补「发起」，页脚与门户同一套
+      } else if (isDataShellPage()) {
+        // 实时数据页（Vue / 旧版服务端）：header 补「发起」，页脚与门户同一套
         movePublishToHeader();
         reorganizePortalFooter();
       }
