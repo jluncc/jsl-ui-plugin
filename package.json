@@ -1,6 +1,6 @@
 {
   "name": "jsl-polish",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "为集思录带来现代化界面的 Chrome 扩展",
   "scripts": {
     "dev": "tsup --watch",

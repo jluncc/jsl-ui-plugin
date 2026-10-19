@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "JSL Polish · 集思录现代化",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "为集思录社区带来现代化界面：深浅双主题、现代排版与更舒适的阅读体验",
   "minimum_chrome_version": "114",
   "icons": {
