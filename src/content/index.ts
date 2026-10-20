@@ -2,7 +2,12 @@ import { applyEnabledEarly, loadSettings, watchSettings, type Settings } from '.
 import { applyThemeEarly, syncTheme } from './theme';
 import { enhanceListPage } from './modules/list';
 import { enhanceDetailPage } from './modules/detail';
-import { enhancePortalHome, movePublishToHeader, reorganizePortalFooter } from './modules/portal';
+import {
+  enhanceHeaderPopover,
+  enhancePortalHome,
+  movePublishToHeader,
+  reorganizePortalFooter,
+} from './modules/portal';
 import { enhanceSettingsPage } from './modules/settings';
 import { injectThemeToggle } from './modules/theme-toggle';
 
@@ -386,6 +391,8 @@ document.addEventListener('DOMContentLoaded', () => {
   polishPortalNav();
   reorderUserNavMenu();
   injectThemeToggle();
+  // 门户/日历/数据页共用同一套 header：用户弹窗同样要整理（首页分支内部也会再调一次）
+  if (document.querySelector('.header_navbar_content .popover-menu')) enhanceHeaderPopover();
   reflowCalendar();
   alignDataPagePoppers();
   alignDataPageTabs();
@@ -397,6 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isDataShellPage()) {
       injectThemeToggle();
       movePublishToHeader();
+      enhanceHeaderPopover();
       reorganizePortalFooter();
       alignDataPagePoppers();
       alignDataPageTabs();
@@ -427,8 +435,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // 登录/注册页：内容区是独立登录卡，只复用页脚整理（与门户首页同一套文案结构）
         reorganizePortalFooter();
       } else if (isDataShellPage()) {
-        // 实时数据页（Vue / 旧版服务端）：header 补「发起」，页脚与门户同一套
+        // 实时数据页（Vue / 旧版服务端）：header 补「发起」、用户弹窗与首页同款，页脚同一套
         movePublishToHeader();
+        enhanceHeaderPopover();
         reorganizePortalFooter();
       }
     }

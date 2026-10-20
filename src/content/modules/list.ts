@@ -47,6 +47,9 @@ function buildCardHead(list: HTMLElement): void {
   };
   collect(categoryUl, 'cat');
   collect(sortUl, 'sort');
+  // 话题页 / 个人中心等也有 .aw-question-list 但没有分类与排序条：
+  // 没有收集到任何项时不生成卡片头，否则会留一条空灰带
+  if (picked.size === 0) return;
 
   const head = document.createElement('div');
   head.className = 'jsl-card-head';

@@ -22,7 +22,7 @@ pnpm format  # prettier
 - **content script（document_start）**：`src/content/index.ts` 按 DOM 特征在 `<html>` 上挂 `jsl` / `jsl-community` / `jsl-page-list` / `jsl-page-detail` 标志类。全部 CSS 挂钩在这些类下——**总开关 = 移除一个 class**。
 - **样式三段式**：`src/styles/tokens.css`（深浅两套 CSS 变量，`html[data-theme]` 切换）→ `global.css`（顶栏/页脚/通用）→ `community.css`（列表/详情/侧栏）。顶栏颜色单独走 `--jsl-header-*` 令牌组。
 - **侧栏「发起人」卡（.aw-side-bar-mod-body dl）**：头像上边缘 = **用户名文字**上边缘（用户定稿，实测双主题 116.5=116.5）。实现：`dl` flex + `align-items:flex-start`、dt/dd 零 margin、`dt` 与 `dt a` flex/block + `line-height:0`、`img` block，再给 `dt` 加 `margin-top:4.5px`——dd 首行是 20px 行盒里 12px 的字，文字实际绘制在行盒内下沉约 4.5px，纯顶对齐会让头像比名字高一截。三个坑：① 不能用 `align-items:center`（dd 含多行简介 81px，头像会落到整块中线）；② 不要做中线对齐；③ **"上边缘齐平"指文字上边缘，不是 dd 块上边缘**。此类「头像+多行信息」卡一律按文字上边缘校准。
-- **DOM 增强**：`src/content/modules/list.ts`（合并导航、侧栏重排）、`detail.ts`（楼层号、回顶按钮）、`portal.ts`（门户首页内容区重排：温度计上移、收费数据移除、APP 链接入页脚）、`theme-toggle.ts`（顶栏主题切换按钮）。
+- **DOM 增强**：`src/content/modules/list.ts`（合并导航、侧栏重排；**话题页/个人中心也有 `.aw-question-list` 但没有分类与排序条——收集到的导航项为 0 时直接 return，不插空的 `.jsl-card-head`**，否则会在 tab 行下留一条 10px 空灰带；CSS 侧再加 `.jsl-card-head:not(:has(li)) { display:none }` 兜底）、`detail.ts`（楼层号、回顶按钮）、`portal.ts`（门户首页内容区重排：温度计上移、收费数据移除、APP 链接入页脚）、`theme-toggle.ts`（顶栏主题切换按钮）。
 - **设置**：`src/shared/settings.ts`，chrome.storage.sync，含总开关与模块开关；options 页在 `static/options.html`。
 - **首帧无闪烁**：`applyThemeEarly()` + `applyEnabledEarly()` 在 document_start 同步读 localStorage 缓存（`jsl-polish-theme` / `jsl-polish-enabled`）先定 `data-theme` 与 `jsl` 类，chrome.storage 异步回包后再对齐；`saveSettings()` 同时写缓存。
 - **设置变更策略**：主题即时生效；总开关/模块开关涉及单向 DOM 变换，无法低成本撤销 → `location.reload()`（避免"关掉扩展但卡片头还在"的半应用状态）。
@@ -112,6 +112,7 @@ pnpm format  # prettier
 `/topic/<name>` 是 WeCenter 社区外壳（`.aw-wecenter` + `.aw-question-list`，会自动命中列表页样式），但多了三块站方原色区域；`/topic/`（话题广场）是另一套结构。
 
 - **标志**：`.aw-topic-detail-title` 存在 → `jsl-page-topic`（`applyPageFlags`、`preview.sh`、预览注入脚本三处同步）。话题广场没有该节点，只靠 `jsl-community` + `.aw-topic-content` 作用域，不需要新标志。
+- **作用域陷阱（2026-10-20 修复）**：话题详情页的主栏是 `.span9.aw-main-content.aw-topic-content`（与话题广场**同名**），广场样式若写成 `.aw-topic-content .aw-item` 会命中详情页的帖子行，实测把内衬从 18px 顶成 66px（回复数胶囊相对「主题/问题」tab 右移 48px）。广场专属规则一律限定 `.aw-topic-content .aw-topic-follow ...`（`.aw-topic-follow` 是广场主卡，详情页没有）。同理侧栏「热门话题」的 `dl dt { display:none }`（纯文字行）必须 `:not(.interest_user)`，否则「可能感兴趣的人或话题」卡的头像被整列隐藏。
 - **话题头卡**：站方 `.aw-mod-body` 是 `position:relative` + `padding-left:80px`、头像 `absolute` 50px、关注块 `absolute` 贴右、`min-height:70px`、卡片 `margin-top:10px`。改成 flex 单行（44px 头像 + 18px 标题 + 右侧「N 人关注 + 关注按钮」），并清 `min-height` / `margin`。不清 `min-height` 会留 100px 空卡；不清 `margin-top` 会让标题卡比侧栏首卡低 10px。
 - **「关注」按钮**：站方淡黄绿实底 `#e0f4ad` + 灰字（深色下成亮块、1.9:1），已关注态还叠 `aw-active` → 统一描边胶囊，`.aw-active` 用 accent-solid 实底。
 - **tab 行**（主题/问题 | 关于话题）：站方白底 tab + `#f5faff` 未选。改 surface-2 通栏灰带 + 胶囊，**选中态用 `--jsl-surface` 底而不是 accent-weak**——accent-weak 叠在 surface-2 上时 accent 文字只有 3.84:1（深色）/3.91:1（浅色），surface 底才是 5.52/4.55。
@@ -119,6 +120,18 @@ pnpm format  # prettier
 - **侧栏**：五种卡片。标题有两种站方结构（`aw-side-bar-mod-head` 与 `aw-side-bar-head`），h3 都写死 `#17344a`（深色 1.34:1）→ 令牌化。**「话题描述」为空时站方仍渲染一张只有标题的空卡**，用 `:has(> .aw-side-bar-mod-body > p:empty)` 整卡隐藏。「相关话题」「新增话题」的 chip 需要 `!important` 覆盖全局 `.aw-topic-name span` 的透明化规则。
 - **「更多...」**：站方浅蓝实底条 → 描边胶囊。
 - **话题广场 `/topic/`**：主卡 `.aw-topic-follow`，每条 = 50px 头像 + 话题名 + 「N 个问题/N 个关注」+ 3 条最新问题。站方话题行 `padding-left:66px` + absolute 头像，改 82px 内衬并把分隔线做成 `::after` 2px。**最新问题行的 DOM 顺序是「日期 span → 标题 a」**，flex 化后日期会跑到左边，必须用 `order:1/2` 还原标题左、日期右。侧栏导航选中态是 `#2b77a8` 实底蓝条 → accent-weak 胶囊；「新增话题」chip 容器改 flex wrap + gap。
+
+## 我的收藏 / 我的首页（/favorite/、/home/mine/）
+
+两页都是 WeCenter 社区外壳（`jsl-community` 自动命中），主栏卡片结构不同：收藏是「标题 + 摘要 + 标签 + 取消收藏」，首页是 AJAX 信息流（`#main_contents`，tab 切换用 hash 路由，同一 DOM 容器换内容）。
+
+- **卡片头统一 47px 灰底条**（`.aw-my-favorite > .aw-mod-head` / `.aw-index .aw-dynamic-topic > .aw-mod-head`）：内衬 **18px 与行内衬同值**，标题文字与行首头像/胶囊同一条左基线（实测 x=205 / 261）。
+- **收藏行**：站方头像 `absolute` 钉在行右上角 → 收到左上 40px（`left:18px; top:16px`），行内衬 `16px 18px 14px 74px`（18 + 40 + 16）；标题 15px/600，作者与摘要次级色，行尾「标签 chip 左 / 取消收藏描边胶囊右」。
+- **收藏卡片头「标签:」**：`margin-left:auto` 推到右端，chip 用 **surface 底**（surface-2 灰带上 accent-weak 只有 3.84:1）。
+- **首页信息流**：站方让 `.aw-dynamic-topic > .aw-item` 继承详情页回复行的 flex 双列规则（`.aw-dynamic-topic .aw-item{display:flex}`），首页必须显式还原 **单列 block**，否则「作者行 / 标题」被压进左侧 221px 窄列、正文漂到右边。头像同样绝对定位到行左上 40px，正文列与动作行站方写死 `width:580px` 都要 `width:auto`。
+- **tab 差异**：「我的草稿 / 邀请我回答」的行**没有头像** → `.aw-item:not(:has(> .aw-mod-head > .aw-user-img)) { padding-left: 18px }`；草稿 tab 把「清空所有」按钮塞在 `h2` 里，h2 要 `display:flex; flex:1` + 按钮 `order:2; margin-left:auto` 才能贴到标题右端（按钮改描边胶囊，破坏性操作不用实底）。
+- **侧栏导航卡**（最新动态/我的草稿/…）：站方 `a` 写死 `width:170px`（卡片 280 宽，hover 只覆盖一半）→ `width:100%`；当前位置站方 `#397dac` 亮蓝实底 → `--jsl-accent-solid` 实底 + 白字（两主题 ≥4.5；浅色 accent-weak 上的 accent 只有 4.05）。
+- **侧栏「可能感兴趣的人或话题」**：站方 dt/dd 浮动 + PUA 关注图标；改 flex（32px 圆角头像 + 13px 名字 + 18px 次级行），关注按钮自绘 16px 圆形「+ / ✓」热区。注意与「热门话题」的 `dt{display:none}` 规则互斥（见话题页章节的作用域陷阱）。
 
 ## 投资日历页（.jsl-page-calendar）
 
@@ -164,9 +177,9 @@ pnpm lint         # eslint + tsc
 1. **危险 API**：`eval` / `new Function` / `document.write` / `window.open` 缺 noopener
 2. **XSS 面**：`innerHTML` 赋值（当前仅用于内置 SVG 常量，可信）；新增处必须确认内容来源
 3. **CSS 冗余**：`transition: all`（改显式属性）；**声明完全相同**的重复选择器（同一选择器分多条写基础+状态补丁是正常分层，不报）
-4. **体积预算**：`content.js ≤ 36KB`、三段 CSS 合计 ≤ 274KB（随覆盖页面增长上调：12 页 → 含设置页 8 个 tab + 数据页 header 精修 + 旧版服务端数据页适配；超了先查是不是又内联了大段 data URI 或可压缩的冗长注释）
+4. **体积预算**：`content.js ≤ 37KB`、三段 CSS 合计 ≤ 300KB（随覆盖页面增长上调：12 页 → 含设置页 8 个 tab + 数据页 header 精修 + 旧版服务端数据页适配 → 收藏页 / 我的首页信息流；超了先查是不是又内联了大段 data URI 或可压缩的冗长注释）
 
-审查基线（2026-10 首轮）：CSS 142.8KB / content.js 22.7KB；当前 **272.0KB / 34.3KB**（十二页 + 用户中心 + 设置页 8 个 tab + 投资日历页 + 数据页 header/子导航/浮层精修 + 旧版服务端数据页 + 话题页/话题广场适配后）；已知可接受项 = 2 处 `innerHTML`（detail.ts 回顶图标、theme-toggle.ts 主题图标，均为内置 SVG 字符串常量）。
+审查基线（2026-10 首轮）：CSS 142.8KB / content.js 22.7KB；当前 **292.4KB / 36.3KB**（十二页 + 用户中心 + 设置页 8 个 tab + 投资日历页 + 数据页 header/子导航/浮层精修 + 旧版服务端数据页 + 话题页/话题广场适配 + 收藏页/我的首页信息流后）；已知可接受项 = 2 处 `innerHTML`（detail.ts 回顶图标、theme-toggle.ts 主题图标，均为内置 SVG 字符串常量）。
 
 ## 预览与验收工作流（不装扩展即可验证样式）
 
@@ -231,6 +244,7 @@ pnpm lint         # eslint + tsc
 - 回顶按钮：右缘对齐容器（`right: max(18px, calc(50% - 580px))`），滚动 600px 后淡入。
 - 页脚：单层 padding（14px 0 + margin-top 24px）。
 - 主题令牌驱动一切颜色；改主题只动 `tokens.css`。
+- **门户用户弹窗的 DOM 清理必须覆盖所有门户外壳页（2026-10-20 修复）**：`stripPopoverHeader()` / `reorderMenuItems()` 原先生效路径只有 `enhancePortalHome()`（首页），而日历、登录、`/data/*` 旧版数据页、Vue 数据页共用同一个 `.header_navbar_content` 外壳——这些页面上用户弹窗仍是站方原样：用户信息行 + 白底会员推广条 + 双列菜单 + 「发起讨论」+ 底部退出区，在深色主题下会员条是刺眼白块、双列菜单互相叠压。现统一为 `portal.ts enhanceHeaderPopover()`（内部遍历**所有** `.popover-menu`，因为站方打开弹窗时会把源菜单 clone 进 `.popover-content`，源节点与副本都要清理），由 `index.ts` 在 DOMContentLoaded 与数据页延时重跑（1200/2500ms）时调用；`enhancePortalHome()` 内部也调它（幂等）。新增门户外壳页时必须在同一处补调用。
 - **门户弹窗宽度链（2026-10 实测）**：站方给门户 popover 的内层 `.popover-content` 写死宽度——用户菜单 295px、通知 250px；而社区页对应浮层只有 148px。外层 `.popover` 若 `max-width` 收到 260，内层就按 148 左对齐、在外层里留出 112px 空白（用户看到「菜单没贴住按钮」）。修法：用户菜单与通知弹窗都让 `.popover-content` `width:auto !important; min-width:0`，宽度交还内容，外层 `right:0` 才能真正贴住按钮右缘。通知弹窗同时对齐社区页 `.aw-message-dropdown`：6px 内衬 + 10px 圆角 + 内容 `p` 8px 12px / 12px 三级色。
 - **登录态实测补充（2026-10）**：真实登录页多出用户菜单/通知/私信/编辑器/投票条等元素，未登录快照测不到。已修：`赏` 按钮（站方亮橙 #f48817 + 白字仅 2.51:1 → 压暗到 #b35f0b，4.61:1）、「关注问题」label（#666 → text-2）、投票条内层 em 的浅蓝底（清除，改 text-2）、正文表格内联 `#ccc` 边框（令牌化）。**正文里用户自己写的浅底单元格**（黄底/浅蓝底 + 继承的浅色字，实测 1.05:1）在深色下统一改深色文字、保留底色语义；内联 `color:red/green` 换成主题涨跌色。
 - **对比度基线（2026-10 定稿）**：深色主题全站正文/控件文字对底色 ≥4.5:1（AA）。三组专用令牌：

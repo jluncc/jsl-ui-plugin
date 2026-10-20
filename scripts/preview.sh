@@ -199,49 +199,52 @@ sim = """
         if (key && !picked[key]) picked[key] = li;
       });
     });
-    var head = document.createElement('div');
-    head.className = 'jsl-card-head';
-    var rowMain = document.createElement('div');
-    rowMain.className = 'jsl-card-head-row';
-    var rowSort = document.createElement('div');
-    rowSort.className = 'jsl-card-head-row jsl-card-head-sort';
-    head.appendChild(rowMain);
-    head.appendChild(rowSort);
-    ['全部','债券/可转债','基金','套利','新股','闲聊','新手专区'].forEach(function (k) {
-      if (picked[k]) rowMain.appendChild(picked[k]);
-    });
-    ['最新','热门','按发表时间'].forEach(function (k) {
-      if (picked[k]) rowSort.appendChild(picked[k]);
-    });
-    Object.keys(picked).forEach(function (k) {
-      if (!rowMain.contains(picked[k]) && !rowSort.contains(picked[k])) rowMain.appendChild(picked[k]);
-    });
-    list.insertBefore(head, list.firstChild);
+    // 话题页 / 个人中心等没有列表导航条：不生成空的卡片头（否则会留一条空灰带）
+    if (catUl || sortUl) {
+      var head = document.createElement('div');
+      head.className = 'jsl-card-head';
+      var rowMain = document.createElement('div');
+      rowMain.className = 'jsl-card-head-row';
+      var rowSort = document.createElement('div');
+      rowSort.className = 'jsl-card-head-row jsl-card-head-sort';
+      head.appendChild(rowMain);
+      head.appendChild(rowSort);
+      ['全部','债券/可转债','基金','套利','新股','闲聊','新手专区'].forEach(function (k) {
+        if (picked[k]) rowMain.appendChild(picked[k]);
+      });
+      ['最新','热门','按发表时间'].forEach(function (k) {
+        if (picked[k]) rowSort.appendChild(picked[k]);
+      });
+      Object.keys(picked).forEach(function (k) {
+        if (!rowMain.contains(picked[k]) && !rowSort.contains(picked[k])) rowMain.appendChild(picked[k]);
+      });
+      list.insertBefore(head, list.firstChild);
 
-    // 「热门」天数子筛并入排序行右端
-    var dayTabs = document.querySelector('.aw-main-content > .aw-tabs');
-    if (dayTabs) {
-      dayTabs.classList.add('jsl-card-head-days');
-      rowSort.appendChild(dayTabs);
+      // 「热门」天数子筛并入排序行右端
+      var dayTabs = document.querySelector('.aw-main-content > .aw-tabs');
+      if (dayTabs) {
+        dayTabs.classList.add('jsl-card-head-days');
+        rowSort.appendChild(dayTabs);
+      }
+
+      // 预览专用：排序/天数点击仅切换激活态（快照数据不随排序变化，真实站点行为不变）
+      rowSort.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          var li = a.parentElement;
+          li.parentElement.querySelectorAll('li').forEach(function (x) { x.classList.remove('active'); });
+          li.classList.add('active');
+        });
+      });
+      var rc = document.querySelector('.row.category');
+      if (rc) rc.remove();
+      if (sortUl) sortUl.remove();
     }
 
     // 站方对会员数据链接做了字符混淆（自定义字体渲染），预览环境显示为乱码——还原明文
     document.querySelectorAll('.aw-side-bar a[href*="member_data"]').forEach(function (a) {
       if ((a.textContent || '').indexOf('\uFFFD') >= 0) a.textContent = '特色数据、功能特权';
     });
-
-    // 预览专用：排序/天数点击仅切换激活态（快照数据不随排序变化，真实站点行为不变）
-    rowSort.querySelectorAll('a').forEach(function (a) {
-      a.addEventListener('click', function (e) {
-        e.preventDefault();
-        var li = a.parentElement;
-        li.parentElement.querySelectorAll('li').forEach(function (x) { x.classList.remove('active'); });
-        li.classList.add('active');
-      });
-    });
-    var rc = document.querySelector('.row.category');
-    if (rc) rc.remove();
-    if (sortUl) sortUl.remove();
 
     // list.ts：价目条并入侧栏会员卡（标题之下、购买行之上）
     var promo = document.querySelector('.aw-main-content > .aw-item[style]');
@@ -540,6 +543,10 @@ sim = """
         });
         order.forEach(function (t) {
           if (byText[t]) menuUl.appendChild(byText[t]);
+        });
+        // 站方两个 ul 并排：空壳留着会多出一段空白（与 portal.ts 同步）
+        pMenu.querySelectorAll('.menu_links ul').forEach(function (u) {
+          if (u !== menuUl && !u.querySelector('li')) u.remove();
         });
         var bottomLinks = pMenu.querySelector('.bottom_links');
         if (bottomLinks) bottomLinks.remove();

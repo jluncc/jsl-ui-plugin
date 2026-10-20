@@ -23,6 +23,12 @@ html.jsl.jsl-community .jsl-card-head {
   padding: 5px 18px 6px;
 }
 
+/* 兜底：卡片头里一个导航项都没有时整块隐藏（话题页等无分类/排序条的页面，
+   空行会变成一条 10px 灰带） */
+html.jsl.jsl-community .jsl-card-head:not(:has(li)) {
+  display: none;
+}
+
 html.jsl.jsl-community .jsl-card-head-row {
   display: flex;
   align-items: center;
@@ -286,7 +292,7 @@ html.jsl.jsl-community .aw-side-bar > div[style*='jsl_bg_member_info'] a[style*=
 
 /* 热门话题卡：站方每条话题都是同一张灰色占位图（无信息量），隐藏后重排为纯文字行。
    该卡的 body 类名是 aw-mod-body（发起人/问题状态卡是 aw-side-bar-mod-body，不受影响） */
-html.jsl.jsl-community .aw-side-bar-mod .aw-mod-body dl dt {
+html.jsl.jsl-community .aw-side-bar-mod:not(.interest_user) .aw-mod-body dl dt {
   display: none;
 }
 
@@ -617,7 +623,8 @@ html.jsl.jsl-community .aw-dynamic-topic-meta i[style*='gold_coins'] {
 }
 
 /* 分享 */
-html.jsl.jsl-community .aw-question-detail-meta .i-share {
+html.jsl.jsl-community .aw-question-detail-meta .i-share,
+html.jsl.jsl-community .aw-index .aw-dynamic-topic-meta .i-share {
   --jsl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13'/%3E%3C/svg%3E");
 }
 
@@ -732,11 +739,13 @@ html.jsl.jsl-community .aw-vote-bar a .i-up.active {
   background-color: var(--jsl-accent) !important;
 }
 
-html.jsl.jsl-community .aw-vote-bar a .i-up {
+html.jsl.jsl-community .aw-vote-bar a .i-up,
+html.jsl.jsl-community .aw-index .aw-dynamic-topic-meta .i-up {
   --jsl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpolygon points='12 4 20 14 4 14'/%3E%3C/svg%3E");
 }
 
-html.jsl.jsl-community .aw-vote-bar a .i-down {
+html.jsl.jsl-community .aw-vote-bar a .i-down,
+html.jsl.jsl-community .aw-index .aw-dynamic-topic-meta .i-down {
   --jsl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpolygon points='4 10 20 10 12 20'/%3E%3C/svg%3E");
 }
 
@@ -2257,6 +2266,25 @@ html.jsl.jsl-page-portal .header_navbar_content .popover-menu .menu_links li a {
   font-size: 13px;
 }
 
+/* 「发起讨论」：站方是蓝色实底 btn；header 没补出「发起」的页面（日历/搜索）
+   会保留这一项，样式并入链接语言（图标字体已隐藏，只剩文字） */
+html.jsl.jsl-page-portal .header_navbar_content .popover-menu .menu_links li a.btn {
+  justify-content: flex-start;
+  /* 站方 .btn-xs 行高 1.5 会让这一项比相邻链接矮 6px */
+  line-height: 28px;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--jsl-text-2) !important;
+  font-weight: 400;
+  text-shadow: none;
+}
+
+html.jsl.jsl-page-portal .header_navbar_content .popover-menu .menu_links li a.btn:hover {
+  background: var(--jsl-surface-2) !important;
+  color: var(--jsl-text) !important;
+}
+
 html.jsl.jsl-page-portal .header_navbar_content .popover-menu .menu_links li a:hover {
   background: var(--jsl-surface-2);
   color: var(--jsl-text);
@@ -3450,14 +3478,14 @@ html.jsl.jsl-page-portal .footer_bg a:hover {
 
 /* 主列话题卡片行：站方把话题图片设为 absolute（50×50 压在话题名上），
    内容列统一让出头像位；分隔线用 2px 实线（1px 细线缩放下摩尔纹成虚线） */
-html.jsl.jsl-community .aw-topic-content .aw-item {
+html.jsl.jsl-community .aw-topic-content .aw-topic-follow .aw-item {
   position: relative;
   padding: 14px 0 14px 66px;
   /* 站方动态注入 1px dotted border-top（AGENTS 陷阱 1），分隔线已由 ::after 承担 */
   border-top: none !important;
 }
 
-html.jsl.jsl-community .aw-topic-content .aw-item:not(:last-child)::after {
+html.jsl.jsl-community .aw-topic-content .aw-topic-follow .aw-item:not(:last-child)::after {
   content: '';
   display: block;
   height: 2px;
@@ -3465,53 +3493,53 @@ html.jsl.jsl-community .aw-topic-content .aw-item:not(:last-child)::after {
   background: var(--jsl-border);
 }
 
-html.jsl.jsl-community .aw-topic-content .aw-topic-img {
+html.jsl.jsl-community .aw-topic-content .aw-topic-follow .aw-topic-img {
   position: absolute !important;
   left: 0;
   top: 14px;
 }
 
-html.jsl.jsl-community .aw-topic-content .aw-topic-img img {
+html.jsl.jsl-community .aw-topic-content .aw-topic-follow .aw-topic-img img {
   border-radius: var(--jsl-radius-sm);
 }
 
-html.jsl.jsl-community .aw-topic-content .aw-topic-name {
+html.jsl.jsl-community .aw-topic-content .aw-topic-follow .aw-topic-name {
   display: block;
   margin-bottom: 6px;
 }
 
-html.jsl.jsl-community .aw-topic-content .aw-topic-name span {
+html.jsl.jsl-community .aw-topic-content .aw-topic-follow .aw-topic-name span {
   color: var(--jsl-text);
   font-size: 15px;
   font-weight: 600;
 }
 
-html.jsl.jsl-community .aw-topic-content .aw-topic-name:hover span {
+html.jsl.jsl-community .aw-topic-content .aw-topic-follow .aw-topic-name:hover span {
   color: var(--jsl-accent);
 }
 
 /* 话题关联帖子行 */
-html.jsl.jsl-community .aw-topic-content .aw-item ul li {
+html.jsl.jsl-community .aw-topic-content .aw-topic-follow .aw-item ul li {
   padding: 3px 0;
 }
 
-html.jsl.jsl-community .aw-topic-content .aw-item ul li a {
+html.jsl.jsl-community .aw-topic-content .aw-topic-follow .aw-item ul li a {
   color: var(--jsl-text-2);
 }
 
-html.jsl.jsl-community .aw-topic-content .aw-item ul li a:hover {
+html.jsl.jsl-community .aw-topic-content .aw-topic-follow .aw-item ul li a:hover {
   color: var(--jsl-accent);
 }
 
-html.jsl.jsl-community .aw-topic-content .aw-item ul li span,
-html.jsl.jsl-community .aw-topic-content .aw-topic-options {
+html.jsl.jsl-community .aw-topic-content .aw-topic-follow .aw-item ul li span,
+html.jsl.jsl-community .aw-topic-content .aw-topic-follow .aw-topic-options {
   color: var(--jsl-text-3);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 
 /* 板块标题（「热门话题」） */
-html.jsl.jsl-community .aw-topic-content .aw-mod-head h2 {
+html.jsl.jsl-community .aw-topic-content .aw-topic-follow .aw-mod-head h2 {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
@@ -4172,6 +4200,8 @@ html.jsl.jsl-community .aw-side-bar-mod-nav .aw-mod-body > ul > li > a {
   display: flex;
   align-items: center;
   box-sizing: border-box;
+  /* 站方写死 width:170px（侧栏 280 宽），链接只占半张卡 */
+  width: 100% !important;
   min-height: 34px;
   padding: 4px 10px;
   border-radius: var(--jsl-radius-sm);
@@ -4186,6 +4216,14 @@ html.jsl.jsl-community .aw-side-bar-mod-nav .aw-mod-body > ul > li > a {
 html.jsl.jsl-community .aw-side-bar-mod-nav .aw-mod-body > ul > li > a:hover {
   color: var(--jsl-text) !important;
   background: var(--jsl-surface-2);
+}
+
+/* 当前位置：站方 #397dac 实底蓝条保留实底语义，改用令牌化实底
+   （白字对 accent-solid 两主题均 ≥4.5；浅色 accent-weak 叠白底上的 accent 只有 4.05） */
+html.jsl.jsl-community .aw-side-bar-mod-nav .aw-mod-body > ul > li > a.active {
+  background: var(--jsl-accent-solid) !important;
+  color: var(--jsl-accent-solid-ink) !important;
+  font-weight: 500;
 }
 
 /* ---- 个人主页 ---- */
@@ -7184,6 +7222,582 @@ html.jsl.jsl-community .aw-user-center-follow-mod .aw-load-more-content span {
 }
 
 /* ============================================================
+   我的收藏（/favorite/）与我的首页（/home/mine/）
+   两页共用 WeCenter 社区外壳与主栏卡片：
+   收藏 = 帖子标题 + 摘要 + 标签 + 取消收藏；首页 = 动态信息流。
+   行语言与列表页一致：18px 内衬、2px 两端留白分隔线、h4 15px/600。
+   ============================================================ */
+
+/* ---- 卡片头：并入通知/私信同款灰底条（47px） ---- */
+html.jsl.jsl-community .aw-my-favorite > .aw-mod-head,
+html.jsl.jsl-community .aw-index .aw-dynamic-topic > .aw-mod-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  height: 47px;
+  margin: 0 !important;
+  /* 18px 与行内衬同值：卡片头标题与行首头像/胶囊左缘同线 */
+  padding: 0 18px !important;
+  border-bottom: 1px solid var(--jsl-border) !important;
+  background: var(--jsl-surface-2);
+}
+
+html.jsl.jsl-community .aw-my-favorite > .aw-mod-head h2,
+html.jsl.jsl-community .aw-index .aw-dynamic-topic > .aw-mod-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  color: var(--jsl-text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+/* 草稿 tab 把「清空所有」按钮塞在 h2 里（站方亮蓝实底）：拉到标题右端，
+   改描边胶囊与「取消收藏」同语言——破坏性操作不用品牌实底 */
+html.jsl.jsl-community .aw-index .aw-dynamic-topic > .aw-mod-head h2 > .btn,
+html.jsl.jsl-community .aw-my-favorite > .aw-mod-head h2 > .btn {
+  float: none !important;
+  order: 2;
+  margin: 0 0 0 auto !important;
+  height: 26px;
+  padding: 0 12px !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: var(--jsl-radius-sm);
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 24px;
+  text-shadow: none;
+  transition:
+    color 0.12s,
+    border-color 0.12s;
+}
+
+html.jsl.jsl-community .aw-index .aw-dynamic-topic > .aw-mod-head h2 > .btn:hover,
+html.jsl.jsl-community .aw-my-favorite > .aw-mod-head h2 > .btn:hover {
+  color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+}
+
+/* 收藏页「标签: 道 自由职业」：并入卡片头右端，chip 与全站话题 chip 同族 */
+html.jsl.jsl-community .aw-my-favorite > .aw-mod-head > p {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 0 auto !important;
+  padding: 0;
+  color: var(--jsl-text-3);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+html.jsl.jsl-community .aw-my-favorite > .aw-mod-head > p > span {
+  color: var(--jsl-text-3);
+  font-size: 12px;
+}
+
+html.jsl.jsl-community .aw-my-favorite > .aw-mod-head .aw-topic-name {
+  display: inline-flex !important;
+  align-items: center;
+  height: 22px;
+  margin: 0 !important;
+  padding: 0 8px;
+  border-radius: var(--jsl-radius-sm);
+  /* 卡片头是 surface-2 灰带：accent-weak 叠上去只有 3.84:1，
+     chip 改用 surface 底（accent 对 surface 深色 5.52 / 浅色 4.53） */
+  background: var(--jsl-surface);
+  color: var(--jsl-accent) !important;
+  font-size: 12px;
+}
+
+html.jsl.jsl-community .aw-my-favorite > .aw-mod-head .aw-topic-name span {
+  padding: 0 !important;
+  background: transparent !important;
+  color: inherit !important;
+}
+
+html.jsl.jsl-community .aw-my-favorite > .aw-mod-head .aw-topic-name:hover {
+  background: var(--jsl-accent-solid);
+  color: var(--jsl-accent-solid-ink) !important;
+}
+
+/* 首页「屏蔽无权限查看项」：站方内联红色 + float:right + 负 margin-top */
+html.jsl.jsl-community .aw-index .aw-dynamic-topic > .aw-mod-head #toggle_hidden_label {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  float: none !important;
+  margin: 0 0 0 auto !important;
+  color: var(--jsl-text-3) !important;
+  font-size: 12px !important;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+html.jsl.jsl-community .aw-index .aw-dynamic-topic > .aw-mod-head #toggle_hidden_label input {
+  margin: 0;
+  accent-color: var(--jsl-accent-solid);
+}
+
+/* ---- 我的收藏：列表行 ---- */
+html.jsl.jsl-community .aw-my-favorite {
+  /* 站方 padding-bottom:30px 在卡片圆角内留一条空带 */
+  padding-bottom: 0 !important;
+}
+
+html.jsl.jsl-community .aw-my-favorite > .aw-mod-body {
+  padding: 0 !important;
+}
+
+/* 分页容器恒有 16/8px 外边距：无分页（不足一页）时只剩一条空带 */
+html.jsl.jsl-community .aw-my-favorite > .pagination:has(> ul:empty) {
+  display: none;
+}
+
+/* 有多页时：分页贴卡片右下，左右内衬与行内衬同值 */
+html.jsl.jsl-community .aw-my-favorite > .pagination {
+  margin: 10px 0 0 !important;
+  padding: 0 18px 14px;
+}
+
+html.jsl.jsl-community .aw-my-favorite > .aw-mod-body > .aw-item {
+  position: relative;
+  margin: 0;
+  /* 左内衬 = 18 + 40px 头像 + 16px 间距：文字列与卡片头文字同一条左基线 */
+  padding: 16px 18px 14px 74px;
+  border: none !important;
+  transition: background 0.12s;
+}
+
+html.jsl.jsl-community .aw-my-favorite > .aw-mod-body > .aw-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 0;
+  height: 2px;
+  background: var(--jsl-border);
+}
+
+html.jsl.jsl-community .aw-my-favorite > .aw-mod-body > .aw-item:hover {
+  background: var(--jsl-surface-hover);
+}
+
+/* 站方把头像 absolute 钉在行右上角 → 收到左上，与首页信息流同一位置 */
+html.jsl.jsl-community .aw-my-favorite .aw-item > .aw-user-img {
+  position: absolute !important;
+  left: 18px;
+  top: 16px;
+  float: none !important;
+  width: 40px !important;
+  height: 40px !important;
+  margin: 0 !important;
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-item > .aw-user-img img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-item h4 {
+  margin: 0 0 6px !important;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 22px;
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-item h4 a {
+  color: var(--jsl-text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-item h4 a:hover {
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-item > p.aw-text-color-999 {
+  margin: 0 0 8px !important;
+  color: var(--jsl-text-3) !important;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-item > p.aw-text-color-999 a {
+  color: var(--jsl-text-2);
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-item > p.aw-text-color-999 a:hover {
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-dynamic-topic-content {
+  color: var(--jsl-text-2);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-dynamic-topic-content .showMore {
+  color: var(--jsl-accent);
+  font-size: 12px;
+  text-decoration: none;
+  /* 「显示全部 »」不拆行：摘要末尾换行时整块落到新行 */
+  white-space: nowrap;
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-dynamic-topic-content .showMore:hover {
+  text-decoration: underline;
+}
+
+/* 行尾操作条：标签 chip 左、取消收藏胶囊右 */
+html.jsl.jsl-community .aw-my-favorite .aw-my-favorite-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 0 !important;
+  margin: 12px 0 0 !important;
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-my-favorite-meta > .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  float: none !important;
+  order: 2;
+  height: 26px;
+  margin: 0 0 0 auto !important;
+  padding: 0 12px !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: var(--jsl-radius-sm);
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 12px;
+  text-shadow: none;
+  transition:
+    color 0.12s,
+    border-color 0.12s;
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-my-favorite-meta > .btn:hover {
+  color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-my-favorite-meta .aw-topic-editor {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  order: 1;
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-my-favorite-meta .aw-topic-name {
+  display: inline-flex !important;
+  align-items: center;
+  height: 22px;
+  margin: 0 !important;
+  padding: 0 8px;
+  border-radius: var(--jsl-radius-sm);
+  background: var(--jsl-surface-2);
+  color: var(--jsl-text-2) !important;
+  font-size: 12px;
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-my-favorite-meta .aw-topic-name span {
+  padding: 0 !important;
+  background: transparent !important;
+  color: inherit !important;
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-my-favorite-meta .aw-topic-name:hover {
+  background: var(--jsl-accent-weak);
+  color: var(--jsl-accent) !important;
+}
+
+/* 「编辑话题」：PUA 图标字体在扩展环境不渲染（留 16px 空盒），只留文字 */
+html.jsl.jsl-community .aw-my-favorite .aw-my-favorite-meta .aw-edit-topic {
+  display: inline-flex;
+  align-items: center;
+  color: var(--jsl-text-3);
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.12s;
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-my-favorite-meta .aw-edit-topic:hover {
+  color: var(--jsl-accent);
+}
+
+html.jsl.jsl-community .aw-my-favorite .aw-my-favorite-meta .aw-edit-topic .aw-icon {
+  display: none !important;
+}
+
+/* ---- 我的首页：动态信息流 ---- */
+
+/* 站方 item 借详情页回复行的 flex 规则变成「左信息 / 右正文」双列；
+   这里还原成单列：头像左上 40px，作者行 / 标题 / 正文 / 动作行依次堆叠 */
+html.jsl.jsl-community .aw-index .aw-dynamic-topic > .aw-mod-body > .aw-item {
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 16px 18px 14px 74px;
+  border: none !important;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+  transition: background 0.12s;
+}
+
+/* 我的草稿 / 邀请我回答等 tab 的行没有头像：不留 40px 头像位 */
+html.jsl.jsl-community
+  .aw-index
+  .aw-dynamic-topic
+  > .aw-mod-body
+  > .aw-item:not(:has(> .aw-mod-head > .aw-user-img)) {
+  padding-left: 18px;
+}
+
+html.jsl.jsl-community .aw-index .aw-dynamic-topic > .aw-mod-body > .aw-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 0;
+  height: 2px;
+  background: var(--jsl-border);
+}
+
+html.jsl.jsl-community .aw-index .aw-dynamic-topic > .aw-mod-body > .aw-item:hover {
+  background: var(--jsl-surface-hover) !important;
+}
+
+/* 站方头像 float:right 挂在作者行里——绝对定位到行左上 */
+html.jsl.jsl-community .aw-index .aw-dynamic-topic .aw-item > .aw-mod-head > .aw-user-img {
+  position: absolute !important;
+  left: 18px;
+  top: 16px;
+  float: none !important;
+  width: 40px !important;
+  height: 40px !important;
+  margin: 0 !important;
+}
+
+html.jsl.jsl-community .aw-index .aw-dynamic-topic .aw-item > .aw-mod-head > .aw-user-img img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+html.jsl.jsl-community .aw-index .aw-dynamic-topic .aw-item > .aw-mod-head {
+  margin: 0;
+  padding: 0;
+  border: none !important;
+  background: transparent;
+}
+
+html.jsl.jsl-community .aw-index .aw-dynamic-topic .aw-item > .aw-mod-head > p {
+  margin: 0 0 6px !important;
+  color: var(--jsl-text-3) !important;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+html.jsl.jsl-community .aw-index .aw-dynamic-topic .aw-item > .aw-mod-head > p a {
+  color: var(--jsl-text-3);
+  text-decoration: none;
+}
+
+html.jsl.jsl-community .aw-index .aw-dynamic-topic .aw-item > .aw-mod-head > p a:hover {
+  color: var(--jsl-accent);
+}
+
+/* 作者名比「回复 / 时间」重一档 */
+html.jsl.jsl-community .aw-index .aw-dynamic-topic .aw-item > .aw-mod-head > p > .aw-user-name {
+  color: var(--jsl-text-2);
+  font-weight: 500;
+}
+
+html.jsl.jsl-community .aw-index .aw-dynamic-topic .aw-item > .aw-mod-head > h4 {
+  margin: 0 0 8px !important;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 22px;
+}
+
+html.jsl.jsl-community .aw-index .aw-dynamic-topic .aw-item > .aw-mod-head > h4 a {
+  color: var(--jsl-text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+html.jsl.jsl-community .aw-index .aw-dynamic-topic .aw-item > .aw-mod-head > h4 a:hover {
+  color: var(--jsl-accent);
+}
+
+/* 站方给正文列写死 width:580px + 浮动，单列后放开 */
+html.jsl.jsl-community .aw-index .aw-dynamic-topic .aw-item > .aw-mod-body {
+  float: none !important;
+  width: auto !important;
+  padding: 0 !important;
+}
+
+/* 动作行同样写死 580px：放开后「悬浮操作组」的 right:0 才落到正文右缘 */
+html.jsl.jsl-community .aw-index .aw-dynamic-topic-meta {
+  width: auto !important;
+}
+
+html.jsl.jsl-community .aw-index .aw-dynamic-topic .aw-item .markitup-box {
+  color: var(--jsl-text-2);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+/* 动作行图标：站方 sprite 换成与详情页同款的 mask 线性图标 */
+html.jsl.jsl-community .aw-index .aw-dynamic-topic-meta .aw-icon.i-up,
+html.jsl.jsl-community .aw-index .aw-dynamic-topic-meta .aw-icon.i-down,
+html.jsl.jsl-community .aw-index .aw-dynamic-topic-meta .aw-icon.i-share {
+  display: inline-block !important;
+  width: 13px !important;
+  height: 13px !important;
+  margin-right: 3px !important;
+  vertical-align: -2px !important;
+  background-image: none !important;
+  background-color: var(--jsl-text-3) !important;
+  -webkit-mask: var(--jsl-icon) center / contain no-repeat;
+  mask: var(--jsl-icon) center / contain no-repeat;
+}
+
+/* 「更多...」：站方浅蓝实底条 → 居中描边胶囊（与通知页 / 话题页同款） */
+html.jsl.jsl-community .aw-index .aw-dynamic-topic > .aw-load-more-content {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  margin: 0 18px 16px;
+  padding: 0 10px !important;
+  border: 1px solid var(--jsl-border) !important;
+  border-radius: var(--jsl-radius-sm);
+  background: transparent !important;
+  color: var(--jsl-text-2) !important;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+html.jsl.jsl-community .aw-index .aw-dynamic-topic > .aw-load-more-content:hover {
+  color: var(--jsl-accent) !important;
+  border-color: var(--jsl-accent) !important;
+}
+
+/* ---- 侧栏「可能感兴趣的人或话题」：头像 + 名字 + 关注按钮 ---- */
+html.jsl.jsl-community .aw-side-bar .interest_user > .aw-mod-body {
+  padding: 4px 14px 12px;
+}
+
+/* 通用规则把侧栏 dt 头像整列隐藏（热门话题卡是纯文字行），这张卡需要头像 */
+html.jsl.jsl-community .aw-side-bar .interest_user .aw-mod-body dl {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 8px 0;
+  border-bottom: none;
+}
+
+html.jsl.jsl-community .aw-side-bar .interest_user .aw-mod-body dl dt {
+  display: flex !important;
+  flex: 0 0 auto;
+  margin: 1px 0 0 !important;
+  line-height: 0;
+}
+
+html.jsl.jsl-community .aw-side-bar .interest_user .aw-mod-body dl dt img {
+  display: block;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+html.jsl.jsl-community .aw-side-bar .interest_user .aw-mod-body dl dd {
+  flex: 1;
+  min-width: 0;
+  float: none !important;
+  margin: 0 !important;
+  width: auto !important;
+}
+
+html.jsl.jsl-community .aw-side-bar .interest_user .aw-mod-body dl dd > a {
+  display: inline;
+  color: var(--jsl-text);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+html.jsl.jsl-community .aw-side-bar .interest_user .aw-mod-body dl dd > a:hover {
+  color: var(--jsl-accent);
+}
+
+/* 关注按钮：站方 PUA 图标字体不渲染，自绘 16px 圆形「+ / ✓」热区 */
+html.jsl.jsl-community .aw-side-bar .interest_user .i-follow {
+  position: relative;
+  top: 1px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 16px !important;
+  height: 16px !important;
+  margin: 0 0 0 6px !important;
+  border-radius: 50%;
+  background: var(--jsl-accent-weak);
+  color: var(--jsl-accent) !important;
+  font-size: 10px;
+  line-height: 1;
+  vertical-align: 0;
+}
+
+html.jsl.jsl-community .aw-side-bar .interest_user .i-follow::before {
+  content: '+';
+}
+
+html.jsl.jsl-community .aw-side-bar .interest_user .i-follow.aw-active::before {
+  content: '✓';
+  font-size: 9px;
+}
+
+html.jsl.jsl-community .aw-side-bar .interest_user .aw-mod-body dl dd > p {
+  margin: 2px 0 0;
+  color: var(--jsl-text-3);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+html.jsl.jsl-community .aw-side-bar .interest_user .aw-mod-body dl dd > p a {
+  color: var(--jsl-text-2);
+  text-decoration: none;
+}
+
+html.jsl.jsl-community .aw-side-bar .interest_user .aw-mod-body dl dd > p a:hover {
+  color: var(--jsl-accent);
+}
+
+/* ============================================================
    话题页（.jsl-page-topic，/topic/<name>）
    社区外壳 + 话题头卡 + tab 行 + 话题侧栏；列表复用列表页行语言。
    ============================================================ */
@@ -7193,7 +7807,8 @@ html.jsl.jsl-page-topic .aw-topic-detail-title {
   /* 站方 min-height:70 撑出空卡、margin-top:10 让标题卡比侧栏低 10px */
   min-height: 0 !important;
   margin: 0 0 16px !important;
-  padding: 14px 16px;
+  /* 18px 与下方 tab 行、列表行同值：头像左缘 = tab 胶囊左缘 = 回复数胶囊左缘 */
+  padding: 14px 18px;
 }
 
 html.jsl.jsl-page-topic .aw-topic-detail-title .aw-mod-body {
@@ -7277,15 +7892,35 @@ html.jsl.jsl-page-topic .aw-main-content > .aw-mod > .aw-mod-head {
   border-bottom: 1px solid var(--jsl-border);
 }
 
+/* 话题页的 .aw-question-list 嵌在外层 .aw-mod 卡片里，自身再画一层边框会
+   双线、且行内衬从卡片内缘算起会与 tab 错 1px——这里只留列表本体 */
+html.jsl.jsl-page-topic .aw-question-list {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
 html.jsl.jsl-page-topic .aw-topic-detail-tabs {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 2px;
+  /* 内衬 18px 与下方列表行的内容缘同线（卡片内缘 + 18 = 回复数胶囊左缘）；
+     站方给 .nav-tabs 的是 content-box 100%，不改会横向溢出卡片 28px */
+  width: 100%;
   height: 44px;
   margin: 0 !important;
-  padding: 0 14px;
+  padding: 0 18px;
   border: none !important;
   background: transparent;
+}
+
+/* Bootstrap clearfix 伪元素在 flex 行里会变成 0 宽 flex 项，白吃一头 gap */
+html.jsl.jsl-page-topic .aw-topic-detail-tabs::before,
+html.jsl.jsl-page-topic .aw-topic-detail-tabs::after {
+  display: none;
 }
 
 html.jsl.jsl-page-topic .aw-topic-detail-tabs > li {
@@ -7300,6 +7935,7 @@ html.jsl.jsl-page-topic .aw-topic-detail-tabs > li > a {
   display: inline-flex;
   align-items: center;
   height: 28px;
+  margin: 0 !important;
   padding: 0 12px;
   border: none !important;
   border-radius: 7px;
@@ -7327,14 +7963,23 @@ html.jsl.jsl-page-topic .aw-topic-detail-tabs > li.active > a {
 /* 话题内搜索：与全站搜索胶囊同构 */
 html.jsl.jsl-page-topic .aw-search-box {
   position: static !important;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  /* 站方 240px 外壳比 220px 胶囊宽 20px，右缘会在卡内留一段空档 */
+  width: 220px;
   margin-left: auto;
+}
+
+html.jsl.jsl-page-topic .aw-search-box form.navbar-search {
+  float: none !important;
+  width: 100%;
 }
 
 html.jsl.jsl-page-topic .aw-topic-search {
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  width: 220px;
+  width: 100%;
   height: 30px;
   padding: 0 8px 0 10px;
   border: 1px solid var(--jsl-border) !important;
@@ -7382,7 +8027,7 @@ html.jsl.jsl-page-topic .aw-topic-dropdown .title {
 /* 「关于话题」面板正文：站方 aw-text-color-666（深色 2.46:1）→ 次级色 */
 html.jsl.jsl-page-topic .aw-topic-detail-about {
   margin: 0;
-  padding: 20px 16px !important;
+  padding: 20px 18px !important;
   color: var(--jsl-text-2) !important;
   font-size: 13px;
   line-height: 1.8;
@@ -7390,11 +8035,13 @@ html.jsl.jsl-page-topic .aw-topic-detail-about {
 
 /* ---- 「更多...」：站方浅蓝实底条 → 描边胶囊（与通知/用户中心同款） ---- */
 html.jsl.jsl-page-topic .aw-load-more-content {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 36px;
-  margin: 15px 16px;
+  /* 18px 与列表行内衬同值：按钮左右缘与行分隔线两端对齐 */
+  margin: 14px 18px;
   padding: 0 10px !important;
   border: 1px solid var(--jsl-border) !important;
   border-radius: var(--jsl-radius-sm);

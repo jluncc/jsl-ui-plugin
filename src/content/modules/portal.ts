@@ -24,16 +24,35 @@ export function enhancePortalHome(): void {
   polishCommunityTab();
   reorganizePortalFooter();
   movePublishToHeader();
-  stripPopoverHeader();
-  reorderMenuItems();
+  enhanceHeaderPopover();
+}
+
+/** 门户外壳的用户弹窗（.header_navbar_content .popover-menu）统一整理：
+ *  去掉用户信息行/会员推广条、菜单并为单列固定顺序。
+ *  首页、日历、数据页（Vue / 旧版）共用同一个 header，任何一页漏跑都会露出
+ *  站方的双列菜单与白底会员条——index.ts 在 DOMContentLoaded 与数据页延时重跑时
+ *  都会调用本函数（幂等）。
+ *  站方 JS 在弹窗打开时把源菜单 clone 进 .popover-content，页面上可能同时存在
+ *  源节点与已打开的副本，两处都要整理（副本打开着的时候也要立刻干净）。 */
+export function enhanceHeaderPopover(): void {
+  for (const menu of document.querySelectorAll<HTMLElement>(
+    '.header_navbar_content .popover-menu',
+  )) {
+    stripPopoverHeader(menu);
+    reorderMenuItems(menu);
+    // 「发起讨论」只有 header 已补出「发起」入口时才移除；日历/搜索等页面
+    // 目前不注入该按钮，保留菜单项以免把发布入口彻底去掉
+    if (document.querySelector('.jsl-header-publish')) {
+      menu.querySelector('a.btn[href="/publish/"]')?.closest('li')?.remove();
+    }
+  }
 }
 
 /** 弹窗菜单排序：个人主页 / 个人设置 / 我的关注 / 我的收藏 / 我的购买 / 我的金币 /
  *  黑名单 / 退出（两个站方 ul + 底部退出区合并为单列；与社区页用户下拉排序一致） */
-function reorderMenuItems(): void {
-  const menu = document.querySelector('.header_navbar_content .popover-menu');
-  const ul = menu?.querySelector('.menu_links ul');
-  if (!menu || !ul) return;
+function reorderMenuItems(menu: HTMLElement): void {
+  const ul = menu.querySelector<HTMLUListElement>('.menu_links ul');
+  if (!ul) return;
   const order = ['个人主页', '个人设置', '我的关注', '我的收藏', '我的购买', '我的金币', '黑名单', '退出'];
   const items = new Map<string, HTMLLIElement>();
   for (const li of menu.querySelectorAll<HTMLLIElement>('.menu_links li, .bottom_links li')) {
@@ -44,13 +63,15 @@ function reorderMenuItems(): void {
     const li = items.get(t);
     if (li) ul.appendChild(li);
   }
+  // 站方是两个 ul 并排：空壳留着会让菜单多出一段空白
+  for (const extra of [...menu.querySelectorAll<HTMLUListElement>('.menu_links ul')]) {
+    if (extra !== ul && !extra.querySelector('li')) extra.remove();
+  }
   menu.querySelector('.bottom_links')?.remove();
 }
 
 /** 弹窗顶部的用户信息行与会员推广行移除——对齐列表/详情页用户下拉的纯链接列表 */
-function stripPopoverHeader(): void {
-  const menu = document.querySelector('.header_navbar_content .popover-menu');
-  if (!menu) return;
+function stripPopoverHeader(menu: HTMLElement): void {
   menu.querySelector('.user_info')?.remove();
   menu.querySelector('.member_box')?.remove();
 }
