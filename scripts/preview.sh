@@ -145,10 +145,26 @@ sim = """
     })(window.jQuery);
   }
 
-  // FullCalendar 按容器宽度算事件内联 left/width，
-  // CSS 收窄容器后需要 resize 让它重算（与 index.ts reflowCalendar 同步）
+  // FullCalendar 按容器宽度算事件内联 left/width；
+  // 只有事件真的越出日格才 dispatch resize（与 index.ts reflowCalendar 同步）
   if (document.getElementById('calendar')) {
-    var fireResize = function () { window.dispatchEvent(new Event('resize')); };
+    var calEl = document.getElementById('calendar');
+    var calReflowed = false;
+    var calOverflows = function () {
+      if (calReflowed) return false;
+      var evs = calEl.querySelectorAll('.fc-event');
+      for (var i = 0; i < evs.length; i++) {
+        var cell = evs[i].closest('td, .fc-day');
+        if (!cell) continue;
+        if (evs[i].getBoundingClientRect().right - cell.getBoundingClientRect().right > 1) return true;
+      }
+      return false;
+    };
+    var fireResize = function () {
+      if (!calOverflows()) return;
+      calReflowed = true;
+      window.dispatchEvent(new Event('resize'));
+    };
     fireResize();
     window.addEventListener('load', fireResize, { once: true });
     setTimeout(fireResize, 600);
@@ -703,8 +719,11 @@ sim = """
     });
   })();
 
-  // 长回复折叠
-  document.querySelectorAll('.aw-dynamic-topic > .aw-item').forEach(function (item) {
+  // 长回复折叠（与 detail.ts 同步：先集中读高度、再集中写入，
+  // 图片加载事件收进集合后下一帧统一复检）
+  var foldItems = document.querySelectorAll('.aw-dynamic-topic > .aw-item');
+  var foldPending = [];
+  foldItems.forEach(function (item) {
     var content = item.querySelector('.aw-dynamic-topic-content');
     if (!content) return;
     var btn = document.createElement('button');
@@ -733,14 +752,25 @@ sim = """
         btn.remove();
       }
     };
-    evaluateFold();
+    foldPending.push(evaluateFold);
+    var dirty = false;
+    var flush = function () {
+      dirty = false;
+      evaluateFold();
+    };
     content.querySelectorAll('img').forEach(function (img) {
       if (!img.complete) {
-        img.addEventListener('load', evaluateFold, { once: true });
-        img.addEventListener('error', evaluateFold, { once: true });
+        var requeue = function () {
+          if (dirty) return;
+          dirty = true;
+          requestAnimationFrame(flush);
+        };
+        img.addEventListener('load', requeue, { once: true });
+        img.addEventListener('error', requeue, { once: true });
       }
     });
   });
+  foldPending.forEach(function (fn) { fn(); });
 })();
 </script>
 """

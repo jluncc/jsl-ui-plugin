@@ -116,7 +116,7 @@ for (const file of cssFiles) {
 // ---- 4. 体积预算 ----
 // 预算随覆盖页面增长：现含门户/列表/详情/登录注册/通知/私信/个人主页/设置（8 个 tab）/
 // 日历/数据页/搜索结果/关注面板/话题页与话题广场（含数据页 tab/附属块对齐增强）。新增整页样式时先评估是否复用既有卡片语言，再按实际需要上调
-const BUDGET = { contentJs: 37 * 1024, cssTotal: 300 * 1024 };
+const BUDGET = { contentJs: 41 * 1024, cssTotal: 300 * 1024 };
 const cssBytes = cssFiles.reduce((n, f) => n + statSync(join(ROOT, f)).size, 0);
 const distContent = (() => {
   try {

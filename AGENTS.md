@@ -20,6 +20,8 @@ pnpm format  # prettier
 ## 架构
 
 - **content script（document_start）**：`src/content/index.ts` 按 DOM 特征在 `<html>` 上挂 `jsl` / `jsl-community` / `jsl-page-list` / `jsl-page-detail` 标志类。全部 CSS 挂钩在这些类下——**总开关 = 移除一个 class**。
+- **标志挂载时机（性能约定）**：`schedulePageFlags()` 从 document_start 起**逐帧**检查（单次约 0.4ms@3800 节点，命中任一标志即停），外壳节点一解析出来就挂类，首帧即是新样式；早期实现要等 `DOMContentLoaded` 才挂，站点原样式会先闪 200–500ms（实测数据页 Vue 渲染时尤其明显）。`PAGE_FLAGS` 用 `querySelectorAll` 一次合并查询判定全部缺失标志，不要改回逐个 `querySelector`（会把整棵树扫 8 遍）。**新增标志必须同时改 `PAGE_FLAGS` 与 `preview.sh` 的 flags 段**。
+- **设置读取（性能约定）**：`chrome.storage.sync` 需唤醒 service worker，冷启动回包可达数百毫秒。`readSettingsCache()` 在 DCL 同步读 `localStorage['jsl-polish-settings']`（与 storage 同写的镜像）**立即**跑 DOM 增强，storage 回包后只做校正；`saveSettings()` / `watchSettings()` / storage 回包三处都会回写镜像。新增设置字段时镜像自动跟随（整体 JSON），无需额外迁移。
 - **样式三段式**：`src/styles/tokens.css`（深浅两套 CSS 变量，`html[data-theme]` 切换）→ `global.css`（顶栏/页脚/通用）→ `community.css`（列表/详情/侧栏）。顶栏颜色单独走 `--jsl-header-*` 令牌组。
 - **侧栏「发起人」卡（.aw-side-bar-mod-body dl）**：头像上边缘 = **用户名文字**上边缘（用户定稿，实测双主题 116.5=116.5）。实现：`dl` flex + `align-items:flex-start`、dt/dd 零 margin、`dt` 与 `dt a` flex/block + `line-height:0`、`img` block，再给 `dt` 加 `margin-top:4.5px`——dd 首行是 20px 行盒里 12px 的字，文字实际绘制在行盒内下沉约 4.5px，纯顶对齐会让头像比名字高一截。三个坑：① 不能用 `align-items:center`（dd 含多行简介 81px，头像会落到整块中线）；② 不要做中线对齐；③ **"上边缘齐平"指文字上边缘，不是 dd 块上边缘**。此类「头像+多行信息」卡一律按文字上边缘校准。
 - **DOM 增强**：`src/content/modules/list.ts`（合并导航、侧栏重排；**话题页/个人中心也有 `.aw-question-list` 但没有分类与排序条——收集到的导航项为 0 时直接 return，不插空的 `.jsl-card-head`**，否则会在 tab 行下留一条 10px 空灰带；CSS 侧再加 `.jsl-card-head:not(:has(li)) { display:none }` 兜底）、`detail.ts`（楼层号、回顶按钮）、`portal.ts`（门户首页内容区重排：温度计上移、收费数据移除、APP 链接入页脚）、`theme-toggle.ts`（顶栏主题切换按钮）。
@@ -177,9 +179,35 @@ pnpm lint         # eslint + tsc
 1. **危险 API**：`eval` / `new Function` / `document.write` / `window.open` 缺 noopener
 2. **XSS 面**：`innerHTML` 赋值（当前仅用于内置 SVG 常量，可信）；新增处必须确认内容来源
 3. **CSS 冗余**：`transition: all`（改显式属性）；**声明完全相同**的重复选择器（同一选择器分多条写基础+状态补丁是正常分层，不报）
-4. **体积预算**：`content.js ≤ 37KB`、三段 CSS 合计 ≤ 300KB（随覆盖页面增长上调：12 页 → 含设置页 8 个 tab + 数据页 header 精修 + 旧版服务端数据页适配 → 收藏页 / 我的首页信息流；超了先查是不是又内联了大段 data URI 或可压缩的冗长注释）
+4. **体积预算**：`content.js ≤ 41KB`、三段 CSS 合计 ≤ 300KB（随覆盖页面增长上调：12 页 → 含设置页 8 个 tab + 数据页 header 精修 + 旧版服务端数据页适配 → 收藏页 / 我的首页信息流 → 2026-10 性能轮 flags 早期挂载 + 设置镜像 + settle 监听；超了先查是不是又内联了大段 data URI 或可压缩的冗长注释）
 
-审查基线（2026-10 首轮）：CSS 142.8KB / content.js 22.7KB；当前 **292.4KB / 36.3KB**（十二页 + 用户中心 + 设置页 8 个 tab + 投资日历页 + 数据页 header/子导航/浮层精修 + 旧版服务端数据页 + 话题页/话题广场适配 + 收藏页/我的首页信息流后）；已知可接受项 = 2 处 `innerHTML`（detail.ts 回顶图标、theme-toggle.ts 主题图标，均为内置 SVG 字符串常量）。
+审查基线（2026-10 首轮）：CSS 142.8KB / content.js 22.7KB；当前 **292.4KB / 39.0KB**（十二页 + 用户中心 + 设置页 8 个 tab + 投资日历页 + 数据页 header/子导航/浮层精修 + 旧版服务端数据页 + 话题页/话题广场适配 + 收藏页/我的首页信息流后）；已知可接受项 = 2 处 `innerHTML`（detail.ts 回顶图标、theme-toggle.ts 主题图标，均为内置 SVG 字符串常量）。
+
+## 性能预算与已做的优化（2026-10 实测）
+
+真实扩展 vs 无扩展（Chrome headless + CDP，4× CPU 降速，每页 4 轮取中位数）——扩展的主线程增量：
+
+| 页面 | 主线程 task | 样式重算 | 布局 | 首屏（FCP） |
+|---|---|---|---|---|
+| 列表 `/explore/` | +10ms（旧版 +29） | +3.6ms（旧 +8.3） | +0.5ms（旧 +7.4） | 与无扩展持平 |
+| 详情（99 回复长帖） | +23ms（旧 +54） | +7.7ms（旧 +20） | +3.7ms（旧 +13） | 持平 |
+| Vue 数据页 `/web/data/cb/` | +33ms（旧 +57） | +6.1ms（旧 +11） | +7.5ms（旧 +11） | 持平 |
+| 日历（515 事件） | +23ms（旧 +21） | +6.7ms（旧 +6.9） | +1.5ms（旧 +2.9） | 持平 |
+| 门户首页 | +8ms（旧 +31） | +3.1ms（旧 +3.2） | −4.5ms（旧 +12.9） | 持平 |
+
+注意：**扩展从未产生 long task**（>50ms），站点自身（jQuery/ECharts/Vue 初始化、FullCalendar 500 事件渲染）才是长任务的来源。用户感知的「打开要等一会」主要是站方服务端 TTFB 抖动（实测同一 URL 140ms ↔ 6.5s）与站方脚本，不是扩展。若再出现"扩展导致卡顿"的报告，先按下面的方法量，再改代码。
+
+已做且**勿回退**的优化：
+
+1. **页面标志早期挂载**：`schedulePageFlags()` 逐帧检查（命中即停），DCL 前就挂好类 → 首帧即新样式。早期版本等 DCL，数据页在 Vue 渲染后（实测 1.2s）才挂，先闪一版站方样式。
+2. **设置同步镜像**：`readSettingsCache()` 让 DOM 增强在 DCL 立即执行，不等 `chrome.storage` 回包（需唤醒 service worker）。
+3. **日历按需重排**：`reflowCalendar()` 先量事件是否越出日格，只有溢出才 `dispatch('resize')`。一次重排会重建 500+ 事件节点（4× CPU 下降约 120ms）；实测正常路径零溢出 → 不再无条件重排。
+4. **数据页对齐签名短路**：`alignDataPageTabs()` 用「表格左右缘 + 容器宽 + 节点数」做签名，未变则跳过整轮「还原→量→写」强制重排；兜底复算从 5 次定时器减到 1 次 + load + resize + 切 tab。
+5. **数据页 settle 监听替代固定定时器**：`watchDataShellSettle()` 在 DOM 变化静止 200ms 后跑（最多 8 轮、8 秒后自停），取代 1200/2500ms 两次盲跑；仅 `#app/.data_content/.data-content` 页面启用。
+6. **长回复折叠两阶段**：先集中读 `scrollHeight`、再集中写；回复内图片的 load/error 收进集合后下一帧统一复检（批量图片到达时不再逐张强制布局）。
+7. **标志判定合并**：`PAGE_FLAGS` 用一次 `querySelectorAll` 合并选择器判定所有缺失标志，不再逐个 `querySelector` 扫 8 遍；`isDataShellPage()` 读已挂的类而非重新扫 DOM。
+
+测量脚本（临时，未入库）：`/tmp/jsl-perf/{probe,compare,basecost,geom}.mjs`。真扩展必须用 CDP `Extensions.loadUnpacked` 加载（Chrome 137+ 正式版已禁用 `--load-extension`），再用 `Page.addScriptToEvaluateOnNewDocument` 打 `PerformanceObserver` 探针。
 
 ## 预览与验收工作流（不装扩展即可验证样式）
 

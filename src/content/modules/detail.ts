@@ -28,6 +28,9 @@ function foldLongReplies(): void {
     }
   };
 
+  // 两阶段：先集中读 scrollHeight（只触发布局一次），再集中写类与按钮——
+  // 读写交替会让每次插入后的下一次 scrollHeight 读取都强制重新布局（长帖 100+ 回复时明显）
+  const pending: Array<[HTMLElement, HTMLElement, HTMLButtonElement]> = [];
   for (const item of items) {
     const content = item.querySelector<HTMLElement>('.aw-dynamic-topic-content');
     if (!content) continue;
@@ -46,32 +49,36 @@ function foldLongReplies(): void {
     // 记到元素上供委托回调复用，避免每次重查 DOM
     (content as HTMLElement & { __jslFold?: () => void }).__jslFold = () =>
       evaluate(item, content, btn);
-    evaluate(item, content, btn);
+    pending.push([item, content, btn]);
   }
+  for (const [item, content, btn] of pending) evaluate(item, content, btn);
 
   // 一条委托监听覆盖所有回复里的图片加载/失败：比逐图挂监听少 N 个 handler，
-  // 也能覆盖站方后续动态插入的图片（capture 阶段，load 不冒泡）
+  // 也能覆盖站方后续动态插入的图片（capture 阶段，load 不冒泡）。
+  // 图片可能几十张同时到达（头像/截图），逐张读 scrollHeight 会每次强制重新布局 →
+  // 先收进集合，下一帧统一复检一次。
+  const dirty = new Set<HTMLElement>();
+  let queued = false;
+  const flush = () => {
+    queued = false;
+    for (const content of dirty) {
+      (content as HTMLElement & { __jslFold?: () => void }).__jslFold?.();
+    }
+    dirty.clear();
+  };
+  const onMedia = (event: Event) => {
+    const target = event.target as Element;
+    if (target.tagName !== 'IMG') return;
+    const content = target.closest<HTMLElement>('.aw-dynamic-topic-content');
+    if (!content) return;
+    dirty.add(content);
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(flush);
+  };
   const topic = document.querySelector('.aw-dynamic-topic');
-  topic?.addEventListener(
-    'load',
-    (event) => {
-      const target = event.target as Element;
-      if (target.tagName !== 'IMG') return;
-      const content = target.closest<HTMLElement>('.aw-dynamic-topic-content');
-      (content as (HTMLElement & { __jslFold?: () => void }) | null)?.__jslFold?.();
-    },
-    true,
-  );
-  topic?.addEventListener(
-    'error',
-    (event) => {
-      const target = event.target as Element;
-      if (target.tagName !== 'IMG') return;
-      const content = target.closest<HTMLElement>('.aw-dynamic-topic-content');
-      (content as (HTMLElement & { __jslFold?: () => void }) | null)?.__jslFold?.();
-    },
-    true,
-  );
+  topic?.addEventListener('load', onMedia, true);
+  topic?.addEventListener('error', onMedia, true);
 }
 
 /** 帖子详情页增强：回复楼层号 + 回到顶部按钮 + 长回复折叠 */
