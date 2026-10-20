@@ -23,7 +23,10 @@ function makeRowsClickable(list: HTMLElement): void {
     const item = target.closest<HTMLElement>('.aw-item');
     if (!item || !list.contains(item)) return;
     const link = item.querySelector<HTMLAnchorElement>('.aw-questoin-content h4 a');
-    if (link) window.open(link.href, '_blank', 'noopener,noreferrer');
+    // 只放行 http(s)：站方若出现 javascript:/data: 链接，window.open 会在新窗口里执行它
+    if (link && /^https?:/i.test(link.href)) {
+      window.open(link.href, '_blank', 'noopener,noreferrer');
+    }
   });
 }
 

@@ -2,20 +2,37 @@
 
 给后续接手本项目的 AI agent / 协作者。读完这页可以跳过大部分摸索成本——特别是「站方样式陷阱」一节，全部是实测踩坑结论。
 
+本项目在 GitHub 开源（ISC 许可），**非集思录官方项目**，与站方无隶属关系。提交任何代码前先看「开源协作与安全边界」，那几条是仓库公开后的硬约束。
+
 ## 项目是什么
 
-为 [集思录](https://www.jisilu.cn/) 社区（WeCenter / Bootstrap 2 / jQuery 老站）做界面现代化的 Chrome MV3 扩展。零运行时依赖，TypeScript + tsup + pnpm。当前版本 0.7.0：列表、详情、门户首页、话题页、实时数据页（Vue + 旧版服务端）、搜索结果、个人中心均已精修（登录态实测）。站点存在两套架构：WeCenter 社区页（aw-* 组件）与门户新版自定义皮肤（960px 定宽，标志类 jsl-page-portal）。
+为 [集思录](https://www.jisilu.cn/) 社区（WeCenter / Bootstrap 2 / jQuery 老站）做界面现代化的 Chrome MV3 扩展。零运行时依赖，TypeScript + tsup + pnpm。当前版本 0.7.0，已精修（登录态实测）：列表、详情、门户首页、登录注册、话题页/话题广场、我的收藏/我的首页、通知/私信/个人主页/设置（8 tab）、投资日历、搜索结果、实时数据页（Vue + Element UI）与旧版服务端数据页（新股/ETF/LOF/债券/转债详情/个股/持仓）。站点存在多套外壳：WeCenter 社区页（aw-* 组件）、门户新版自定义皮肤（960px 定宽，`jsl-page-portal`）、Vue + Element UI 数据页、旧版服务端数据页，样式与 DOM 增强必须分别适配。
 
 ## 常用命令
 
 ```bash
-pnpm dev     # watch 构建，改完在 chrome://extensions/ 点刷新 + 刷新网页
-pnpm build   # 构建 dist/（加载已解压扩展用 dist/）
-pnpm lint    # eslint + tsc --noEmit
-pnpm format  # prettier
+pnpm dev         # watch 构建，改完在 chrome://extensions/ 点刷新 + 刷新网页
+pnpm build       # 构建 dist/（加载已解压扩展用 dist/）
+pnpm lint        # eslint + tsc --noEmit
+pnpm format      # prettier
+pnpm audit:code  # 零依赖非功能性体检（危险 API / XSS 面 / CSS 冗余 / 体积预算）
 ```
 
 改动 CSS/TS 后务必 `pnpm build`，dist 是手写 manifest + tsup 产物 + static/ 拷贝。
+
+## 开源协作与安全边界（提交前必读）
+
+本项目已开源，仓库会公开给任何人（包括站方与安全研究者）审阅。合并前守住以下约束：
+
+1. **不提交页面快照 / 调试产物**：`/tmp/jsl-preview/*`、`inject.js`、dist 打包物不入库（后两者已在 `.gitignore`）。页面快照含登录态用户名、头像、私信与通知内容，一旦进入 git 历史即使删除文件也仍可恢复。
+2. **不提交任何凭据或个人数据**：Cookie、`jsl_uid` / session、Authorization、API key、私钥、`.env`、本机绝对路径、真实姓名 / 邮箱 / 手机号。提交前用 `git diff --cached` 过一遍，确认没有把 Chrome 导出的整页源码拖进 `src/`。
+3. **最小权限原则**：`static/manifest.json` 目前只申请 `storage` 与 `https://www.jisilu.cn/*`。新增权限、`host_permissions`、`web_accessible_resources`、远程 `fetch` / WebSocket、`chrome.cookies` / `tabs` / `scripting` 等都要在 PR 里给出理由；能靠 CSS / DOM 读改解决的，不要走网络或更高权限。
+4. **不加载远程代码**：MV3 禁止远程脚本，也禁止用 `eval` / `new Function` / `document.write` 绕过。所有逻辑打包进 `content.js`；`innerHTML` 只允许赋内置 SVG 字符串常量（当前两处：`detail.ts` 回顶图标、`theme-toggle.ts` 主题图标）。
+5. **外部链接必须 `noopener,noreferrer`**：列表整行点击走 `window.open(link.href, '_blank', 'noopener,noreferrer')`；新增 `target=_blank` 节点同样补 `rel`。
+6. **不采集、不上报**：扩展没有 telemetry、远端配置或用户标识。写 `localStorage` 只用于首帧防闪与设置镜像（`jsl-polish-theme` / `jsl-polish-enabled` / `jsl-polish-settings`），键名保持 `jsl-` 前缀避免与站方冲突。
+7. **站方数据只做展示层变换**：不得篡改表单提交、投票、收藏等业务请求；登录态数据不外发。`settings.ts` 里把保存按钮搬出 `<form>` 的变换必须保持 `onclick` 与 form id 可解析（已验证）。
+8. **提交前跑三项**：`pnpm lint`、`pnpm audit:code`、`pnpm build`。审计脚本只覆盖 TS 源与三段 CSS，**不扫 manifest / options.html / shell 脚本**，新增这些文件时人工复核权限与外部 URL。
+9. **历史泄露处理**：若敏感信息已进入历史，不要只 `git rm`——用 `git filter-repo` 重写或轮换凭据后再 push；公开仓库的 fork 不受重写影响。
 
 ## 架构
 
@@ -46,19 +63,20 @@ pnpm format  # prettier
 
 **所有页面 header 与 footer 必须同构同尺寸**（用户明确要求）。基准：门户首页。
 
-| 项目 | 基准值 |
-|---|---|
-| header 内容 | 960px 居中（1450 视口下 x=245，右缘 1205） |
-| header 高 | 52px（含 1px 底边共 53） |
-| 控件簇 | 搜索 240×30 → 发起 30px → 主题切换 30px → 通知/私信 → 用户区，gap 10px |
-| logo | 26px 图标 + 17px 文字，左缘 = header 内容盒左缘 |
-| footer 外层 | 全宽、165px 高、`padding: 18px 0` |
-| footer 内容 | 960px 居中（与 header 同边），高 128px |
-| footer 左 | 四行：版权·邮箱 / 法律链接（`|` 分隔）/ 备案合行 / 声明，12px/22px 行高 |
-| footer 右 | 两张 96px 白底圆角二维码卡，gap 28px，右缘 = 内容盒右缘 |
-| 登录/注册页例外 | header 隐藏搜索与发起（页面语境不需要），主题按钮接管右对齐 |
+| 项目            | 基准值                                                                  |
+| --------------- | ----------------------------------------------------------------------- |
+| header 内容     | 960px 居中（1450 视口下 x=245，右缘 1205）                              |
+| header 高       | 52px（含 1px 底边共 53）                                                |
+| 控件簇          | 搜索 240×30 → 发起 30px → 主题切换 30px → 通知/私信 → 用户区，gap 10px  |
+| logo            | 26px 图标 + 17px 文字，左缘 = header 内容盒左缘                         |
+| footer 外层     | 全宽、165px 高、`padding: 18px 0`                                       |
+| footer 内容     | 960px 居中（与 header 同边），高 128px                                  |
+| footer 左       | 四行：版权·邮箱 / 法律链接（竖线分隔）/ 备案合行 / 声明，12px/22px 行高 |
+| footer 右       | 两张 96px 白底圆角二维码卡，gap 28px，右缘 = 内容盒右缘                 |
+| 登录/注册页例外 | header 隐藏搜索与发起（页面语境不需要），主题按钮接管右对齐             |
 
 **各页面的实际外壳差异**（必须分别适配，不能只写一套）：
+
 - 门户/日历/登录（jQuery）：`.header_navbar_content` + `.footer_content > .flex`。
 - 社区（WeCenter）：`.aw-top-menu-wrap`（通栏 flex，padding 镜像内容区）+ `.aw-wecenter`；页脚 `.aw-footer`。
 - 数据页（Vue/Element UI）：`.header_navbar_content > .el-row > .el-col` 栅格 + `.footer_content > .el-row > .footer_left.el-col-8 / .footer_right.el-col-10.offset-4`。**必须把 el-col 百分比栅格打平成 flex**（el-col-8 只有 320px，文案被挤成两行、页脚蹿到 256px），并把站方的 `translateX` 居中 hack 清零。
@@ -92,14 +110,14 @@ pnpm format  # prettier
   1. Vue 数据页 `.el-badge__content`（站方 absolute 13px 白字）；
   2. 旧版数据页 `a.beta::after`（站方红底横条压字）；
   3. 门户首页 `.tag_top sup`（站方红字 + **JS 内联 `transform: translate(28px,-7px)`**——必须 `transform: none !important` 清零，否则纵向偏 7px；包含块是 24px 高的 `.relative`，故 `top:-2px` 才等于相对 22px 胶囊上提 3px）。
-  实测三页几何一致：首页 beta(401..429, 622) / 持仓(371..417, 625)；数据页 beta(265..293, 58) / 持仓(235..281, 61)；旧版页伪元素 top:-3/right:-12。
+     实测三页几何一致：首页 beta(401..429, 622) / 持仓(371..417, 625)；数据页 beta(265..293, 58) / 持仓(235..281, 61)；旧版页伪元素 top:-3/right:-12。
 - **表格令牌化**：`.tablesorter` / `.jisilu_tcdata` 同样挂 `table-bg.png` 白纹理 → 统一 `background-image:none` + surface；表头 `#86c5e3` → surface-2；斑马行 `rgba(240,240,246,.6)` → surface-2/surface；内联 `background-color:yellow`（申购日/发行价/预估字段）→ accent-weak + accent；内联 `color:red/green` → 主题涨跌色；`.btn-info`（+自选，亮蓝 2.1:1）→ accent-solid。
 - **表格下方说明块对齐（2026-10-19 定稿）**：主表居中后，表格下方的「数据说明」「基金份额数据口径说明」以及股息率页的筛选条仍贴内容区左缘（x=15 vs 表格 330）。`alignDataPageTabs()` 扩展为：找出所有贴内容左缘、宽 >200px、含文字的块级容器，跳过「含主表」的祖先（否则会把表格一起推走）、跳过父级也被选中的嵌套块（否则双重内衬），统一加 `padding-left = 表格左缘 - 内容左缘`。**用 padding 而不是 margin**——站方不少块写死 `width:100%`，加左外边距会撑出横向滚动（实测 2560 下 docW 变 2860）；padding 只压缩内容盒。**每轮先还原再测量**——否则被推右的块下一轮不再满足「贴左缘」，会在候选/非候选之间抖动。`offset<=0`（窄屏/满宽表）时直接跳过，不写零内衬去覆盖站方原有 padding。切子 tab 后补一次（点击 `.data_type_nav/.data_table_tabs/.nav-box/.el-menu` 时 rAF 重算）。
 - **持仓页标题左对齐（2026-10-19 定稿）**：`/web/positions` 的「持仓组合」标题（`.content-title`）在 1200 定宽容器内（x=125@1450，padding 24），而「持仓」按钮文字在 960 子导航内（x=245），两者恒差 **81px**（两个容器都定宽+居中，差值不随视口变化）。修法：`.content-title { padding-left: 105px }`（24+81）。实测 1280/1450/1920/2560 四档标题文字与「持仓」按钮文字同值（160/245/480/800）。只动标题内衬，下方说明文字与两张创建卡位置不变。
 - **数据页 footer 恒贴底（2026-10-19 补全）**：两套外壳各缺一条。
   1. **旧版服务端页**：门户外壳的 `body:has(> .footer_bg)` flex 规则只让 `.wrapper_content` / `#wrap` 吃剩余高度，而旧版数据页的直接内容容器是 `.data_content`（债券页少 261px、REITs 页少 97px 空白）→ 补 `body:has(> .footer_bg) > .data_content { flex: 1 0 auto }`。
   2. **Vue 数据外壳**：原规则只给 `.nav-data` 加 `flex:1`，持仓页内容容器是 `.nav-positions-create`（1300 高视口下留 169px）→ 改为 `#app > .layout-default > :not(.header_navbar_bg):not(.footer_bg) { flex: 1 0 auto }`，footer 显式 `flex: 0 0 auto`。
-  实测 900/1300/1400 视口 × 12 个旧版数据页（含各子 tab）+ Vue 数据页/持仓页：footer 底边均等于文档底（差 0；ETF/股息率页的 -1 是 `scrollHeight` 整值与元素小数边界取整，实际差 0.48/0.30px）。
+     实测 900/1300/1400 视口 × 12 个旧版数据页（含各子 tab）+ Vue 数据页/持仓页：footer 底边均等于文档底（差 0；ETF/股息率页的 -1 是 `scrollHeight` 整值与元素小数边界取整，实际差 0.48/0.30px）。
 - **图表容器也要跟着对齐（2026-10-19 补）**：ETF「场内货币ETF」子 tab 的 `#moneyFundPie` 里 canvas 是 **absolute 定位**，只给容器加 `padding-left` 不会让 canvas 移动（实测仍停在 x=15，表格在 330）。所以候选块分两类：满宽块（宽 ≈ 可用宽）用 `padding-left` 防横向溢出；**窄块（图表等，宽 < 可用宽 −2）用 `margin-left`**，把容器盒子整体推过去。另外容器本身没有文字，候选过滤条件补 `|| el.querySelector('canvas')`，否则饼图容器根本进不了候选。
 - **右浮动图表（A股温度仪表盘）右缘对齐（2026-10-19 补）**：股息率页的直角仪表盘是 `#indicator`（ECharts，90×90）套在 `.grid-col-auto` 右浮动容器里。表格宽屏居中后右缘内移，右浮动块仍贴筛选行右缘，两者错开（2560 下差 315px）。`alignDataPageTabs()` 增加右缘处理：取 `min(主表右缘, 行右缘)` 作目标（表格宽于视口时退回行右缘，否则会把图表推出屏幕产生滚动），按 `margin-right` 把浮动块往左推。**两个细节**：① 站方给 `#indicator` 写死 `margin-right:10px`，必须先清零再对齐，否则图形比容器右缘缩进 10px；② 别用「收窄容器宽度」——右浮动元素宽度变小反而更靠右（实测 2560 下容器被压成 0、图形跑到 2535）。实测 1450/1920/2560 图形右缘与目标右缘差值均为 0（2560 下 2230=2230，1920 下 1905=1905，1450 下退回行右缘 1435）。
 - **Beta 贴右上角补齐（2026-10-19 补）**：旧版数据页 `a.beta::after` 的站方规则是 `right:18px` + `transform: translateY(-50%) translateX(100%)`，`translateX(100%)` 等于再右移一个徽标宽（28px），实测角标右缘比「持仓」胶囊右缘多出 **40px**（看起来离得很远）。我们的 `left:auto` 压不住它——必须同时 `top/right/bottom/transform` 全部 `!important` 覆盖。修复后全站五处（首页 / 数据列表 / 新版旧版数据页 / 持仓页）统一为：**上提 3px、右探 12px、28×14、9px 字**。
@@ -187,13 +205,13 @@ pnpm lint         # eslint + tsc
 
 真实扩展 vs 无扩展（Chrome headless + CDP，4× CPU 降速，每页 4 轮取中位数）——扩展的主线程增量：
 
-| 页面 | 主线程 task | 样式重算 | 布局 | 首屏（FCP） |
-|---|---|---|---|---|
-| 列表 `/explore/` | +10ms（旧版 +29） | +3.6ms（旧 +8.3） | +0.5ms（旧 +7.4） | 与无扩展持平 |
-| 详情（99 回复长帖） | +23ms（旧 +54） | +7.7ms（旧 +20） | +3.7ms（旧 +13） | 持平 |
-| Vue 数据页 `/web/data/cb/` | +33ms（旧 +57） | +6.1ms（旧 +11） | +7.5ms（旧 +11） | 持平 |
-| 日历（515 事件） | +23ms（旧 +21） | +6.7ms（旧 +6.9） | +1.5ms（旧 +2.9） | 持平 |
-| 门户首页 | +8ms（旧 +31） | +3.1ms（旧 +3.2） | −4.5ms（旧 +12.9） | 持平 |
+| 页面                       | 主线程 task       | 样式重算          | 布局               | 首屏（FCP）  |
+| -------------------------- | ----------------- | ----------------- | ------------------ | ------------ |
+| 列表 `/explore/`           | +10ms（旧版 +29） | +3.6ms（旧 +8.3） | +0.5ms（旧 +7.4）  | 与无扩展持平 |
+| 详情（99 回复长帖）        | +23ms（旧 +54）   | +7.7ms（旧 +20）  | +3.7ms（旧 +13）   | 持平         |
+| Vue 数据页 `/web/data/cb/` | +33ms（旧 +57）   | +6.1ms（旧 +11）  | +7.5ms（旧 +11）   | 持平         |
+| 日历（515 事件）           | +23ms（旧 +21）   | +6.7ms（旧 +6.9） | +1.5ms（旧 +2.9）  | 持平         |
+| 门户首页                   | +8ms（旧 +31）    | +3.1ms（旧 +3.2） | −4.5ms（旧 +12.9） | 持平         |
 
 注意：**扩展从未产生 long task**（>50ms），站点自身（jQuery/ECharts/Vue 初始化、FullCalendar 500 事件渲染）才是长任务的来源。用户感知的「打开要等一会」主要是站方服务端 TTFB 抖动（实测同一 URL 140ms ↔ 6.5s）与站方脚本，不是扩展。若再出现"扩展导致卡顿"的报告，先按下面的方法量，再改代码。
 
@@ -211,9 +229,9 @@ pnpm lint         # eslint + tsc
 
 ## 预览与验收工作流（不装扩展即可验证样式）
 
-1. 页面快照放在 `/tmp/jsl-preview/raw-list.html`、`raw-detail.html`（SavePage 下载后剥净注入的产物，勿带 `<style>` 注入与探针脚本）。
+1. 页面快照放在 `/tmp/jsl-preview/raw-list.html`、`raw-detail.html`（SavePage 下载后剥净注入的产物，勿带 `<style>` 注入与探针脚本）。**快照只留在 `/tmp`，绝不入库**——登录态快照带用户名、头像、私信正文。
 2. `./scripts/preview.sh /tmp/jsl-preview/raw-list.html r5-list dark` 生成 `/tmp/jsl-preview/r5-list.html`——快照 + 最新三段 CSS + **模拟 content script 全部 DOM 变换的内联脚本**。
-3. 侧栏内嵌浏览器不能开 `file://`，本地起服务：`cd /tmp/jsl-preview && python3 -m http.server 8642`，访问 `http://127.0.0.1:8642/r5-list-dark.html?v=N`。
+3. 侧栏内嵌浏览器不能开 `file://`，本地起服务：`cd /tmp/jsl-preview && python3 -m http.server 8642`，访问 `http://127.0.0.1:8642/r5-list.html?v=N`（输出文件名 = 第二个参数名字 + `.html`，主题只影响注入的 `data-theme`，不拼进文件名；深浅两版要分别生成并各用不同名字）。
 4. **`?v=N` 是缓存击穿约定**：每次重新生成预览页，把 `index.html` 里的版本号 +1（`sed -i '' -E 's/\?v=旧/\?v=新/g'`），否则浏览器拿到缓存的旧 HTML，会让你误判"改了没生效"。
 5. `preview.sh` 内嵌的模拟脚本与 `src/content/modules/*` **必须同步改**——两边是同一套 DOM 变换的 TS/JS 双实现。
 6. 日历页的事件数据要先 `pnpm preview:calendar-data` 抓一份真实响应到 `/tmp/jsl-preview/calendar-events.json`（再跑 `preview.sh`）；数据量、行高、点击跳转才和线上一致。快照过期后重抓即可。
@@ -292,7 +310,8 @@ pnpm lint         # eslint + tsc
 ## 待办 / 已知边界
 
 - [x] 详情页按列表页同套语言精修（标题行对齐、正文两端对齐、meta 行 flex 化、长回复折叠双向切换、侧栏 16px 节奏、登录态下拉适配）。
-- [ ] 二期：数据页（可转债/LOF/ETF）表格美化——sticky 表头、斑马纹、tabular-nums。
-- [ ] 登录态页面深度适配（发帖页、个人中心、消息下拉）。
+- [x] 数据页外壳与表格令牌化（Vue 数据页 / 旧版服务端数据页 / 持仓页；表头、斑马纹、涨跌色、工具条、浮层）。
+- [ ] 数据页表格体验增强：sticky 表头、`tabular-nums`、列宽记忆（尚未做）。
+- [ ] 发帖 / 编辑器页面深度适配（个人中心与消息下拉已完成）。
 - [ ] 预览页主题切换不持久（真实扩展走 chrome.storage，行为差异已知）。
 - [ ] 站方改版风险：选择器依赖 `.aw-*` 结构，列在 global/community.css 顶部注释区，改版后按 `preview.sh` 工作流回归。

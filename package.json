@@ -10,9 +10,20 @@
     "audit:code": "node scripts/audit.mjs",
     "preview:calendar-data": "node scripts/refresh-calendar-events.mjs"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "chrome-extension",
+    "userscript",
+    "dark-theme",
+    "jisilu",
+    "manifest-v3"
+  ],
+  "author": "jim",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jluncc/jsl-ui-plugin.git"
+  },
+  "homepage": "https://github.com/jluncc/jsl-ui-plugin#readme",
   "devEngines": {
     "packageManager": {
       "name": "pnpm",

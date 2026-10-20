@@ -5,6 +5,10 @@ function init(): void {
   const enabledInput = document.getElementById('opt-enabled') as HTMLInputElement;
   const listInput = document.getElementById('opt-list') as HTMLInputElement;
   const detailInput = document.getElementById('opt-detail') as HTMLInputElement;
+  const versionLabel = document.getElementById('opt-version');
+
+  // 版本号从 manifest 读取，避免打包版本与设置页文案各自漂移
+  if (versionLabel) versionLabel.textContent = `v${chrome.runtime.getManifest().version}`;
 
   let current = { ...({} as Settings) };
 
