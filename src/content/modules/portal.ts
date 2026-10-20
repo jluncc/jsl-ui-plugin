@@ -4,7 +4,8 @@
  * 2. 文章标题条里的 A股温度/转债温度两只 echarts 温度计，移入左栏顶部「市场温度」区
  *    （用户定稿：置于投资日历上方；canvas 自带「A股温度 xx℃」文案，站方 indicator.js）
  * 3. 投资日历折叠开关移除（常开）
- * 4. 本周热点正文重排为竖排编号列表（原设计即竖排），标题条简化为区名「本周热点」
+ * 4. 本周热点正文重排为竖排编号列表（原设计即竖排）；标题条保留站方原文
+ *    （每天换题，不能写死区名）
  * 5. 文章卡尾部链接行只保留苹果APP/安卓APP/用户指引&常见问题，并入页脚法律链接行下方
  *
  * 与 scripts/preview.sh 的 sim 段是同一套 DOM 变换的 TS/JS 双实现，改这边必须同步那边。
@@ -205,8 +206,10 @@ function unfoldCalendar(): void {
 }
 
 /** 温度计文字（echarts detail，canvas 内绘制）下移：站方 offsetCenter [0,'35%']
- *  紧贴盘面，用户定稿多留一点空隙 → [0,'50%']；同时 gauge center 下移到 58%，
- *  盘面+文字整体在 canvas 里上下居中（默认 50% 时上方 2px/下方 14px 头重脚轻）。
+ *  紧贴盘面，用户定稿多留一点空隙 → [0,'50%']；gauge 圆心同步下移到 59%。
+ *  用站方同版 echarts 4.1.0 实测（100×80 canvas、radius 100%、刻度内伸）：
+ *  圆心 50% 时墨迹 y=0..65（上 0 / 下 14，头重脚轻），59%（cy≈47.2）时
+ *  y=7..72（上 7 / 下 7，严格居中）；58% 为 6/7.5，60% 为 8/6。
  *  echarts 由站方 AJAX 回包后才 init，轮询等实例就绪；dataset 标记防重复 setOption */
 function nudgeGaugeLabels(): void {
   if (!document.querySelector('.jsl-temp-panel')) return;
@@ -226,7 +229,7 @@ function nudgeGaugeLabels(): void {
         continue;
       }
       try {
-        inst.setOption({ series: [{ center: ['50%', '58%'], detail: { offsetCenter: [0, '50%'] } }] });
+        inst.setOption({ series: [{ center: ['50%', '59%'], detail: { offsetCenter: [0, '50%'] } }] });
         el.dataset.jslLabelOffset = '1';
       } catch {
         allDone = false;
@@ -243,7 +246,7 @@ function nudgeGaugeLabels(): void {
 
 /** 本周热点正文：站方 <br> 分隔的 4 条事件重排为竖排编号列表（原设计即竖排，
  *  双栏网格留白零碎，用户否决）。行高均分卡片剩余高度、1px 细线分隔，
- *  首条（当期头条）加重；标题条简化为区名「本周热点」——原标题就是首条事件，重复。
+ *  首条（当期头条）加重。标题条沿用站方原文（每日换题，不写死区名）。
  *  节点直接移动而非 innerHTML 重解析：更快，且保留站方绑在链接上的事件。 */
 function layoutInvestmentEvents(): void {
   const text = document.querySelector<HTMLElement>('.first_column .right .content .text');
@@ -309,11 +312,6 @@ function layoutInvestmentEvents(): void {
     list.appendChild(row);
   });
   text.replaceWith(list);
-
-  const titleLink = document.querySelector<HTMLAnchorElement>(
-    '.first_column .right .title_box .title a',
-  );
-  if (titleLink) titleLink.textContent = '本周热点';
   // 「全文>>」按钮：标题条仍可进入原帖，入口冗余（用户定稿移除）
   document.querySelector('.first_column .right .content .more')?.remove();
 }

@@ -317,7 +317,7 @@ sim = """
     });
 
     // 本周热点正文 → 竖排编号列表（与 portal.ts layoutInvestmentEvents 同步）：
-    // 4 条事件均分行高、细线分隔，标题条简化为区名「本周热点」
+    // 4 条事件均分行高、细线分隔；标题条保留站方原文（每日换题，不写死区名）
     var eventText = document.querySelector('.first_column .right .content .text');
     if (eventText && !eventText.querySelector('.jsl-event-list')) {
       var segments = [];
@@ -365,8 +365,7 @@ sim = """
         });
         eventText.replaceWith(list);
       }
-      var hotTitle = document.querySelector('.first_column .right .title_box .title a');
-      if (hotTitle) hotTitle.textContent = '本周热点';
+      // 标题条保留站方原文（每日换题）：此前写死「本周热点」被用户否掉
       // 「全文>>」按钮：标题条仍可进入原帖，入口冗余（与 portal.ts 同步移除）
       var moreBtn = document.querySelector('.first_column .right .content .more');
       if (moreBtn) moreBtn.remove();
@@ -466,18 +465,20 @@ sim = """
       ctx.save();
       ctx.scale(dpr, dpr);
       ctx.clearRect(0, 0, 100, 80);
-      // 盘面 center 58%（模拟 nudgeGaugeLabels 的 center ['50%','58%']，默认 50%
-      // 时上方 2px/下方 14px 头重脚轻）——cy=46 让盘面+文字整体上下居中
-      var cx = 50, cy = 46, r = 38;
+      // 盘面 center 59%（模拟 nudgeGaugeLabels 的 center ['50%','59%']）：
+      // 站方 radius:100% → r=40（80px 高 canvas），刻度/分隔线朝内画。
+      // 用站方同版 echarts 4.1.0 实测：cy=47.2 时墨迹 y=7..72，上下各留 7px。
+      var cx = 50, cy = 47.2, r = 40;
       var segs = [[0, '#00CCFF'], [0.25, '#468847'], [0.5, '#F89406'], [0.75, '#B94A48']];
       segs.forEach(function (s, idx) {
         var end = idx < segs.length - 1 ? segs[idx + 1][0] : 1;
         ctx.beginPath();
         ctx.strokeStyle = s[1];
-        ctx.lineWidth = 4;
+        ctx.lineWidth = 2;
         ctx.arc(cx, cy, r, Math.PI * (1 + s[0]), Math.PI * (1 + end));
         ctx.stroke();
       });
+      // 刻度朝内（站方 axisTick.length 6 / splitLine.length 10，方向同 echarts）
       segs.forEach(function (s) {
         [0, 0.5].forEach(function (off) {
           var frac = s[0] + off;
@@ -486,8 +487,8 @@ sim = """
           ctx.beginPath();
           ctx.strokeStyle = s[1];
           ctx.lineWidth = 1;
-          ctx.moveTo(cx + Math.cos(ang) * (r + 2), cy + Math.sin(ang) * (r + 2));
-          ctx.lineTo(cx + Math.cos(ang) * (r + 7), cy + Math.sin(ang) * (r + 7));
+          ctx.moveTo(cx + Math.cos(ang) * (r - 1), cy + Math.sin(ang) * (r - 1));
+          ctx.lineTo(cx + Math.cos(ang) * (r - 8), cy + Math.sin(ang) * (r - 8));
           ctx.stroke();
         });
       });
@@ -505,8 +506,10 @@ sim = """
       ctx.fillStyle = ink;
       ctx.font = '600 12px -apple-system, "PingFang SC", sans-serif';
       ctx.textAlign = 'center';
-      // 文字基线 cy+22：模拟 offsetCenter [0,'50%']（站方 35%），盘面与文字留出空隙
-      ctx.fillText(label + ' ' + value + '\u2103', cx, cy + 22);
+      // 文字垂直中心 cy+20：echarts detail offsetCenter [0,'50%'] 即 0.5×r=20px；
+      // 用 middle 基线（站方 canvas 也是 middle），墨迹底 ≈ cy+25 与真实渲染一致
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label + ' ' + value + '\u2103', cx, cy + 20);
       ctx.restore();
     });
     // 门户搜索框：curl 快照是服务端 HTML，站方 JS 运行时才构建表单（与真实站点结构一致）；

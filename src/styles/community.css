@@ -3013,7 +3013,9 @@ html.jsl.jsl-page-portal .first_column .left {
    温度计 canvas 自带「A股温度/转债温度 xx℃」文案（站方 indicator.js），无需文字标签 */
 html.jsl.jsl-page-portal .jsl-temp-panel .cells {
   display: flex;
-  padding: 10px 8px 12px;
+  /* 上下内衬对称：canvas 内墨迹已居中（portal.ts gauge center 64%），
+     再让格子上下留白相等，整组仪表盘在「市场温度」条与卡片下缘之间居中 */
+  padding: 10px 8px;
 }
 
 html.jsl.jsl-page-portal .jsl-temp-panel .cells > a {
