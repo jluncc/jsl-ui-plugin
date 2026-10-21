@@ -6,7 +6,7 @@
 
 ## 项目是什么
 
-为 [集思录](https://www.jisilu.cn/) 社区（WeCenter / Bootstrap 2 / jQuery 老站）做界面现代化的 Chrome MV3 扩展。零运行时依赖，TypeScript + tsup + pnpm。当前版本 0.7.0，已精修（登录态实测）：列表、详情、门户首页、登录注册、话题页/话题广场、我的收藏/我的首页、通知/私信/个人主页/设置（8 tab）、投资日历、搜索结果、实时数据页（Vue + Element UI）与旧版服务端数据页（新股/ETF/LOF/债券/转债详情/个股/持仓）。站点存在多套外壳：WeCenter 社区页（aw-* 组件）、门户新版自定义皮肤（960px 定宽，`jsl-page-portal`）、Vue + Element UI 数据页、旧版服务端数据页，样式与 DOM 增强必须分别适配。
+为 [集思录](https://www.jisilu.cn/) 社区（WeCenter / Bootstrap 2 / jQuery 老站）做界面现代化的 Chrome MV3 扩展。零运行时依赖，TypeScript + tsup + pnpm。当前版本 1.0.0，已精修（登录态实测）：列表、详情、门户首页、登录注册、话题页/话题广场、我的收藏/我的首页、通知/私信/个人主页/设置（8 tab）、投资日历、搜索结果、实时数据页（Vue + Element UI）与旧版服务端数据页（新股/ETF/LOF/债券/转债详情/个股/持仓）。站点存在多套外壳：WeCenter 社区页（aw-* 组件）、门户新版自定义皮肤（960px 定宽，`jsl-page-portal`）、Vue + Element UI 数据页、旧版服务端数据页，样式与 DOM 增强必须分别适配。
 
 ## 常用命令
 
