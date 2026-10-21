@@ -3,8 +3,6 @@ import { loadSettings, saveSettings, type Settings, type ThemeMode } from '../sh
 function init(): void {
   const seg = document.getElementById('theme-seg') as HTMLElement;
   const enabledInput = document.getElementById('opt-enabled') as HTMLInputElement;
-  const listInput = document.getElementById('opt-list') as HTMLInputElement;
-  const detailInput = document.getElementById('opt-detail') as HTMLInputElement;
   const versionLabel = document.getElementById('opt-version');
 
   // 版本号从 manifest 读取，避免打包版本与设置页文案各自漂移
@@ -24,8 +22,6 @@ function init(): void {
       button.classList.toggle('active', button.dataset.value === settings.themeMode);
     }
     enabledInput.checked = settings.enabled;
-    listInput.checked = settings.modernList;
-    detailInput.checked = settings.modernDetail;
   };
 
   const update = (patch: Partial<Settings>) => {
@@ -39,8 +35,6 @@ function init(): void {
     if (button) update({ themeMode: button.dataset.value as ThemeMode });
   });
   enabledInput.addEventListener('change', () => update({ enabled: enabledInput.checked }));
-  listInput.addEventListener('change', () => update({ modernList: listInput.checked }));
-  detailInput.addEventListener('change', () => update({ modernDetail: detailInput.checked }));
 
   void loadSettings().then(render);
 }
