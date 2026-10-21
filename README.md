@@ -6,15 +6,15 @@
 
 深浅两套主题共享同一布局，只换配色；顶栏的太阳 / 月亮按钮可随时切换。
 
-| ![门户首页 · 浅色](docs/screenshots/home-light.png) | ![门户首页 · 深色](docs/screenshots/home-dark.png) |
+| ![门户首页 · 浅色](docs/screenshots/home-light.webp) | ![门户首页 · 深色](docs/screenshots/home-dark.webp) |
 |-----------------------------------------------------|----------------------------------------------------|
 | **门户首页 · 浅色**                                 | **门户首页 · 深色**                                |
 
-| ![社区列表 · 浅色](docs/screenshots/list-light.png) | ![社区列表 · 深色](docs/screenshots/list-dark.png) |
+| ![社区列表 · 浅色](docs/screenshots/list-light.webp) | ![社区列表 · 深色](docs/screenshots/list-dark.webp) |
 |-----------------------------------------------------|----------------------------------------------------|
 | **社区列表 · 浅色**                                 | **社区列表 · 深色**                                |
 
-| ![帖子详情 · 浅色](docs/screenshots/detail-light.png) | ![帖子详情 · 深色](docs/screenshots/detail-dark.png) |
+| ![帖子详情 · 浅色](docs/screenshots/detail-light.webp) | ![帖子详情 · 深色](docs/screenshots/detail-dark.webp) |
 |-------------------------------------------------------|------------------------------------------------------|
 | **帖子详情 · 浅色**                                   | **帖子详情 · 深色**                                  |
 
