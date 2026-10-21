@@ -1,4 +1,4 @@
-# AGENTS.md · JSL Polish 开发指引
+# AGENTS.md · JSL UI Plugin 开发指引
 
 给后续接手本项目的 AI agent / 协作者。读完这页可以跳过大部分摸索成本——特别是「站方样式陷阱」一节，全部是实测踩坑结论。
 

@@ -134,7 +134,7 @@ if (cssBytes > BUDGET.cssTotal) {
 
 // ---- 报告 ----
 const kb = (n) => `${(n / 1024).toFixed(1)}KB`;
-console.log('JSL Polish · 非功能性体检\n');
+console.log('JSL UI Plugin · 非功能性体检\n');
 console.log(`源码: ${tsFiles.length} 个 TS 文件 / ${cssFiles.length} 个 CSS 文件`);
 console.log(`CSS 合计 ${kb(cssBytes)}（预算 ${kb(BUDGET.cssTotal)}）`);
 console.log(

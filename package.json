@@ -1,5 +1,5 @@
 {
-  "name": "jsl-polish",
+  "name": "jsl-ui-plugin",
   "version": "1.0.0",
   "description": "为集思录带来现代化界面的 Chrome 扩展",
   "scripts": {
@@ -8,6 +8,7 @@
     "lint": "eslint . && tsc --noEmit",
     "format": "prettier --write .",
     "audit:code": "node scripts/audit.mjs",
+    "package": "pnpm build && node scripts/package.mjs",
     "preview:calendar-data": "node scripts/refresh-calendar-events.mjs"
   },
   "keywords": [

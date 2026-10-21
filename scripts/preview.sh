@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 生成本地预览页：集思录页面快照 + JSL Polish 样式，用于无头 Chrome 截图验收。
+# 生成本地预览页：集思录页面快照 + JSL UI Plugin 样式，用于无头 Chrome 截图验收。
 # 用法: ./scripts/preview.sh <快照html> <输出名> [light|dark]
 set -euo pipefail
 
