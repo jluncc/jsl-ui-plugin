@@ -1,6 +1,10 @@
 # JSL UI Plugin · 集思录现代化
 
+**[→ Chrome 应用商店安装](https://chromewebstore.google.com/detail/afnbehbabioihfmcaelfmambmleefnnl)** · 当前版本 **1.0.0**
+
 为 [集思录](https://www.jisilu.cn/) 社区做的界面现代化 Chrome 扩展：统一深浅双主题、卡片语言与阅读排版，不改变站方功能。思路致敬 [V2EX_Polish](https://github.com/coolpace/V2EX_Polish)。
+
+> **非官方项目**：与集思录站方无隶属或合作关系。扩展只做样式与轻量 DOM 增强，样式依赖站方页面结构，站点改版后个别页面可能需要跟进适配。
 
 ## 截图
 
@@ -30,7 +34,15 @@
 
 ## 安装
 
-扩展尚未上架 Chrome Web Store(进行中)，目前从源码构建：
+### 从 Chrome 应用商店安装（推荐）
+
+[**→ 在 Chrome 应用商店打开 JSL UI Plugin**](https://chromewebstore.google.com/detail/afnbehbabioihfmcaelfmambmleefnnl)
+
+点击「添加至 Chrome」即可，扩展会在后台自动更新。装好后打开 [集思录](https://www.jisilu.cn/) 就能看到效果，点击工具栏图标进入设置页。
+
+### 从源码构建（开发者）
+
+适合想跟进未发布改动或自行修改的情况：
 
 ```bash
 git clone https://github.com/jluncc/jsl-ui-plugin.git
@@ -68,6 +80,7 @@ pnpm build
 ```bash
 pnpm dev         # watch 构建，改完在 chrome://extensions/ 点刷新 + 刷新网页
 pnpm build       # 构建 dist/
+pnpm package     # 构建并打包成可上传商店的 release/jsl-ui-plugin-<version>.zip
 pnpm lint        # eslint + tsc --noEmit
 pnpm format      # prettier
 pnpm audit:code  # 零依赖源码体检（危险 API / XSS 面 / CSS 冗余 / 体积预算）
@@ -79,6 +92,7 @@ pnpm audit:code  # 零依赖源码体检（危险 API / XSS 面 / CSS 冗余 / �
 ├── static/                  # manifest.json、options.html、图标；构建时原样复制进 dist/
 ├── scripts/
 │   ├── audit.mjs            # 非功能性体检
+│   ├── package.mjs          # 打包 dist/ 为商店上传用 zip
 │   ├── preview.sh           # 页面快照 + 扩展样式 → 本地预览页
 │   ├── diagnose.sh          # 预览页几何诊断
 │   └── refresh-calendar-events.mjs
@@ -91,7 +105,9 @@ pnpm audit:code  # 零依赖源码体检（危险 API / XSS 面 / CSS 冗余 / �
 │   ├── background/          # 点击工具栏图标打开设置页
 │   ├── shared/settings.ts   # 设置 schema + chrome.storage / localStorage 镜像
 │   └── styles/              # tokens.css → global.css → community.css
+├── docs/screenshots/        # README 截图（WebP）
 ├── dist/                    # pnpm build 产物（不入库）
+├── PRIVACY.md               # 隐私政策（商店申报引用）
 └── AGENTS.md                # 项目笔记、站方样式陷阱与验收流程
 ```
 
