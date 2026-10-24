@@ -1,6 +1,6 @@
 # JSL UI Plugin · 集思录现代化
 
-**[→ Chrome 应用商店安装](https://chromewebstore.google.com/detail/afnbehbabioihfmcaelfmambmleefnnl)** · 当前版本 **1.0.0**
+**[→ Chrome 应用商店安装](https://chromewebstore.google.com/detail/afnbehbabioihfmcaelfmambmleefnnl)** · 当前版本 **1.0.1**
 
 为 [集思录](https://www.jisilu.cn/) 社区做的界面现代化 Chrome 扩展：统一深浅双主题、卡片语言与阅读排版，不改变站方功能。思路致敬 [V2EX_Polish](https://github.com/coolpace/V2EX_Polish)。
 
