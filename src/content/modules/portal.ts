@@ -78,9 +78,13 @@ function stripPopoverHeader(menu: HTMLElement): void {
 }
 
 /** 「发起」入口：header 搜索框右侧（与列表页「发起」按钮同位同款）。
- *  登录态从弹窗菜单搬运并删除菜单项；匿名态弹窗不存在，直接补按钮——
- *  列表页匿名态本就有「发起」，三页 header 保持一致 */
+ *  仅登录态注入（2026-10-24 用户定稿：未登录点「发起」只会弹站方登录框，
+ *  右簇的登录/注册已足够）——登录态从弹窗菜单搬运并删除菜单项。
+ *  登录判定用 .user_icon（登录态才有；门户未登录也渲染 .user_box，不能用）。
+ *  门户/数据页的用户区都由站方 JS 晚渲染：DCL 首轮可能误判未登录而跳过，
+ *  由 repolishHeaderLater（1200/2500ms）与数据页 settle 监听补跑（幂等） */
 export function movePublishToHeader(): void {
+  if (!document.querySelector('.header_navbar_content .user_icon')) return;
   const search = document.querySelector(
     '.header_navbar_content .search_box, .header_navbar_content .search',
   );

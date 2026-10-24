@@ -64,6 +64,28 @@ if "data_content" in html and "header_subnavbar_bg" in html and "wrapper_content
 sim = """
 <script>
 (function () {
+  // markAnonFlag（与 index.ts 同步）：未登录挂 jsl-anon——
+  // 社区壳隐藏站方「发起」、日历页隐藏搜索框（CSS 侧 .jsl-anon 规则）；
+  // 门户外壳 user_box 定宽（站方 270px!important，样式层压不动）——把登录/注册
+  // 组搬出定宽容器挂到 .flex 末尾（与数据页右簇同构），空壳隐藏，月亮/搜索框
+  // 与登录/注册 gap 10 连续右聚。判定无法用 :has 表达
+  // （:has 内嵌 :has 非法，整条规则被浏览器静默丢弃）
+  (function () {
+    var moved = !!document.querySelector('[data-jsl-moved]');
+    var communityAnon = document.querySelector('.aw-login-register') && !document.querySelector('.aw-login-register .aw-logined-nav');
+    var portalAnon = !!document.querySelector('.user_box .not_logged_in, .not_login');
+    var anon = !!(moved || communityAnon || portalAnon);
+    document.documentElement.classList.toggle('jsl-anon', anon);
+    if (!anon || moved) return;
+    var flex = document.querySelector('.header_navbar_content > .flex');
+    var groupBox = document.querySelector('.header_navbar_content .user_box .not_logged_in');
+    if (flex && groupBox && !groupBox.hasAttribute('data-jsl-moved')) {
+      groupBox.setAttribute('data-jsl-moved', '1');
+      flex.appendChild(groupBox);
+      var ub = document.querySelector('.header_navbar_content .user_box');
+      if (ub) ub.style.setProperty('display', 'none', 'important');
+    }
+  })();
   // polishHeaderLinks：清理「»首 页」装饰；「首页」入口去掉（logo 即首页）、「社区-知识库」简化为「社区」
   document.querySelectorAll('.span6.aw-logo > a[href]:not(:first-child)').forEach(function (link) {
     var text = (link.textContent || '').replace(/»/g, '').replace(/\\s+/g, '');
@@ -96,7 +118,9 @@ sim = """
   var portalSearchBox = document.querySelector('.header_navbar_content .search_box, .header_navbar_content .search');
   var injectTarget = communityWrap || portalSearchBox;
   var injectAfter = !communityWrap && portalSearchBox;
-  if (injectTarget && !injectTarget.querySelector('.jsl-theme-toggle')) {
+  // 幂等守卫必须全局查（与 theme-toggle.ts 一致）：门户页按钮插在 search_box
+  // 之后（header 直接子级），只查 injectTarget 内部会漏检、延时重跑时重复注入
+  if (injectTarget && !document.querySelector('.jsl-theme-toggle')) {
     var SUN = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>';
     var MOON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
     var b = document.createElement('button');
@@ -525,12 +549,15 @@ sim = """
         '<span class="jisilu-icons">&#xe718;</span></button></span>' +
         '</div></form>';
     }
-    // 「发起」入口移到 header 搜索框右侧（与 portal.ts movePublishToHeader 同步），
-    // 登录态弹窗菜单里的按钮项移除；匿名态弹窗不存在时也补按钮（三页 header 一致）
+    // 「发起」入口移到 header 搜索框右侧（与 portal.ts movePublishToHeader 同步）。
+    // 仅登录态注入（2026-10-24 定稿：未登录点「发起」只会弹站方登录框）；
+    // 日历/搜索/登录等门户外壳页登录态同样注入（与真实扩展一致）。
+    // 登录判据 = .user_icon（门户未登录也渲染 .user_box，不能用）
+    var loggedIn = !!document.querySelector('.header_navbar_content .user_icon');
     var pMenu = document.querySelector('.header_navbar_content .popover-menu');
     var searchBox = document.querySelector('.header_navbar_content .search_box, .header_navbar_content .search');
     var publishLink = pMenu ? pMenu.querySelector('a.btn[href="/publish/"]') : null;
-    if (searchBox && !(searchBox.parentElement && searchBox.parentElement.querySelector('.jsl-header-publish'))) {
+    if (loggedIn && searchBox && !(searchBox.parentElement && searchBox.parentElement.querySelector('.jsl-header-publish'))) {
       var pub = document.createElement('a');
       pub.className = 'jsl-header-publish';
       pub.href = '/publish/';

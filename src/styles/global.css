@@ -684,6 +684,21 @@ html.jsl.jsl-community .aw-nav .span2.aw-pulish {
   text-align: center;
 }
 
+/* 未登录隐藏站方「发起」（2026-10-24 用户定稿）：未登录点击只会弹站方登录框，
+   右簇收敛为 搜索框→主题切换→登录/注册（gap 10 右聚，与门户/数据页一致）。
+   标志类 jsl-anon 由内容脚本挂（index.ts markAnonFlag）——判定无法用
+   :has 表达（:has 内嵌 :has 非法，整条规则被浏览器静默丢弃） */
+html.jsl.jsl-anon .aw-nav .span2.aw-pulish {
+  display: none !important;
+}
+
+/* 未登录时登录/注册簇不再 flex:1 占满剩余空间——否则内部 p 的 auto margin
+   把按钮推到最右、主题切换按钮（order 3）与簇之间隔一段空隙。收缩后推右
+   责任交还搜索框的 margin-left:auto，右簇整条右聚（月亮紧挨登录/注册） */
+html.jsl.jsl-anon .span6.aw-login-register {
+  flex: 0 0 auto !important;
+}
+
 html.jsl.jsl-community .aw-pulish .b-start-question {
   display: inline-flex;
   align-items: center;

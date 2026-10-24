@@ -241,6 +241,47 @@ function isDataShellPage(): boolean {
   return c.contains('jsl-page-data') || c.contains('jsl-page-data-legacy');
 }
 
+/** 全站未登录标志（html.jsl-anon）：
+ *  - 社区壳：登录/注册簇存在且无 .aw-logined-nav（登录态才渲染通知/私信/用户名）
+ *    → 隐藏站方「发起」（未登录点击只会弹站方登录框）
+ *  - 门户外壳（日历等）：站方未登录结构 .not_logged_in 存在 → 隐藏搜索框
+ *    （CSS 侧 .jsl-anon.jsl-page-calendar 规则，与登录页同款）
+ *  不能用 CSS :has 表达——:has() 里嵌套 :has() 是非法选择器，整条规则会被
+ *  浏览器静默丢弃（实测连 CSSOM 都进不去）。社区页是服务端渲染，DCL 即确定；
+ *  数据页的 .not_login 由 Vue 晚渲染，settle 监听与 repolishHeaderLater 兜底重挂 */
+function markAnonFlag(): void {
+  // 已搬移的登录/注册组（data-jsl-moved）是匿名态的持久化证据——判定条件若只看
+  // .user_box .not_logged_in，搬移后重跑会误判回登录态、jsl-anon 被摘、
+  // 日历页搜索框等匿名规则全部复活
+  const moved = !!document.querySelector('[data-jsl-moved]');
+  const anonymous =
+    moved ||
+    (!!document.querySelector('.aw-login-register') &&
+      !document.querySelector('.aw-login-register .aw-logined-nav')) ||
+    !!document.querySelector('.user_box .not_logged_in, .not_login');
+  document.documentElement.classList.toggle('jsl-anon', anonymous);
+  // 门户外壳 user_box：站方定宽（width 270px!important 起步，实测布局 215px）+
+  // space-between 为登录态通知/私信/用户区预留，样式层（含内联 !important 的
+  // width/flex/min-width）全部压不动——未登录时月亮与登录/注册之间隔 100px 空白。
+  // DOM 方案：把登录/注册组搬出定宽容器、挂到 .flex 直接子级（与数据页右簇
+  // 同构，flex 收缩后 [搜索][月亮][登录][注册] gap 10 右聚贴右缘），空壳隐藏。
+  // 登录态不搬（登录是整页跳转，无 SPA 内切换，无需还原路径）
+  if (anonymous && !moved) {
+    const flex = document.querySelector('.header_navbar_content > .flex');
+    const groupBox = document.querySelector(
+      '.header_navbar_content .user_box .not_logged_in',
+    );
+    if (flex && groupBox) {
+      groupBox.setAttribute('data-jsl-moved', '1');
+      flex.appendChild(groupBox);
+      const userBox = document.querySelector<HTMLElement>(
+        '.header_navbar_content .user_box',
+      );
+      if (userBox) userBox.style.setProperty('display', 'none', 'important');
+    }
+  }
+}
+
 /** 数据页 popper（挂 body 下）右缘对齐触发按钮，幂等。 */
 let dataPagePopperWatcherStarted = false;
 
@@ -471,6 +512,7 @@ function watchDataShellSettle(): void {
     if (isDataShellPage()) {
       injectThemeToggle();
       movePublishToHeader();
+      markAnonFlag();
       enhanceHeaderPopover();
       reorganizePortalFooter();
       alignDataPagePoppers();
@@ -501,12 +543,16 @@ function watchDataShellSettle(): void {
 schedulePageFlags();
 
 /** 顶栏文案/菜单的廉价兜底复检（站方部分导航由 jQuery 异步渲染）。
- *  只查 3 个轻选择器，不像数据页 settle 那样全量增强——任何页面都能安全跑。 */
+ *  只查 4 个轻选择器，不像数据页 settle 那样全量增强——任何页面都能安全跑。 */
 function repolishHeaderLater(): void {
   const run = () => {
     polishHeaderLinks();
     polishPortalNav();
     reorderUserNavMenu();
+    markAnonFlag();
+    // 「发起」仅登录态注入；门户用户区（.user_icon）由站方 JS 晚渲染，
+    // DCL 首轮可能误判未登录——这里补跑（movePublishToHeader 幂等且极轻）
+    movePublishToHeader();
   };
   window.setTimeout(run, 1200);
   window.setTimeout(run, 2500);
@@ -517,6 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
   polishHeaderLinks();
   polishPortalNav();
   reorderUserNavMenu();
+  markAnonFlag();
   injectThemeToggle();
   // 门户/日历/数据页共用同一套 header：用户弹窗同样要整理（首页分支内部也会再调一次）
   if (document.querySelector('.header_navbar_content .popover-menu')) enhanceHeaderPopover();
